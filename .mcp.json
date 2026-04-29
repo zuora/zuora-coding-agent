@@ -1,0 +1,11 @@
+{
+  "zuora-mcp": {
+    "command": "npx",
+    "args": ["-y", "zuora-mcp@latest"],
+    "env": {
+      "ZUORA_BASE_URL": "${ZUORA_BASE_URL}",
+      "ZUORA_CLIENT_ID": "${ZUORA_CLIENT_ID}",
+      "ZUORA_CLIENT_SECRET": "${ZUORA_CLIENT_SECRET}"
+    }
+  }
+}

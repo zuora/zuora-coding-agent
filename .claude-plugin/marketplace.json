@@ -1,0 +1,20 @@
+{
+  "name": "zuora-devex",
+  "description": "Zuora Developer Experience plugin registry",
+  "owner": {
+    "name": "Zuora Engineering",
+    "email": "developer@zuora.com"
+  },
+  "plugins": [
+    {
+      "name": "zuora-coding-agent",
+      "description": "Zuora development assistant for API integrations, workflow automation, migrations, template design, and best-practice validation. Powered by zuora-mcp.",
+      "version": "1.0.0",
+      "source": ".",
+      "author": {
+        "name": "Zuora",
+        "email": "support@zuora.com"
+      }
+    }
+  ]
+}

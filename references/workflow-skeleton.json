@@ -1,0 +1,53 @@
+{
+  "$description": "Canonical empty Zuora Workflow envelope accepted by Workflow::Setup.import. Every generated workflow starts as a deep-clone of this object. NOTES: (1) An emitted workflow must always carry >= 1 task and >= 1 Start linkage - tasks: [] or linkages: [] causes Rails to raise 'No tasks/linkages present in import payload'. (2) workflow.parameters has a fully-shaped default (not bare {}) because the React settings UI persists these keys (workflows_controller.rb#workflow_params L706-777). (3) workflow.notifications has a fully-shaped default because Workflow#cast (workflow.rb L188-216) reads each key. (4) ui_trigger is intentionally OMITTED - it is NOT a column on the workflows table (db/schema.rb L432-508) and Workflow::Setup.import slices the input against Workflow.column_names (workflow/setup.rb L417), silently dropping unknown keys.",
+  "workflow_definition": {
+    "name": "Workflow",
+    "description": "",
+    "category": "Default",
+    "ui_page_roles": []
+  },
+  "workflow": {
+    "id": 1,
+    "name": "Workflow",
+    "description": "",
+    "parameters": {
+      "fields": [],
+      "entity_name": null,
+      "entity_id": null,
+      "skipping_check": "db",
+      "file_encryption": "false",
+      "secure_error_msgs": "false",
+      "show_run_prompt": null,
+      "callout_response": "workflow instance"
+    },
+    "data": {},
+    "type": "Workflow::Setup",
+    "ondemand_trigger": true,
+    "callout_trigger": false,
+    "scheduled_trigger": false,
+    "event_trigger": false,
+    "interval": null,
+    "timezone": null,
+    "status": "Inactive",
+    "css": { "top": "40px", "left": "35px" },
+    "notifications": {
+      "emails": [],
+      "failure": false,
+      "success": false,
+      "pending": false,
+      "skipped_scheduled_run": false,
+      "error_ignore": ""
+    },
+    "call_type": "BATCH",
+    "priority": "Medium",
+    "delete_ttl": 30,
+    "version": "0.0.1",
+    "ui_pages": {},
+    "solution_id": null,
+    "extension_id": null,
+    "zuora_org_id": null,
+    "zuora_org_ids": []
+  },
+  "tasks": [],
+  "linkages": []
+}

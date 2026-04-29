@@ -1,0 +1,366 @@
+{
+  "$description": "Static fallback catalog of standard, non-custom Zuora SOAP/ZOQL object fields. Used by the workflow build skill (Step 3a) and the linter (W177 undeclared-describe-field) when live tenant describe is unavailable. NEVER includes custom fields (*__c) -- those must come from MCP describe or user confirmation. The data is conservative: only fields documented in Zuora's public SOAP API docs that are stable across tenants.",
+  "$source": "Zuora SOAP API reference (Object Reference) and ZOQL describe endpoints, snapshot 2025-Q1. Audit periodically against https://developer.zuora.com/api-references/api/.",
+  "$usage": {
+    "lookup": "objects.<ObjectName>.fields[]",
+    "join": "objects.<ObjectName>.related_objects[] -- list of dot-prefixable joinable objects in ZOQL SELECT (e.g. 'Subscription.Account.Name')",
+    "linter_rule": "W177 (undeclared-describe-field): when parameters.fields[<object>] or parameters.fields[<object>].<FieldName> is not in MCP describe AND not in this catalog, emit W177. Downgrade to notice when MCP was unreachable."
+  },
+  "$conventions": {
+    "field_case": "Pascal-case (e.g. AccountId), matching SOAP API serialization. ZOQL is case-insensitive but the agent should preserve PascalCase for clarity.",
+    "id_field": "Every standard object exposes an 'Id' (string) plus 'CreatedDate', 'UpdatedDate', 'CreatedById', 'UpdatedById' audit fields. Listed once in $audit_fields and inherited.",
+    "currency_fields": "All money-typed fields are decimals with 2dp scale. ZOQL returns them as strings -- cast via Liquid `| times: 1` if you need numeric math."
+  },
+
+  "$audit_fields": ["Id", "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"],
+
+  "$event_base_objects": {
+    "$description": "Mirror of app/javascript/components/WorkflowDefinitionForm.js#defaultEvents. Maps a Zuora notifications event category (the value of workflow.parameters.event_triggers[]) to the `baseObject` the notifications service uses for the default dropdown population. Linter rule E177 uses this map to validate that `workflow.parameters.event_parameters[].params[].value` tokens of the form `<BaseObject.Field>` carry a BaseObject name that actually matches the selected event.",
+    "$source": "workflow/rails/app/javascript/components/WorkflowDefinitionForm.js lines 150-218. Commented-out (inactive) events are omitted.",
+    "$caveat": "The base object fixes the *naming convention* for the merge-field dropdown, but the concrete keyspace that actually resolves at runtime is determined by the live /notifications/email-templates/info/selections?category={category} response for the current tenant. Always describe before committing a token.",
+    "events": {
+      "AmendmentProcessed": "Amendment",
+      "AquaNotification": "Aqua",
+      "BillingRunCompletion": "BillingRun",
+      "BillingRunPosted": "BillingRun",
+      "CreditBalanceRefundProcessed": "Refund",
+      "CreditMemoCreated": "CreditMemo",
+      "CreditMemoPosted": "CreditMemo",
+      "CreditMemoRefundProcessed": "Refund",
+      "DataSourceOutputCompletion": "DataSource",
+      "DebitMemoCreated": "DebitMemo",
+      "DebitMemoPosted": "DebitMemo",
+      "EmailCreditMemo": "CreditMemo",
+      "EmailDebitMemo": "DebitMemo",
+      "GatewayReconciliation": "Payment",
+      "InvoiceDue": "Invoice",
+      "InvoicePosted": "Invoice",
+      "InvoicesPastDueAccountSummary": "Account",
+      "JournalRunCompletion": "JournalRun",
+      "KeyDates": "Subscription",
+      "ManualEmailForInvoice": "Invoice",
+      "ManualEmailForPayment": "Payment",
+      "PaymentDeclined": "Payment",
+      "PaymentMethodClosed": "PaymentMethod",
+      "PaymentMethodExpiration": "PaymentMethod",
+      "PaymentMethodUpdated": "PaymentMethod",
+      "PaymentMethodUpdaterBatchCompleted": "PaymentMethodUpdater",
+      "PaymentMethodUpdaterBatchStarted": "PaymentMethodUpdater",
+      "PaymentProcessed": "Payment",
+      "PaymentRefundProcessed": "Refund",
+      "PaymentRunCompletion": "Payment",
+      "SubscriptionCreated": "Subscription",
+      "TrialBalanceCompletion": "AccountingPeriod",
+      "UpcomingRenewal": "Subscription"
+    }
+  },
+
+  "$event_special_tokens": {
+    "$description": "Angle-bracket tokens that are resolved by workflow/rails/app/models/business_event.rb (lines 143-185) without consulting the notifications payload keyspace. Linter rule E177 always permits these regardless of event category.",
+    "$source": "workflow/rails/app/models/business_event.rb#L143-L185",
+    "tokens": [
+      "<Event.Category>",
+      "<Event.Date>",
+      "<Event.Timestamp>",
+      "<Functions.Today>",
+      "<Tenant.ID>",
+      "<Tenant.Name>"
+    ],
+    "$payload_token_shape": "For any other token `<Something>` Rails strips the angle brackets and optionally a leading `DataSource.` or `Event.` prefix, then uses the remainder as a literal Avro payload key. The keyspace of the payload is determined by the notifications platform for the given event category (call /notifications/email-templates/info/selections?category={category} via mcp__zuora-mcp__ask_zuora to enumerate it). Tokens may therefore legitimately take forms like `<BillingRun.Id>`, `<DataSource.SomeField>`, `<Event.OCP_OBJECT_ID>`, `<Process.Id>`, depending on what the notifications service publishes."
+  },
+
+  "objects": {
+    "Account": {
+      "fields": [
+        "Id", "AccountNumber", "Name", "Status", "Currency", "PaymentTerm", "PaymentGateway",
+        "Batch", "Balance", "CreditBalance", "TotalInvoiceBalance", "BillCycleDay",
+        "AutoPay", "AllowInvoiceEdit", "Notes", "ParentId", "PurchaseOrderNumber",
+        "BcdSettingOption", "InvoiceTemplateId", "CommunicationProfileId",
+        "BillToId", "SoldToId", "DefaultPaymentMethodId", "TaxCompanyCode", "TaxExemptStatus",
+        "VATId", "Mrr", "LastInvoiceDate", "AdditionalEmailAddresses",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["BillTo", "SoldTo", "DefaultPaymentMethod", "ParentAccount"]
+    },
+
+    "Contact": {
+      "fields": [
+        "Id", "AccountId", "FirstName", "LastName", "Address1", "Address2", "City", "State",
+        "PostalCode", "Country", "WorkEmail", "PersonalEmail", "WorkPhone", "MobilePhone",
+        "HomePhone", "OtherPhone", "OtherPhoneType", "Fax", "TaxRegion", "Description", "NickName",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account"]
+    },
+
+    "Subscription": {
+      "fields": [
+        "Id", "Name", "SubscriptionNumber", "AccountId", "Status", "Version",
+        "TermStartDate", "TermEndDate",
+        "ContractEffectiveDate", "ServiceActivationDate", "CustomerAcceptanceDate",
+        "SubscriptionStartDate", "SubscriptionEndDate", "InitialTerm", "RenewalTerm",
+        "InitialTermPeriodType", "RenewalTermPeriodType",
+        "RenewalSetting", "TermType", "AutoRenew", "IsLatestVersion",
+        "Notes", "OriginalId", "PreviousSubscriptionId",
+        "CancelledDate", "ContractAcceptanceDate", "CurrentTerm", "CurrentTermPeriodType",
+        "CreatorAccountId", "CreatorInvoiceOwnerId", "InvoiceOwnerId", "Currency",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account", "InvoiceOwner", "OriginalSubscription", "PreviousSubscription"]
+    },
+
+    "RatePlan": {
+      "fields": [
+        "Id", "Name", "SubscriptionId", "ProductRatePlanId", "AmendmentType", "AmendmentId",
+        "AmendmentSubscriptionRatePlanId",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Subscription", "ProductRatePlan", "Amendment"]
+    },
+
+    "RatePlanCharge": {
+      "fields": [
+        "Id", "Name", "Description", "RatePlanId", "ProductRatePlanChargeId", "ChargeType",
+        "ChargeNumber", "ChargeModel", "BillingPeriod", "BillCycleDay", "BillCycleType",
+        "BillingPeriodAlignment", "BillingTiming", "Quantity", "MRR", "TCV", "TCB",
+        "Price", "ListPrice", "PriceChangeOption", "PriceIncreasePercentage",
+        "EffectiveStartDate", "EffectiveEndDate", "ChargedThroughDate", "ProcessedThroughDate",
+        "TriggerEvent", "TriggerDate", "Segment", "Version", "OriginalId",
+        "DiscountClass", "DiscountLevel", "DiscountAmount", "DiscountPercentage",
+        "DMRC", "DTCV", "RevenueRecognitionRuleName", "TaxCode", "TaxMode", "Taxable",
+        "UOM", "AccountingCode", "DeferredRevenueAccountingCode", "RecognizedRevenueAccountingCode",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["RatePlan", "ProductRatePlanCharge"]
+    },
+
+    "Invoice": {
+      "fields": [
+        "Id", "InvoiceNumber", "AccountId", "Status", "InvoiceDate", "DueDate", "TargetDate",
+        "PostedDate", "PostedBy", "Amount", "AmountWithoutTax", "Balance", "TaxAmount",
+        "PaymentAmount", "RefundAmount", "AdjustmentAmount", "CreditBalanceAdjustmentAmount",
+        "Currency", "Comments", "Source", "SourceId", "SourceType", "TransferredToAccounting", "AutoPay",
+        "InvoiceTemplateId", "TemplateId", "RegenerateInvoicePdf", "Body", "DueAmount",
+        "BillRunId", "BillToContactId", "BillToContactSnapshotId", "SoldToContactSnapshotId",
+        "IncludesOneTime", "IncludesRecurring", "IncludesUsage", "Reversed", "Number",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account", "InvoiceTemplate", "BillingRun"]
+    },
+
+    "InvoiceItem": {
+      "fields": [
+        "Id", "InvoiceId", "AccountId", "AccountingCode", "AppliedToInvoiceItemId", "ChargeAmount",
+        "ChargeDate", "ChargeName", "Quantity", "ServiceStartDate", "ServiceEndDate",
+        "SKU", "SubscriptionId", "SubscriptionNumber", "TaxAmount", "TaxCode", "TaxExemptAmount",
+        "TaxMode", "UnitPrice", "UOM", "RatePlanChargeId", "ProductId", "ProductName",
+        "ProductRatePlanChargeId", "ProcessingType",
+        "RevRecCode", "DeferredRevenueAccountingCode", "RecognizedRevenueAccountingCode",
+        "Balance", "PaymentAmount", "RefundAmount", "AdjustmentAmount",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Invoice", "Subscription", "RatePlanCharge", "Product"]
+    },
+
+    "InvoiceItemAdjustment": {
+      "fields": [
+        "Id", "AccountId", "AccountingCode", "AdjustmentDate", "AdjustmentNumber",
+        "Amount", "CancelledById", "CancelledOn", "Comment", "InvoiceId",
+        "InvoiceItemName", "InvoiceNumber", "ReasonCode", "ReferenceId", "ServiceEndDate",
+        "ServiceStartDate", "SourceId", "SourceType", "Status", "Type",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account", "Invoice"]
+    },
+
+    "Payment": {
+      "fields": [
+        "Id", "PaymentNumber", "AccountId", "Amount", "AmountPaid", "BankIdentificationNumber",
+        "Comment", "EffectiveDate", "GatewayResponse", "GatewayResponseCode", "GatewayState",
+        "PaymentMethodId", "ReferenceId", "SecondPaymentReferenceId", "Source", "Status", "Type",
+        "AppliedAmount", "RefundAmount", "UnappliedAmount", "Currency", "AuthTransactionId",
+        "PaidInvoicesCount", "MarkedForSubmissionOn", "SubmittedOn", "SettledOn", "TransferredToAccounting",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account", "PaymentMethod"]
+    },
+
+    "PaymentMethod": {
+      "fields": [
+        "Id", "AccountId", "Type", "PaymentMethodStatus", "Active", "DeviceSessionId",
+        "ExistingMandate", "IPAddress", "MandateCreationDate", "MandateID", "MandateReceived",
+        "MandateUpdateDate", "TokenId", "SecondTokenId", "AchAbaCode", "AchAccountName",
+        "AchAccountNumberMask", "AchAccountType", "AchBankName", "BankCode", "BankIdentificationNumber",
+        "BankName", "BankBranchCode", "CreditCardAddress1", "CreditCardAddress2", "CreditCardCity",
+        "CreditCardState", "CreditCardCountry", "CreditCardPostalCode", "CreditCardHolderName",
+        "CreditCardExpirationMonth", "CreditCardExpirationYear", "CreditCardMaskNumber", "CreditCardType",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account"]
+    },
+
+    "CreditMemo": {
+      "fields": [
+        "Id", "Number", "AccountId", "Status", "Amount", "Balance", "TaxAmount", "TotalTaxExemptAmount",
+        "RefundAmount", "AppliedAmount", "UnappliedAmount", "Comment", "Currency", "InvoiceGroupNumber",
+        "MemoDate", "PostedById", "PostedOn", "ReasonCode", "ReferredCreditMemoId", "ReferredInvoiceId",
+        "Source", "SourceId", "SourceType", "TargetDate", "TransferredToAccounting", "ExcludeFromAutoApplyRules",
+        "AutoApplyUponPosting", "AutoApplyToSubsequentInvoiceUponPosting",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account"]
+    },
+
+    "DebitMemo": {
+      "fields": [
+        "Id", "Number", "AccountId", "Status", "Amount", "Balance", "TaxAmount", "TotalTaxExemptAmount",
+        "Comment", "Currency", "DueDate", "InvoiceGroupNumber", "MemoDate", "PostedById", "PostedOn",
+        "ReasonCode", "ReferredCreditMemoId", "ReferredInvoiceId", "Source", "SourceId", "SourceType",
+        "TargetDate", "TransferredToAccounting",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account"]
+    },
+
+    "Refund": {
+      "fields": [
+        "Id", "RefundNumber", "AccountId", "Amount", "Comment", "GatewayResponse", "GatewayResponseCode",
+        "GatewayState", "MethodType", "PaymentMethodId", "PaymentId", "ReasonCode", "ReferenceId",
+        "SecondRefundReferenceId", "SettledOn", "SoftDescriptor", "SoftDescriptorPhone", "Source",
+        "Status", "SubmittedOn", "TransferredToAccounting", "Type", "RefundDate", "Currency",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account", "Payment", "PaymentMethod"]
+    },
+
+    "Amendment": {
+      "fields": [
+        "Id", "Name", "Code", "SubscriptionId", "Type", "Status", "Description",
+        "EffectiveDate", "ContractEffectiveDate", "CustomerAcceptanceDate", "ServiceActivationDate",
+        "TermStartDate", "BookingDate", "AutoRenew", "RenewalSetting", "RenewalTerm",
+        "RenewalTermPeriodType", "TermType", "CurrentTerm", "CurrentTermPeriodType", "BaseSubscriptionVersion",
+        "NewSubscriptionId", "AmendmentSubscriptionRatePlanId",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Subscription", "NewSubscription"]
+    },
+
+    "Product": {
+      "fields": [
+        "Id", "Name", "SKU", "Description", "Category", "EffectiveStartDate", "EffectiveEndDate",
+        "AllowFeatureChanges",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": []
+    },
+
+    "ProductRatePlan": {
+      "fields": [
+        "Id", "Name", "Description", "ProductId", "Status", "EffectiveStartDate", "EffectiveEndDate",
+        "ActiveCurrencies", "Grade",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Product"]
+    },
+
+    "ProductRatePlanCharge": {
+      "fields": [
+        "Id", "Name", "Description", "ProductRatePlanId", "ChargeType", "ChargeModelConfiguration",
+        "ChargeModel", "BillingPeriod", "BillCycleDay", "BillCycleType", "BillingPeriodAlignment",
+        "BillingTiming", "DefaultQuantity", "MaxQuantity", "MinQuantity", "PriceChangeOption",
+        "PriceIncreasePercentage", "PriceUpsellQuantityStacked", "RevRecCode", "RevenueRecognitionRuleName",
+        "RecognizedRevenueAccountingCode", "DeferredRevenueAccountingCode", "AccountingCode",
+        "TaxCode", "TaxMode", "Taxable", "TriggerEvent", "UOM", "UseDiscountSpecificAccountingCode",
+        "EndDateCondition", "UpToPeriods", "UpToPeriodsType", "DiscountClass", "DiscountLevel",
+        "ListPriceBase", "SmoothingModel", "PriceFormula", "Prorate",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["ProductRatePlan", "Product"]
+    },
+
+    "ProductRatePlanChargeTier": {
+      "fields": [
+        "Id", "ProductRatePlanChargeId", "Currency", "Price", "PriceFormat", "DiscountAmount",
+        "DiscountPercentage", "EndingUnit", "StartingUnit", "Tier", "Active",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["ProductRatePlanCharge"]
+    },
+
+    "RatePlanChargeTier": {
+      "fields": [
+        "Id", "RatePlanChargeId", "Currency", "Price", "PriceFormat", "DiscountAmount",
+        "DiscountPercentage", "EndingUnit", "StartingUnit", "Tier",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["RatePlanCharge"]
+    },
+
+    "Order": {
+      "fields": [
+        "Id", "OrderNumber", "AccountId", "BillToContactId", "SoldToContactId", "Description",
+        "ExistingAccountNumber", "OrderDate", "Status", "ProcessingState", "Notes",
+        "Category", "CurrencyConversionRate", "BatchAccountSettings", "BillingTrigger",
+        "TermType", "EffectiveDate", "InitialTermPeriodType", "RenewalTermPeriodType",
+        "ContractEffectiveDate", "ContractAcceptanceDate", "ServiceActivationDate", "CustomerAcceptanceDate",
+        "ContractStartDate",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account"]
+    },
+
+    "OrderAction": {
+      "fields": [
+        "Id", "OrderId", "SubscriptionId", "Type", "AutoRenew", "RenewalSetting", "RenewalTerm",
+        "RenewalTermPeriodType", "TermStartDate", "ContractEffectiveDate", "CustomerAcceptanceDate",
+        "ServiceActivationDate",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Order", "Subscription"]
+    },
+
+    "BillingPreviewRun": {
+      "fields": [
+        "Id", "AccountTypeToRun", "Batch", "ChargeTypeToExclude", "Currency",
+        "EndDate", "ErrorMessage", "FailedAccounts", "IncludingDraftItems", "IncludingEvergreenSubscriptions",
+        "InvoiceItemsCount", "ProcessedAccounts", "Status", "Succeeded", "TargetDate", "TotalAccounts",
+        "RunStartDate", "RunEndDate",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": []
+    },
+
+    "BillingRun": {
+      "$description": "Standard SOAP object (describe name 'BillingRun', aka BillRun). Base object for the BillingRunCompletion event (see $event_base_objects).",
+      "fields": [
+        "Id", "BillingRunNumber", "BillingRunType", "Status", "TargetType",
+        "StartDate", "EndDate", "InvoiceDate", "TargetDate", "ExecutedDate", "PostedDate", "TotalTime",
+        "NumberOfAccounts", "NumberOfInvoices", "NumberOfCreditMemos",
+        "ErrorMessage",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Invoice", "CreditMemo"]
+    },
+
+    "Usage": {
+      "fields": [
+        "Id", "AccountId", "AccountNumber", "AncestorAccountId", "ChargeId", "ChargeNumber",
+        "Description", "Quantity", "RbeStatus", "SourceName", "SourceType", "StartDateTime",
+        "EndDateTime", "SubmissionDateTime", "SubscriptionId", "SubscriptionNumber", "UOM",
+        "ImportId", "ProductRatePlanId", "ProductRatePlanChargeId",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["Account", "Subscription", "RatePlanCharge"]
+    },
+
+    "TaxationItem": {
+      "fields": [
+        "Id", "InvoiceItemId", "Name", "Exempt", "TaxAmount", "TaxCode", "TaxCodeDescription",
+        "TaxDate", "TaxRate", "TaxRateDescription", "TaxRateType", "Jurisdiction", "LocationCode",
+        "AccountingCode", "BalanceAdjustmentAmount", "PaymentAmount", "RefundAmount", "Balance",
+        "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"
+      ],
+      "related_objects": ["InvoiceItem"]
+    }
+  }
+}

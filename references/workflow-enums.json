@@ -1,0 +1,517 @@
+{
+  "$description": "Global enums and special rules shared across all Zuora Workflow tasks. Distilled from Task.action_type (app/models/task.rb L636-681), Workflow::Setup validations, Linkage model, and BusinessEvent.",
+
+  "action_types": [
+    "GraphQuery",
+    "Data::Aqua",
+    "Data::BillingPreviewRun",
+    "Data::Link",
+    "Data::Warehouse",
+    "Export",
+    "Query",
+    "If",
+    "Logic::Case",
+    "Iterate",
+    "Logic::Liquid",
+    "Logic::Lambda",
+    "Logic::CSVTranslator",
+    "Logic::XMLTransform",
+    "Logic::JSONTransform",
+    "Logic::ResponseFormatter",
+    "Logic::Merge",
+    "Script::JavaScript",
+    "UI::Page",
+    "UI::Stop",
+    "UI::WebShare",
+    "Create",
+    "Update",
+    "Delete",
+    "CustomObject::Create",
+    "CustomObject::Update",
+    "CustomObject::Delete",
+    "CustomObject::Query",
+    "Attachment",
+    "File::CustomPDF::CustomDocument",
+    "File::DownloadFile",
+    "File::ZuoraImport",
+    "File::FileOperations",
+    "File::FileStreamingUpload",
+    "File::BulkDataLoader",
+    "Reporting::RunReport",
+    "Reporting::OracleFusionReport",
+    "NewProduct",
+    "RemoveProduct",
+    "Suspend",
+    "Resume",
+    "Cancel",
+    "Billing::BillRun",
+    "InvoiceGenerate",
+    "WriteOff",
+    "Billing::ReverseInvoice",
+    "Billing::CurrencyConversion",
+    "Billing::CustomBillingDocument",
+    "Payment::PaymentRun",
+    "Payment::GatewayReconciliation",
+    "Usage::ImportUsage",
+    "Email",
+    "Callout",
+    "Notifications::SMS",
+    "AsynchronousCallout",
+    "Notifications::Kafka",
+    "Execute::WorkflowTask",
+    "Approval",
+    "Upload::FTP",
+    "Upload::SFTP",
+    "Upload::S3",
+    "Download::SFTP",
+    "Download::S3",
+    "Delay",
+    "UsageMediation::Source",
+    "UsageMediation::Watermark",
+    "UsageMediation::Filter",
+    "UsageMediation::Map",
+    "UsageMediation::Group",
+    "UsageMediation::Sink",
+    "Mediation::SendEvents"
+  ],
+
+  "workflow_call_types": {
+    "$description": "Sourced from Task.task_mode keys (app/models/task.rb L152-165) filtered by WorkflowsController#index L20-21. Each entry lists tenant prerequisites and recommended task types. The composer must NEVER emit ASYNC, RULE, or UI - these are deprecated/internal and rejected by the linter rule E150.",
+    "user_facing": [
+      {
+        "value": "BATCH",
+        "default": true,
+        "description": "Standard background workflow. Most reporting, integration, and scheduled jobs.",
+        "requires_extra_setting": null
+      },
+      {
+        "value": "SYNC",
+        "description": "Synchronous response. Caller waits for the workflow to finish and receives the result inline. Each task class must declare task_mode['SYNC'] => true.",
+        "requires_extra_setting": "synchronous_mode"
+      },
+      {
+        "value": "REALTIME",
+        "description": "Sub-second priority lane for low-latency callouts.",
+        "requires_extra_setting": null
+      },
+      {
+        "value": "UIACTION",
+        "description": "Workflow surfaces as a button on a Zuora UI page. Requires ui_pages with exactly one supported_ui_pages entry.",
+        "requires_extra_setting": null
+      },
+      {
+        "value": "SYNC_UI_ACTION",
+        "description": "Synchronous UIACTION variant. Caller blocks on the UI thread.",
+        "requires_extra_setting": "sync_ui_action_mode"
+      },
+      {
+        "value": "DATASTREAM",
+        "description": "Streaming pipeline (UsageMediation::* tasks). Persists state across runs.",
+        "requires_extra_setting": "data_stream_mode"
+      },
+      {
+        "value": "BUSINESS_PROCESS",
+        "description": "Long-running business process (Approval, Delay, Page tasks).",
+        "requires_extra_setting": "business_process"
+      }
+    ],
+    "deprecated_or_internal": ["ASYNC", "RULE", "UI"]
+  },
+
+  "workflow_priorities": ["High", "Medium", "Low"],
+
+  "workflow_statuses": ["Active", "Inactive"],
+
+  "trigger_flags": [
+    "ondemand_trigger",
+    "callout_trigger",
+    "scheduled_trigger",
+    "event_trigger"
+  ],
+
+  "version_regex": "^\\d+(?:\\.\\d+)?(?:\\.\\d+)?$",
+
+  "standard_events": {
+    "$description": "Hard-coded list mirroring defaultEvents in app/javascript/components/WorkflowDefinitionForm.js L150-219. These are the standard Zuora business events that the React settings page exposes WITHOUT requiring a custom event registration. For anything not in this list, the tenant must first POST /events/event-triggers (or use the Settings -> Notifications -> Custom Events UI). Use field 'name' verbatim in workflow.parameters.event_triggers[].",
+    "$category_derivation": "For id length < 5 chars, category = id (e.g., '1410' for BillingRunCompletion). Otherwise, category = ${namespace}:${name}. Used as the query parameter for GET /notifications/email-templates/info/selections?category=<category>.",
+    "$canonical_name_corrections": {
+      "BillRunCompleted": "BillingRunCompletion",
+      "BillRunCompletedSuccess": "BillingRunCompletion",
+      "BillingRunCompleted": "BillingRunCompletion",
+      "InvoiceCreated": "InvoicePosted",
+      "PaymentReceived": "PaymentProcessed"
+    },
+    "events": [
+      { "name": "AmendmentProcessed", "id": "1310", "baseObject": "Amendment" },
+      { "name": "AquaNotification", "id": "2610", "baseObject": "Aqua" },
+      { "name": "BillingRunCompletion", "id": "1410", "baseObject": "BillingRun" },
+      { "name": "CreditBalanceRefundProcessed", "id": "2420", "baseObject": "Refund" },
+      { "name": "CreditMemoCreated", "id": "2710", "baseObject": "CreditMemo" },
+      { "name": "CreditMemoPosted", "id": "2720", "baseObject": "CreditMemo" },
+      { "name": "CreditMemoRefundProcessed", "id": "2430", "baseObject": "Refund" },
+      { "name": "DataSourceOutputCompletion", "id": "1610", "baseObject": "DataSource" },
+      { "name": "DebitMemoCreated", "id": "2810", "baseObject": "DebitMemo" },
+      { "name": "DebitMemoPosted", "id": "2820", "baseObject": "DebitMemo" },
+      { "name": "EmailCreditMemo", "id": "2730", "baseObject": "CreditMemo" },
+      { "name": "EmailDebitMemo", "id": "2830", "baseObject": "DebitMemo" },
+      { "name": "GatewayReconciliation", "id": "2150", "baseObject": "Payment" },
+      { "name": "InvoiceDue", "id": "1140", "baseObject": "Invoice" },
+      { "name": "InvoicePosted", "id": "1110", "baseObject": "Invoice" },
+      { "name": "InvoicesPastDueAccountSummary", "id": "1120", "baseObject": "Account" },
+      { "name": "JournalRunCompletion", "id": "3110", "baseObject": "JournalRun" },
+      { "name": "KeyDates", "id": "1230", "baseObject": "Subscription" },
+      { "name": "ManualEmailForInvoice", "id": "1130", "baseObject": "Invoice" },
+      { "name": "ManualEmailForPayment", "id": "2130", "baseObject": "Payment" },
+      { "name": "PaymentDeclined", "id": "2110", "baseObject": "Payment" },
+      { "name": "PaymentMethodClosed", "id": "2230", "baseObject": "PaymentMethod" },
+      { "name": "PaymentMethodExpiration", "id": "2210", "baseObject": "PaymentMethod" },
+      { "name": "PaymentMethodUpdated", "id": "2220", "baseObject": "PaymentMethod" },
+      { "name": "PaymentMethodUpdaterBatchCompleted", "id": "2520", "baseObject": "PaymentMethodUpdater" },
+      { "name": "PaymentMethodUpdaterBatchStarted", "id": "2510", "baseObject": "PaymentMethodUpdater" },
+      { "name": "PaymentProcessed", "id": "2120", "baseObject": "Payment" },
+      { "name": "PaymentRefundProcessed", "id": "2410", "baseObject": "Refund" },
+      { "name": "PaymentRunCompletion", "id": "2140", "baseObject": "Payment" },
+      { "name": "SubscriptionCreated", "id": "1210", "baseObject": "Subscription" },
+      { "name": "TrialBalanceCompletion", "id": "3210", "baseObject": "AccountingPeriod" },
+      { "name": "UpcomingRenewal", "id": "1220", "baseObject": "Subscription" }
+    ]
+  },
+
+  "supported_ui_pages": {
+    "$description": "Mirrors supportedUiPages in app/javascript/components/WorkflowDefinitionForm.js L223-249. Used to populate workflow.ui_pages when call_type == 'UIACTION'. Exactly one entry must be set with shape { '<value>': { 'label': '<button label>' } }.",
+    "pages": [
+      { "value": "account", "label": "Account List Page", "role": "ZBilling" },
+      { "value": "accountDetail", "label": "Account Detail Page", "role": "ZBilling" },
+      { "value": "accountingPeriod", "label": "Accounting Period List Page", "role": "ZFinance" },
+      { "value": "accountingPeriodDetail", "label": "Accounting Period Detail Page", "role": "ZFinance" },
+      { "value": "billRun", "label": "Bill Run List Page", "role": "ZBilling" },
+      { "value": "billRunDetail", "label": "Bill Run Detail Page", "role": "ZBilling" },
+      { "value": "creditMemoDetail", "label": "Credit Memo Detail Page", "role": "ZBilling" },
+      { "value": "creditDebitMemo", "label": "Credit & Debit Memo List Page", "role": "ZBilling" },
+      { "value": "debitMemoDetail", "label": "Debit Memo Detail Page", "role": "ZBilling" },
+      { "value": "invoice", "label": "Invoice List Page", "role": "ZBilling" },
+      { "value": "invoiceDetail", "label": "Invoice Detail Page", "role": "ZBilling" },
+      { "value": "journalRun", "label": "Journal Run List Page", "role": "ZFinance" },
+      { "value": "journalRunDetail", "label": "Journal Run Detail Page", "role": "ZFinance" },
+      { "value": "order", "label": "Order List Page", "role": "ZBilling" },
+      { "value": "orderDetail", "label": "Order Detail Page", "role": "ZBilling" },
+      { "value": "payment", "label": "Payment List Page", "role": "ZPayments" },
+      { "value": "paymentDetail", "label": "Payment Detail Page", "role": "ZPayments" },
+      { "value": "paymentRun", "label": "Payment Run List Page", "role": "ZPayments" },
+      { "value": "paymentRunDetail", "label": "Payment Run Detail Page", "role": "ZPayments" },
+      { "value": "product", "label": "Product Catalog List Page", "role": "ZBilling" },
+      { "value": "productDetail", "label": "Product Catalog Detail Page", "role": "ZBilling" },
+      { "value": "refund", "label": "Refund List Page", "role": "ZPayments" },
+      { "value": "refundDetail", "label": "Refund Detail Page", "role": "ZPayments" },
+      { "value": "subscription", "label": "Subscription List Page", "role": "ZBilling" },
+      { "value": "subscriptionDetail", "label": "Subscription Detail Page", "role": "ZBilling" }
+    ]
+  },
+
+  "parameters_subschema": {
+    "$description": "Default keys persisted by WorkflowsController#workflow_params L723-732 plus conditional keys L749-759. Composer should always set the seven default keys; the conditional keys are only emitted when the corresponding trigger style is in use.",
+    "always_present": {
+      "fields": "[]                  Array of inbound-payload field schemas. Used by callout_trigger workflows AND ondemand workflows that want a typed Run prompt.",
+      "entity_name": "null           Optional. Display name of the Zuora entity (multi-entity tenants only). Auto-set by Workflow::Setup.import L435-442 when the tenant has exactly one entity attached.",
+      "entity_id": "null             Optional. Entity UUID. Same auto-set rule as entity_name.",
+      "skipping_check": "\"db\"      Constant. Always 'db'.",
+      "file_encryption": "\"false\"  STRING boolean. Set to 'true' only if callout payload includes encrypted file uploads.",
+      "secure_error_msgs": "\"false\" STRING boolean. Set to 'true' to scrub sensitive data from error logs.",
+      "show_run_prompt": "null        Optional. Hash of run-prompt UI config. Leave null unless the user wants a structured Run dialog.",
+      "callout_response": "\"workflow instance\"  Default response payload returned by callout_trigger workflows. Other accepted values: 'first task', 'last task'."
+    },
+    "conditional_present": {
+      "event_triggers": "[]            Array of event name strings (e.g., ['BillingRunCompletion']). Required when event_trigger == true.",
+      "event_parameters": "[]          Array of {eventName, params: [{object, key, value}, ...]}. Required when event_trigger == true. See event_parameters_schema below.",
+      "merge_task_ids": "[]            DO NOT EMIT. Auto-derived during Logic::Merge validation; Workflow::Setup.import L452, L468 deletes any inbound value before save. Linter rule W301.",
+      "legacy_boolean_input": "\"false\" Legacy. Only set for old workflows that depend on the to_bool semantic for Boolean form fields.",
+      "show_toast_envs": "[]           Optional UI hint. Array of env names from ['Sandbox', 'Test', 'Production']."
+    }
+  },
+
+  "event_parameters_schema": {
+    "$description": "Shape consumed by BusinessEvent#parse_event at runtime. params_settings = (workflow.parameters['event_parameters'] || []).select{|p| p['eventName']==data['name']}.dig(0, 'params') || []; params_settings.each {|p| p['object'], p['key'], p['value']}. Both event_parameters AND the inner params MUST be ARRAYS (not Hashes), even though the React UI emits Object.assign({}, currParams) which serializes as an object - that is a UI quirk that breaks multi-param events at runtime. Always emit arrays from the composer.",
+    "shape": [
+      {
+        "eventName": "<must match an entry in workflow.parameters.event_triggers[]>",
+        "params": [
+          {
+            "object": "<base object, e.g., 'BillingRun', 'Invoice', 'Payment'>",
+            "key": "<field path on the event, e.g., 'Id', 'AccountId', 'Status'>",
+            "value": "<Liquid placeholder using <Event.Object.Field> syntax, e.g., '<BillingRun.Id>'>"
+          }
+        ]
+      }
+    ],
+    "field_options_api": {
+      "method": "GET",
+      "path": "/notifications/email-templates/info/selections?category=<category>",
+      "category_derivation": "If event.id.length < 5 then category = event.id; else category = '${namespace}:${eventName}'. See WorkflowSettingsForm.js L383-387 and app_instance.rb#get_custom_event_fields L1452-1494.",
+      "filter_rules": "For Standard events (those in standard_events.events), exclude any returned field containing 'DataSource'. For Custom events, include only fields with 'DataSource' or matching '.${baseObject}.'."
+    }
+  },
+
+  "notifications_schema": {
+    "$description": "Default shape persisted via Workflow#cast (workflow.rb L188-216). All boolean keys are coerced via to_bool. emails[] entries are Liquid-templated strings (e.g., '{{Data.Account.WorkEmail__c}}').",
+    "shape": {
+      "emails": "[]                       Array of email strings. May contain Liquid templates.",
+      "failure": "false                    Send notification when workflow ends in error.",
+      "success": "false                    Send notification when workflow ends successfully.",
+      "pending": "false                    Send notification when a Pending task remains queued past threshold.",
+      "skipped_scheduled_run": "false      Send notification when a scheduled run is skipped because the prior run was still in flight.",
+      "error_ignore": "\"\"                Optional Ruby regex. Errors matching this pattern are NOT included in failure notifications. Validated by Regexp.new (workflow/setup.rb L149)."
+    },
+    "validation": {
+      "rule": "If any of failure/success/pending/skipped_scheduled_run is true, emails[] must contain at least one non-blank entry (workflow/setup.rb L194-196)."
+    }
+  },
+
+  "interval_schema": {
+    "$description": "6-token Rufus/Fugit cron parsed by Rufus::Scheduler.parse (workflow/setup.rb L161-166). Tokens: <sec> <min> <hour> <day-of-month> <month> <day-of-week>. The React CronScheduler emits 6 tokens with second=0 (workflow/rails/app/javascript/components/CronScheduler.js L33-58). The /N syntax (no leading asterisk) is shorthand for */N (e.g., '/5' = every 5). Day-of-week names like 'MON-FRI' and ordinals like 'MON#2' (= second Monday of the month) are accepted.",
+    "examples": {
+      "every_5_minutes": "0 /5 * /1 * *",
+      "every_hour_at_30": "0 30 /1 /1 * *",
+      "daily_at_09_30": "0 30 09 /1 * *",
+      "weekdays_at_08_00": "0 0 08 * * MON-FRI",
+      "first_of_month_midnight": "0 0 0 1 * *",
+      "second_monday_of_month_06_00": "0 0 06 * * MON#2",
+      "monday_at_06_00": "0 0 06 * * MON"
+    },
+    "$runtime_assembly": "At schedule time Rails concatenates the interval and the IANA-resolved timezone: \"#{self.interval} #{ActiveSupport::TimeZone.find_tzinfo(self.timezone).name}\" (workflow/rails/app/models/workflow.rb L336). Rufus consumes the trailing token as the timezone.",
+    "timezone": {
+      "$description": "Rails ActiveSupport friendly timezone name (e.g. 'Eastern Time (US & Canada)', 'Alaska', 'UTC', 'London', 'Tokyo'). Validated by `validates :timezone, inclusion: ActiveSupport::TimeZone.all.map(&:name)` (workflow/rails/app/models/workflow/setup.rb L32). NOT a bare IANA name -- 'America/New_York' fails validation; use 'Eastern Time (US & Canada)' instead.",
+      "allowlist_source": "rails-timezones.json (mapping keys = friendly names; values = IANA targets resolved at runtime via ActiveSupport::TimeZone.find_tzinfo(name).name).",
+      "examples": ["Eastern Time (US & Canada)", "Central Time (US & Canada)", "Mountain Time (US & Canada)", "Pacific Time (US & Canada)", "Alaska", "Hawaii", "London", "Berlin", "Paris", "Tokyo", "Sydney", "UTC"],
+      "common_iana_to_friendly": {
+        "America/New_York": "Eastern Time (US & Canada)",
+        "America/Chicago": "Central Time (US & Canada)",
+        "America/Denver": "Mountain Time (US & Canada)",
+        "America/Los_Angeles": "Pacific Time (US & Canada)",
+        "Europe/London": "London",
+        "Europe/Berlin": "Berlin",
+        "Asia/Tokyo": "Tokyo",
+        "Australia/Sydney": "Sydney"
+      }
+    }
+  },
+
+  "default_hooks": ["Success", "Failure"],
+
+  "predictability_categories": {
+    "$description": "Five-way classification used by data-flow analysis (workflow-data-flow.md, lint-workflow-json.js rules E170/W171/W172/W173/W174). Each task entry in workflow-task-templates.json carries data_contract.predictability set to one of these values. The fallback ($default_data_contract) is 'opaque' so the linter is conservative for unknown task types.",
+    "deterministic": {
+      "$summary": "Both the scope (Data.X) and the field shape (X.field1, X.field2, ...) are known from the task model + parameters at design time.",
+      "examples": ["Query", "Create", "Update", "CustomObject::Query", "CustomObject::Create", "CustomObject::Update", "NewProduct", "RemoveProduct", "Suspend", "Resume", "Cancel", "InvoiceGenerate", "WriteOff", "Billing::ReverseInvoice", "Payment::GatewayReconciliation"],
+      "linter_validates": "scope + field-level"
+    },
+    "semi-deterministic": {
+      "$summary": "The scope is known; field shape is partially known (standardized model fields), or contents come from a free-form expression (GraphQL selection set, Liquid assigns, report column names).",
+      "examples": ["Export", "Billing::BillRun", "Payment::PaymentRun", "Data::BillingPreviewRun", "Data::Aqua", "Data::Link", "GraphQuery", "Logic::Liquid", "Reporting::RunReport", "Reporting::OracleFusionReport", "File::DownloadFile", "File::ZuoraImport", "File::FileOperations", "File::FileStreamingUpload", "File::BulkDataLoader", "File::CustomPDF::CustomDocument", "Billing::CurrencyConversion", "Billing::CustomBillingDocument", "Usage::ImportUsage", "Attachment", "Download::SFTP", "Download::S3"],
+      "linter_validates": "scope-level only; W171 downgraded to a notice when fields_partial_known=true"
+    },
+    "opaque": {
+      "$summary": "Scope is known (often via parameters.placement), but field shape is unknowable until runtime. Requires user to declare a schema, opt out, or insert a normalizer (see Build Step 3e).",
+      "examples": ["Callout", "AsynchronousCallout", "Logic::Lambda", "Script::JavaScript", "Logic::JSONTransform", "Logic::XMLTransform", "Logic::CSVTranslator", "Logic::ResponseFormatter", "Execute::WorkflowTask", "Mediation::SendEvents"],
+      "linter_validates": "scope-level only; downstream Data.<scope>.<field> references emit W172 unless suppressed via parameters._opaque_trusted='true' or parameters._expected_response_schema={...}"
+    },
+    "scoping": {
+      "$summary": "No positive writes; routes execution along branches (If/Logic::Case/Approval) and/or rebinds an existing scope (Iterate/Logic::Merge/Delete).",
+      "examples": ["If", "Logic::Case", "Iterate", "Logic::Merge", "Approval", "Delete", "CustomObject::Delete"],
+      "linter_validates": "Iterate triggers W173 for array-shape references inside For-Each body; Logic::Case triggers W174 for branch-partial scopes after Logic::Merge."
+    },
+    "none": {
+      "$summary": "Side-effect-only or non-data tasks: writes nothing into Data.* that downstream tasks can consume.",
+      "examples": ["Email", "Notifications::SMS", "Notifications::Kafka", "Delay", "UI::Page", "UI::Stop", "UI::WebShare", "Upload::FTP", "Upload::SFTP", "Upload::S3", "Data::Warehouse", "UsageMediation::Source", "UsageMediation::Watermark", "UsageMediation::Filter", "UsageMediation::Map", "UsageMediation::Group", "UsageMediation::Sink"],
+      "linter_validates": "no contribution to available_scopes"
+    }
+  },
+
+  "opaque_sentinel_parameters": {
+    "$description": "Sentinel keys the build skill / linter look for INSIDE an opaque task's parameters block. Rails ignores unknown parameters keys (it's free-form JSONB), so these have zero runtime impact. The build skill (Step 3e) must elicit one of these from the user when an opaque task has downstream consumers.",
+    "_opaque_trusted": {
+      "$type": "string ('true' or 'false')",
+      "$effect": "When 'true', suppresses W172 across all downstream references to this opaque task's effective scope.",
+      "$example": "{ \"_opaque_trusted\": \"true\" }"
+    },
+    "_expected_response_schema": {
+      "$type": "object keyed by the opaque task's effective scope, e.g. { 'ExternalApi': { 'acknowledgmentId': 'string', 'errors': [{...}] } }",
+      "$effect": "Documents the expected response shape. The linter then performs field-level checks on Data.<scope>.<field> references for that scope as if it were deterministic.",
+      "$example": "{ \"_expected_response_schema\": { \"ExternalApi\": { \"acknowledgmentId\": \"string\", \"receivedAt\": \"string\" } } }"
+    }
+  },
+
+  "default_data_workflow_keys": {
+    "$description": "Keys always present under Data.Workflow at task #1 of every workflow, regardless of trigger style. Sourced from Workflow#data_structure (workflow.rb:344-349) and Workflow::Instance#set_data. The seed walker (lint-workflow-json.js -> computeAvailableScopes) starts with these.",
+    "Workflow": ["ExecutionDate", "ExecutionDateTime", "Name", "Id", "Tenant", "User"],
+    "$conditional": {
+      "UIAction": {
+        "$present_when": "workflow.call_type in ('UIACTION', 'SYNC_UI_ACTION')",
+        "fields": ["ObjectId", "ObjectName", "ObjectNumber"]
+      }
+    }
+  },
+
+  "trigger_seeding_rules": {
+    "$description": "Per-trigger Data.* seeding the walker uses to populate the initial available_scopes at task #1. See workflow-data-flow.md section 3 for full narrative.",
+    "event_trigger": {
+      "seeds": "Data.Workflow.* + Data.<EventObject>.<key> for every entry in workflow.parameters.event_parameters[]",
+      "$note": "Only the keys explicitly listed in event_parameters get seeded - the full event payload does NOT come through automatically."
+    },
+    "callout_trigger": {
+      "seeds": "Data.Workflow.* + the inbound HTTP body merged at the configured root key (default Data.Callout)",
+      "$note": "Treated as OPAQUE by the linter at the workflow envelope level. Declare _expected_response_schema on workflow.parameters or _opaque_trusted='true' to enable downstream field-level validation."
+    },
+    "ondemand_trigger": {
+      "seeds": "Data.Workflow.* + Data.<Object>.<field> for every entry in workflow.parameters.fields[]",
+      "$note": "fields[] are user-supplied at launch time."
+    },
+    "scheduled_trigger": {
+      "seeds": "Data.Workflow.* + Data.<Object>.<field> for every default in workflow.parameters.fields[]",
+      "$note": "Same as ondemand but values come from defaults (no user prompt)."
+    }
+  },
+
+  "data_flow_lint_rules": {
+    "$description": "Linter rule IDs added by the data-flow analysis layer. Implemented in scripts/lint-workflow-json.js. See workflow-data-flow.md section 12 for examples.",
+    "E170": {
+      "$severity": "error",
+      "$rule": "Data.<scope> referenced where <scope> is not in availableScopes for the current task. Suggest closest match if one exists."
+    },
+    "W171": {
+      "$severity": "warning",
+      "$rule": "Data.<scope>.<field> referenced where <scope> is in available DETERMINISTIC scopes but <field> is not in the producer's known field set. Downgraded to a notice when the producer's contract has fields_partial_known=true."
+    },
+    "W172": {
+      "$severity": "warning",
+      "$rule": "Data.<scope>.<x> referenced where the producing task is OPAQUE AND has not been tagged _opaque_trusted='true' AND has no _expected_response_schema. Build skill normally prompts for this in Step 3e; the linter catches lint-only runs."
+    },
+    "W173": {
+      "$severity": "warning",
+      "$rule": "Data.<scope> referenced inside an Iterate For-Each body where <scope> matches the Iterate's parameters.object - inside the body the scope is a single Hash, not an Array, so bracket-index forms like Data.<scope>[0].<field> won't resolve."
+    },
+    "W174": {
+      "$severity": "warning",
+      "$rule": "Data.<scope> referenced from a task downstream of a Logic::Merge whose source Logic::Case only produces <scope> on some branches. Reference may resolve to nothing on the other branches."
+    }
+  },
+
+  "canonical_linkage_types": {
+    "$description": "Exact spellings the composer must emit. Anything else triggers a linter typo hint.",
+    "start": "Start",
+    "default": ["Success", "Failure"],
+    "if": ["True", "False", "Failure"],
+    "iterate": ["For Each", "Complete", "Failure"],
+    "logic_case": {
+      "$pattern": "Case_<N>",
+      "else": "Case_Else",
+      "failure": "Failure",
+      "$note": "Composer pre-normalizes parameters.case_condition to sequential keys Case_1, Case_2, ..., Case_Else BEFORE emitting linkages, so Rails Logic::Case#before_save :validate_labels is a no-op (app/models/tasks/logic/case.rb:51-73)."
+    },
+    "approval": ["Approve", "Reject", "Failure"],
+    "ui_page": {
+      "$pattern": "Page:<route>",
+      "$note": "One hook per non-blank parameters.route entry (app/models/tasks/ui/page.rb:20-24). Also includes Success and Failure from the base class."
+    },
+    "ui_web_share": {
+      "$pattern": "Webshare:<route>",
+      "plus": ["Upload", "Timeout", "Success", "Failure"],
+      "$note": "Note Webshare capitalization. From app/models/tasks/ui/web_share.rb:14-17, :36-38."
+    },
+    "usage_mediation": {
+      "$values": ["next", "error"],
+      "$note": "Lowercase. Differs from the standard Capitalized hooks on all other task types."
+    }
+  },
+
+  "typo_hints": {
+    "$description": "Linter surfaces these as 'did you mean' suggestions. Rails does not validate linkage_type strings on save; we are the only guard.",
+    "Iterate": "For Each",
+    "ForEach": "For Each",
+    "for_each": "For Each",
+    "for each": "For Each",
+    "case_1": "Case_1",
+    "case1": "Case_1",
+    "Case 1": "Case_1",
+    "case_else": "Case_Else",
+    "CaseElse": "Case_Else",
+    "success": "Success",
+    "SUCCESS": "Success",
+    "failure": "Failure",
+    "FAILURE": "Failure",
+    "true": "True",
+    "false": "False",
+    "start": "Start",
+    "STARTING": "Start"
+  },
+
+  "special_rules": {
+    "workflow_type_value": "Workflow::Setup",
+    "css_pixel_suffix": "px",
+    "start_linkage_required": true,
+    "forbid_for_each_before_merge": true,
+    "require_non_empty_tasks_and_linkages": true,
+    "require_parameters_object_per_task": true,
+    "boolean_params_must_be_strings": true,
+    "$notes": [
+      "workflow_type_value: Rails overrides whatever the client sends for workflow.type, but the composer still emits the canonical value so the JSON matches Workflow::Setup#export output. See app/models/workflow/setup.rb:418.",
+      "start_linkage_required: Workflow::Setup.import requires exactly one linkage with linkage_type 'Start' whose source_workflow_id == workflow.id and source_task_id == null.",
+      "forbid_for_each_before_merge: mirrors app/models/linkage.rb:72-122 avoid_for_each_linkage_before_merge_task. Path-substring check is sufficient client-side; server DFS + merge_start/merge_paths rewrites are server-only.",
+      "require_non_empty_tasks_and_linkages: Workflow::Setup.import raises 'No tasks/linkages present in import payload' when either array is blank (setup.rb:411-413).",
+      "require_parameters_object_per_task: Task.import uses parameters.merge! which raises on nil (task.rb:1652-1701). Every emitted task needs 'parameters': {} minimum.",
+      "boolean_params_must_be_strings: many task params are read with .to_bool from parameters, e.g. strict_variables, disable_validation. Always emit the string 'true' or 'false', never JSON true/false."
+    ]
+  },
+
+  "required_at_import_catalog": {
+    "$description": "Top-level task attributes validated at import time by ActiveRecord column presence rules (NOT task_setup_validation). Distilled from tasks/*.rb validates :column, presence: true directives.",
+    "object": [
+      "Create",
+      "Query",
+      "Export",
+      "Update",
+      "Data::Aqua",
+      "Iterate",
+      "Logic::XMLTransform",
+      "File::ZuoraImport",
+      "File::FileOperations",
+      "File::FileStreamingUpload",
+      "File::BulkDataLoader",
+      "Usage::ImportUsage",
+      "Attachment"
+    ],
+    "object_id": [
+      "Update",
+      "Delete",
+      "NewProduct",
+      "RemoveProduct",
+      "Suspend",
+      "Resume",
+      "Cancel",
+      "Attachment",
+      "InvoiceGenerate",
+      "WriteOff",
+      "Billing::ReverseInvoice",
+      "Billing::CustomBillingDocument",
+      "Reporting::RunReport",
+      "CustomObject::Update",
+      "CustomObject::Delete"
+    ],
+    "$note": "These AR column validations DO fire on Task.import even though task_setup_validation is skipped. Their value may be a literal (e.g., 'Invoice') or a Liquid reference (e.g., '{{Data.Subscription.Id}}')."
+  },
+
+  "linkage_template": {
+    "$description": "Shape of one linkage entry. source_workflow_id is non-null only on Start (and other workflow-sourced) linkages; source_task_id is non-null for every task->task edge.",
+    "source_workflow_id": null,
+    "source_task_id": null,
+    "target_task_id": null,
+    "linkage_type": ""
+  },
+
+  "css_layout_defaults": {
+    "$description": "Canvas coordinates used by the composer so imported workflows render legibly in the UI.",
+    "workflow_origin": { "top": "40px", "left": "35px" },
+    "first_task": { "top": "40px", "left": "350px" },
+    "success_step_delta": { "left": 400 },
+    "branch_stack_delta": { "top": 120 }
+  }
+}
