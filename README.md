@@ -32,8 +32,10 @@ The `--plugin-dir` flag loads the plugin for that session only. Provide the abso
 Clone this repo, then run in the Cursor chat window:
 
 ```
-/add-plugin /path/to/zuora-coding-agent
+/add-plugin /path/to/zuora-coding-agent --no-symlink
 ```
+
+> **Note:** The `--no-symlink` flag is required due to a [known Cursor issue](https://github.com/cursor/plugins/issues/35).
 
 Then reload Cursor: **Cmd+Shift+P → Developer: Reload Window**
 
