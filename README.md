@@ -79,25 +79,9 @@ If `"env"` already exists, merge the Zuora keys into it.
 
 #### Cursor
 
-**Option A — Cursor plugin settings**
+Go to **Settings → Plugins → zuora-coding-agent → Zuora Mcp** and set `ZUORA_BASE_URL`, `ZUORA_CLIENT_ID`, and `ZUORA_CLIENT_SECRET`.
 
-After installing, go to **Settings → Plugins → zuora-coding-agent → Zuora Mcp** and set `ZUORA_BASE_URL`, `ZUORA_CLIENT_ID`, and `ZUORA_CLIENT_SECRET`.
-
-**Option B — Shell profile**
-
-Add to `~/.zshrc` or `~/.bashrc`:
-
-```bash
-export ZUORA_BASE_URL="https://rest.apisandbox.zuora.com"
-export ZUORA_CLIENT_ID="your-client-id"
-export ZUORA_CLIENT_SECRET="your-client-secret"
-
-# Optional — for multi-entity or multi-org tenants
-export ZUORA_ENTITY_IDS="entity-id-1,entity-id-2"
-export ZUORA_ORG_IDS="org-id-1,org-id-2"
-```
-
-Then reload: `source ~/.zshrc`
+Then reload Cursor: **Cmd+Shift+P → Developer: Reload Window**
 
 **Note:** The plugin's `.mcp.json` uses `${ZUORA_BASE_URL}` syntax to read these from your environment at runtime. No secrets are stored in the plugin files.
 
@@ -109,9 +93,9 @@ Then reload: `source ~/.zshrc`
 | `/zuora-api-build` | Generate or update integration code using the selected APIs |
 | `/zuora-workflow-design` | Design a Zuora Workflow-based solution |
 | `/zuora-workflow-build` | Implement workflow assets or related code/config |
-| `/zuora-is-migration-plan` | Produce IS migration strategy, mappings, phases, and risks |
+| `/zuora-is-migration-design` | Produce IS migration strategy, mappings, phases, and risks |
 | `/zuora-is-migration-build` | Generate IS migration implementation artifacts |
-| `/zuora-order-migration-plan` | Produce order migration design, sequencing, and edge-case analysis |
+| `/zuora-order-migration-design` | Produce order migration design, sequencing, and edge-case analysis |
 | `/zuora-order-migration-build` | Generate order migration implementation artifacts |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
 | `/zuora-review` | Review work for Zuora best practices |
@@ -145,6 +129,10 @@ Skills tell the AI **how** to approach a Zuora task. zuora-mcp provides **what**
 - Verify OAuth client is active in Zuora
 - Check `ZUORA_BASE_URL` matches your tenant environment
 - Ensure `ZUORA_CLIENT_ID` and `ZUORA_CLIENT_SECRET` are correct
+
+## Disclaimer
+
+This plugin uses AI to generate code, API payloads, and migration artifacts. All output should be reviewed and tested before use in any customer-facing environment. Zuora, Inc. makes no warranties regarding the accuracy, completeness, or fitness for purpose of any generated content. **Use at your own risk.**
 
 ## Contributing
 

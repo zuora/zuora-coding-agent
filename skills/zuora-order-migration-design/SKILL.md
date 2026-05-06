@@ -1,5 +1,5 @@
 ---
-name: zuora-order-migration-plan
+name: zuora-order-migration-design
 description: Analyze customer code and produce Order API migration plan with field-accurate mappings
 argument-hint: [customer code file paths or migration requirements]
 allowed-tools: [Read, Write, Glob, Grep, Bash, Agent, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__get_account_summary]

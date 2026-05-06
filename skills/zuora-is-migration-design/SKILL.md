@@ -1,5 +1,5 @@
 ---
-name: zuora-is-migration-plan
+name: zuora-is-migration-design
 description: Produce Credit Memos / Debit Memos migration strategy, code inventory, and phases
 argument-hint: [codebase path and migration context]
 allowed-tools: [Read, Write, Glob, Grep, Bash, Agent, AskUserQuestion, Skill, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__get_account_summary]

@@ -1,7 +1,7 @@
 {
   "name": "zuora-coding-agent",
   "description": "Zuora development assistant for API integrations, workflow development, migrations, template design, and best-practice validation. Powered by zuora-mcp.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "Zuora Engineering",
     "email": "developer@zuora.com"

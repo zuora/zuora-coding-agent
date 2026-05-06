@@ -5,7 +5,7 @@ argument-hint: [migration plan reference or specific artifacts needed]
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__get_account_summary, mcp__zuora-mcp__manage_billing_documents]
 ---
 
-You are generating implementation artifacts for a Credit Memos / Debit Memos migration. The user should have a migration plan (from `/zuora-is-migration-plan` or their own).
+You are generating implementation artifacts for a Credit Memos / Debit Memos migration. The user should have a migration plan (from `/zuora-is-migration-design` or their own).
 
 ## REQUIRED INPUT: Codebase Path
 
@@ -13,7 +13,7 @@ You are generating implementation artifacts for a Credit Memos / Debit Memos mig
 
 Resolve the codebase path in this order:
 1. If `$ARGUMENTS` contains `codebase=<path>`, use that path directly.
-2. If a `plan.md` exists in the current working directory (written by `/zuora-is-migration-plan`), extract the codebase path from it — **skip asking the user**.
+2. If a `plan.md` exists in the current working directory (written by `/zuora-is-migration-design`), extract the codebase path from it — **skip asking the user**.
 3. Otherwise, IMMEDIATELY ask:
 
 "To implement the migration, I need the path to your billing/integration codebase so I can locate and update the legacy adjustment API calls. What is the full path? (e.g., `/Users/yourname/workspace/acme-billing-client`)"
@@ -31,8 +31,8 @@ Expected format: `codebase=/path/to/billing-client [additional requirements]`
 ### Step 2: Review the migration plan
 
 Understand which code modifications are needed. Ask the user:
-- "Do you have a migration plan from `/zuora-is-migration-plan`? If so, share the key findings about which legacy APIs need to be updated."
-- If no plan exists, recommend running `/zuora-is-migration-plan codebase=/path` first to inventory the code
+- "Do you have a migration plan from `/zuora-is-migration-design`? If so, share the key findings about which legacy APIs need to be updated."
+- If no plan exists, recommend running `/zuora-is-migration-design codebase=/path` first to inventory the code
 
 ### Step 3: Identify and update legacy adjustment code
 

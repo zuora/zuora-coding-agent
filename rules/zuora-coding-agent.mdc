@@ -11,9 +11,9 @@ When working on Zuora-related tasks, use the zuora-mcp server for authoritative 
 - `/zuora-api-build` — Generate integration code using the selected APIs
 - `/zuora-workflow-design` — Design a Zuora Workflow-based solution
 - `/zuora-workflow-build` — Implement workflow assets or related code/config
-- `/zuora-is-migration-plan` — IS migration strategy, mappings, phases, and risks
+- `/zuora-is-migration-design` — IS migration strategy, mappings, phases, and risks
 - `/zuora-is-migration-build` — IS migration implementation artifacts
-- `/zuora-order-migration-plan` — Order migration design, sequencing, and edge-case analysis
+- `/zuora-order-migration-design` — Order migration design, sequencing, and edge-case analysis
 - `/zuora-order-migration-build` — Order migration implementation artifacts
 - `/zuora-validate` — Validate code/payloads against Zuora patterns
 - `/zuora-review` — Review work for Zuora best practices

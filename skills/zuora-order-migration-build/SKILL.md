@@ -5,7 +5,7 @@ argument-hint: [customer code file paths or migration plan reference]
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__create_subscriptions, mcp__zuora-mcp__cancel_subscriptions, mcp__zuora-mcp__renew_subscriptions]
 ---
 
-You are generating Order API implementation code by converting customer integration code from Subscription/Amendment API and Subscribe Action API. The Subscribe Action API supports two distinct modes (preview vs create) which map to different Order API endpoints. The user should have a migration plan (from `/zuora-order-migration-plan`) or provide their source code directly.
+You are generating Order API implementation code by converting customer integration code from Subscription/Amendment API and Subscribe Action API. The Subscribe Action API supports two distinct modes (preview vs create) which map to different Order API endpoints. The user should have a migration plan (from `/zuora-order-migration-design`) or provide their source code directly.
 
 ## Input
 
@@ -44,7 +44,7 @@ When converting customer integration code:
 - Read the customer's source code files
 - Identify the programming language
 - Detect API patterns (Subscription, Amendment, Subscribe Action)
-- Recommend running `/zuora-order-migration-plan` first for comprehensive analysis
+- Recommend running `/zuora-order-migration-design` first for comprehensive analysis
 
 ### Step 2: Read Reference Mappings
 
@@ -726,7 +726,7 @@ Generate a checklist document:
 
 ## Pre-Migration
 
-- [ ] Review migration plan from `/zuora-order-migration-plan`
+- [ ] Review migration plan from `/zuora-order-migration-design`
 - [ ] Sandbox environment has Order API enabled
 - [ ] Test accounts and subscriptions created in sandbox
 - [ ] Authentication credentials configured for sandbox

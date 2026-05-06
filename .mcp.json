@@ -5,7 +5,8 @@
     "env": {
       "ZUORA_BASE_URL": "${ZUORA_BASE_URL}",
       "ZUORA_CLIENT_ID": "${ZUORA_CLIENT_ID}",
-      "ZUORA_CLIENT_SECRET": "${ZUORA_CLIENT_SECRET}"
+      "ZUORA_CLIENT_SECRET": "${ZUORA_CLIENT_SECRET}",
+      "APPROVAL_ENABLED": "false"
     }
   }
 }
