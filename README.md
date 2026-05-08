@@ -1,12 +1,12 @@
 # Zuora Coding Agent
 
-A plugin for **Claude Code** and **Cursor** that accelerates Zuora-specific development work including API integrations, workflow development, migrations, template design, and best-practice validation.
+A plugin for **Claude Code**, **Cursor**, and **Codex** that accelerates Zuora-specific development work including API integrations, workflow development, migrations, template design, and best-practice validation.
 
 Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
 
 ## Prerequisites
 
-- [Claude Code](https://claude.ai/code) or [Cursor](https://cursor.com) installed
+- [Claude Code](https://claude.ai/code), [Cursor](https://cursor.com), or [Codex](https://openai.com/codex) installed
 - Zuora tenant credentials (OAuth client ID and secret)
 - Node.js >= 18 (for zuora-mcp via npx)
 
@@ -16,16 +16,28 @@ Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
 
 #### Claude Code
 
-Clone this repo and load for a single session:
+**From the marketplace (recommended):**
+
+Step 1 — Register the marketplace:
+```
+/plugin marketplace add zuora/zuora-coding-agent
+```
+
+Step 2 — Install the plugin:
+```
+/plugin install zuora-coding-agent@zuora-devex
+```
+
+Then **restart Claude Code** to activate the plugin.
+
+**Verify:** Open Claude Code and type `/zuora` — you should see all `/zuora-*` commands listed.
+
+**Or load locally for a single session:**
 
 ```bash
 git clone git@github.com:zuora/zuora-coding-agent.git
 claude --plugin-dir /path/to/zuora-coding-agent
 ```
-
-The `--plugin-dir` flag loads the plugin for that session only. Provide the absolute path to the cloned folder.
-
-**Verify:** Open Claude Code and type `/help` — you should see all `/zuora-*` commands listed.
 
 #### Cursor
 
@@ -38,6 +50,23 @@ Clone this repo, then run in the Cursor chat window:
 > **Note:** The `--no-symlink` flag is required due to a [known Cursor issue](https://github.com/cursor/plugins/issues/35).
 
 Then reload Cursor: **Cmd+Shift+P → Developer: Reload Window**
+
+#### Codex
+
+Register the marketplace from the remote repo:
+
+```bash
+codex plugin marketplace add https://github.com/zuora/zuora-coding-agent
+```
+
+Then start Codex and open the plugin browser:
+
+```bash
+codex
+/plugins
+```
+
+In the plugin browser, switch to the **Zuora Developer Experience** marketplace, open **Zuora Coding Agent**, and choose **Install plugin**.
 
 ### 2. Configure Zuora credentials
 
@@ -83,6 +112,12 @@ Go to **Settings → Plugins → zuora-coding-agent → Zuora Mcp** and set `ZUO
 
 Then reload Cursor: **Cmd+Shift+P → Developer: Reload Window**
 
+#### Codex
+
+Go to **Settings → Plugins → zuora-coding-agent → Zuora Mcp** and set `ZUORA_BASE_URL`, `ZUORA_CLIENT_ID`, and `ZUORA_CLIENT_SECRET`.
+
+Then reload Codex to apply the changes.
+
 **Note:** The plugin's `.mcp.json` uses `${ZUORA_BASE_URL}` syntax to read these from your environment at runtime. No secrets are stored in the plugin files.
 
 ## Available commands
@@ -105,7 +140,7 @@ The plugin also provides **passive Zuora awareness** — when you discuss Zuora 
 ## Architecture
 
 ```
-User in Claude Code / Cursor
+User in Claude Code / Cursor / Codex
   └── Zuora Coding Agent Plugin
         ├── Skills (workflow orchestration and domain playbooks)
         ├── zuora-mcp (live API specs, metadata, validation, code generation)
@@ -117,8 +152,8 @@ Skills tell the AI **how** to approach a Zuora task. zuora-mcp provides **what**
 ## Troubleshooting
 
 **Commands not showing:**
-- If using `--plugin-dir`, verify the path points to the folder containing `.claude-plugin/plugin.json`
-- If installed via marketplace: `claude plugin list` to verify, then reinstall
+- If installed via marketplace: verify with the IDE's plugin list, then reinstall
+- If using local load: verify the path points to the correct plugin folder
 
 **MCP server not connecting:**
 - Check env vars are set: `echo $ZUORA_BASE_URL`
@@ -139,6 +174,16 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 We welcome contributions. Please open an issue or pull request on [GitHub](https://github.com/zuora/zuora-coding-agent).
 
 For significant changes, open an issue first to discuss the proposed change.
+
+### Maintainers
+
+| Name | Area |
+|---|---|
+| WJ | Plugin Lead |
+| Wenxuan | Workflow |
+| Amy | Invoice Settlement Migration |
+| Ricard | Order Migration |
+| Jianfeng | MCP Tool |
 
 ## License
 

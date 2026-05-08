@@ -5,6 +5,9 @@ argument-hint: <business requirement description>
 allowed-tools: [Read, Glob, Grep, Bash, Agent, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects]
 ---
 
+Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
+
+
 You are designing a Zuora API integration approach. The user has described a business requirement. Your job is to propose which Zuora APIs, objects, and patterns to use — NOT to generate code yet.
 
 ## Input

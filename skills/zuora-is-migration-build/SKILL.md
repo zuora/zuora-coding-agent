@@ -5,6 +5,9 @@ argument-hint: [migration plan reference or specific artifacts needed]
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__get_account_summary, mcp__zuora-mcp__manage_billing_documents]
 ---
 
+Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
+
+
 You are generating implementation artifacts for a Credit Memos / Debit Memos migration. The user should have a migration plan (from `/zuora-is-migration-design` or their own).
 
 ## REQUIRED INPUT: Codebase Path

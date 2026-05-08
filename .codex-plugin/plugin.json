@@ -1,0 +1,36 @@
+{
+  "name": "zuora-coding-agent",
+  "version": "1.2.0",
+  "description": "Zuora development assistant for API integrations, workflow development, migrations, template design, and best-practice validation. Powered by zuora-mcp.",
+  "author": {
+    "name": "Zuora Engineering",
+    "email": "developer@zuora.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "zuora",
+    "billing",
+    "subscription",
+    "migration",
+    "api",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Zuora Coding Agent",
+    "shortDescription": "Zuora API, Workflow, and migration skills",
+    "longDescription": "Reusable Zuora skills and MCP configuration for API integrations, workflow automation, Invoice Settlement and Order API migrations, and best-practice validation.",
+    "developerName": "Zuora Engineering",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Zuora Coding Agent to design a Zuora API integration.",
+      "Use Zuora Coding Agent to review Zuora workflow or migration code."
+    ],
+    "brandColor": "#0B8F8A"
+  }
+}

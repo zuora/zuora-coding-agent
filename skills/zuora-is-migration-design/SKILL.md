@@ -5,6 +5,9 @@ argument-hint: [codebase path and migration context]
 allowed-tools: [Read, Write, Glob, Grep, Bash, Agent, AskUserQuestion, Skill, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__get_account_summary]
 ---
 
+Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
+
+
 You are producing a Credit Memos / Debit Memos migration plan. This plan guides the migration from legacy invoice adjustments (InvoiceAdjustment, InvoiceItemAdjustment, CreditBalanceAdjustment) to the modern Credit Memo and Debit Memo APIs.
 
 ## REQUIRED INPUT: Codebase Path

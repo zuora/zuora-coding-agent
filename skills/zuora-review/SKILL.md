@@ -5,6 +5,9 @@ argument-hint: [file path or description of what to review]
 allowed-tools: [Read, Glob, Grep, Bash, Agent, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects]
 ---
 
+Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
+
+
 You are reviewing Zuora-related implementation work for best practices, completeness, and correctness. This is broader than `/zuora-validate` — it evaluates the overall approach, not just individual code correctness.
 
 ## Input

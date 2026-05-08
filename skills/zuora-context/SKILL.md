@@ -4,6 +4,9 @@ description: This skill should be used when the user mentions "Zuora API", "Zuor
 version: 1.0.0
 ---
 
+Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
+
+
 # Zuora Context
 
 When the user is discussing Zuora-related topics in general conversation (without invoking a specific `/zuora-` command), you have access to the zuora-mcp server which provides authoritative Zuora capabilities.

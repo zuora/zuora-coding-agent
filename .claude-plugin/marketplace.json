@@ -10,7 +10,10 @@
       "name": "zuora-coding-agent",
       "description": "Zuora development assistant for API integrations, workflow automation, migrations, template design, and best-practice validation. Powered by zuora-mcp.",
       "version": "1.2.0",
-      "source": ".",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/zuora/zuora-coding-agent.git"
+      },
       "author": {
         "name": "Zuora",
         "email": "support@zuora.com"
