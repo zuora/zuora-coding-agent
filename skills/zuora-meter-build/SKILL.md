@@ -1,11 +1,11 @@
 ---
-name: zuora-mediation-meter-build
-description: Compose an importable Zuora Mediation meter JSON from a design
+name: zuora-meter-build
+description: Compose an importable Zuora meter JSON from a design
 argument-hint: <meter design or requirement>
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_mediation_meters]
 ---
 
-You are composing an importable Zuora Mediation meter JSON from a design produced by `/zuora-mediation-meter-design` (or supplied directly by the user).
+You are composing an importable Zuora meter JSON from a design produced by `/zuora-meter-design` (or supplied directly by the user).
 
 ## Input
 
@@ -38,7 +38,7 @@ Before composing JSON, confirm a complete design exists in context.
 
 Invoke the design skill via the Agent tool:
 ```
-Use the zuora-mediation-meter-design skill to design the meter update. Pass the full user request as the argument: "$ARGUMENTS"
+Use the zuora-meter-design skill to design the meter update. Pass the full user request as the argument: "$ARGUMENTS"
 ```
 
 Wait for the design skill to complete. It will walk the user through the current meter (via `get_meter`), collect their changes, and produce a complete prose design. Once the design is returned, proceed to **Step 1** using that design.
@@ -46,7 +46,7 @@ Wait for the design skill to complete. It will walk the user through the current
 **If NO complete design is present AND no `meterId` or update language in `$ARGUMENTS`:**
 
 Tell the user:
-> "I need a meter design before I can compose the JSON. Please run `/zuora-mediation-meter-design` with your requirement first, then come back here with the design."
+> "I need a meter design before I can compose the JSON. Please run `/zuora-meter-design` with your requirement first, then come back here with the design."
 
 Stop. Do not attempt to compose without a design.
 

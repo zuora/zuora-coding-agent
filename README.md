@@ -1,6 +1,6 @@
 # Zuora Coding Agent
 
-A plugin for **Claude Code**, **Cursor**, and **Codex** that accelerates Zuora-specific development work including API integrations, workflow development, migrations, template design, and best-practice validation.
+A plugin for **Claude Code**, **Cursor**, and **Codex** that accelerates Zuora-specific development work — API integrations, Workflow design and build, Meter design and build, Order migration, Invoice Settlement migration, and best-practice validation.
 
 Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
 
@@ -16,8 +16,8 @@ Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
 | `/zuora-is-migration-build` | Generate IS migration implementation artifacts |
 | `/zuora-order-migration-design` | Produce order migration design, sequencing, and edge-case analysis |
 | `/zuora-order-migration-build` | Generate order migration implementation artifacts |
-| `/zuora-mediation-meter-design` | Design a Zuora Mediation meter — pick type, define topology, and collect per-operator field values |
-| `/zuora-mediation-meter-build` | Compose an importable Zuora Mediation meter JSON from a design |
+| `/zuora-meter-design` | Design a Zuora meter — pick type, define topology, and collect per-operator field values |
+| `/zuora-meter-build` | Compose an importable Zuora meter JSON from a design |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
 | `/zuora-review` | Review work for Zuora best practices |
 

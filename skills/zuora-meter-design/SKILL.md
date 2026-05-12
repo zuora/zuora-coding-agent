@@ -1,11 +1,11 @@
 ---
-name: zuora-mediation-meter-design
-description: Design a Zuora Mediation meter — pick type, define topology, and collect per-operator field values
+name: zuora-meter-design
+description: Design a Zuora meter — pick type, define topology, and collect per-operator field values
 argument-hint: <business requirement for the meter>
 allowed-tools: [Read, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_mediation_meters]
 ---
 
-You are designing a Zuora Mediation meter. The user has described a usage-billing requirement; your job is to turn it into a prose design detailed enough that `/zuora-mediation-meter-build` can compose an importable meter JSON without re-interviewing the user.
+You are designing a Zuora meter. The user has described a usage-billing requirement; your job is to turn it into a prose design detailed enough that `/zuora-meter-build` can compose an importable meter JSON without re-interviewing the user.
 
 ## Input
 
@@ -115,8 +115,8 @@ Output in chat (no file writes, no JSON):
 - **Per-node design** — for each node: `operatorType`, purpose, required fields with source (user / default / blocker), assumptions applied
 - **Data flow** — what each node emits to the next, any schemas / field mappings
 - **Unresolved identifiers** — names that need real integer IDs before import
-- **Blockers** — numbered list of questions the user MUST answer before `/zuora-mediation-meter-build` can run
-- **Next step** — "Run `/zuora-mediation-meter-build` with this design once blockers are resolved."
+- **Blockers** — numbered list of questions the user MUST answer before `/zuora-meter-build` can run
+- **Next step** — "Run `/zuora-meter-build` with this design once blockers are resolved."
 
 ## Do NOT
 
