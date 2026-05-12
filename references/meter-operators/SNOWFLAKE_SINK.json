@@ -1,0 +1,25 @@
+{
+  "key": "SNOWFLAKE_SINK",
+  "nodeType": "SINK",
+  "operatorType": "SNOWFLAKE",
+  "metadata": {
+    "connectionName": null,
+    "database": null,
+    "schema": null,
+    "table": null,
+    "warehouse": null,
+    "role": null
+  },
+  "label": "Snowflake Sink",
+  "assumptions": [],
+  "blockers": [
+    {
+      "path": "connectionName",
+      "message": "Snowflake sink connectionName is required."
+    },
+    {
+      "path": "table",
+      "message": "Snowflake sink table is required."
+    }
+  ]
+}

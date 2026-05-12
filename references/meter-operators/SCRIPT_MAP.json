@@ -1,0 +1,33 @@
+{
+  "key": "SCRIPT_MAP",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SCRIPT_MAP",
+  "metadata": {
+    "language": "JS",
+    "source": null,
+    "schemaId": null
+  },
+  "label": "Script Map",
+  "assumptions": [
+    {
+      "path": "language",
+      "value": "JS",
+      "reason": "JS is the default scripting language; PYTHON is also supported.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "path": "language",
+      "message": "SCRIPT_MAP language is required. Which scripting language? ('JS' or 'PYTHON')"
+    },
+    {
+      "path": "source",
+      "message": "SCRIPT_MAP source code is required. Provide the script that transforms the event (receives 'event' object, must return transformed event)."
+    },
+    {
+      "path": "schemaId",
+      "message": "SCRIPT_MAP schemaId is required. Which output schema should the mapped events conform to? (get the ID from the Schema Registry)"
+    }
+  ]
+}

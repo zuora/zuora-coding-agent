@@ -1,0 +1,29 @@
+{
+  "key": "S3_SINK",
+  "nodeType": "SINK",
+  "operatorType": "S3",
+  "metadata": {
+    "connectionName": null,
+    "path": null,
+    "fileFormat": null,
+    "schemaId": null,
+    "formatOption": {
+      "hasHeader": true,
+      "delimiter": ","
+    },
+    "rollingFileSize": null,
+    "rollingFileSizeUnit": "MB"
+  },
+  "label": "S3 Sink",
+  "assumptions": [],
+  "blockers": [
+    {
+      "path": "connectionName",
+      "message": "S3 sink connectionName is required."
+    },
+    {
+      "path": "path",
+      "message": "S3 sink path is required. Which S3 destination path should output files be written to?"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "key": "AGGREGATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "AGGREGATOR",
+  "metadata": {
+    "triggerType": "Timeout",
+    "timeoutType": "EventTime",
+    "timeoutDuration": "1 hour",
+    "eventTimeField": null,
+    "eventTimeFormat": null,
+    "groupFields": [],
+    "aggregationFields": [
+      {
+        "field": null,
+        "aggregation": "SUM",
+        "targetField": null
+      }
+    ]
+  },
+  "label": "Aggregator",
+  "assumptions": [
+    {
+      "path": "triggerType",
+      "value": "Timeout",
+      "reason": "Time-based windowing is the most common aggregation pattern.",
+      "confidence": 0.9
+    },
+    {
+      "path": "timeoutType",
+      "value": "EventTime",
+      "reason": "Using event time (not processing time) for accurate billing windows.",
+      "confidence": 0.9
+    },
+    {
+      "path": "timeoutDuration",
+      "value": "1 hour",
+      "reason": "Hourly aggregation is the platform default and most common billing window.",
+      "confidence": 0.8
+    },
+    {
+      "path": "aggregationFields[0].aggregation",
+      "value": "SUM",
+      "reason": "SUM is the most common aggregation function for usage billing.",
+      "confidence": 0.85
+    },
+    {
+      "path": "aggregationFields[0].targetField",
+      "value": "totalQuantity",
+      "reason": "Default output field name for the aggregated value; defaults to the source field name if omitted.",
+      "confidence": 0.7
+    },
+    {
+      "path": "isForPrefetch",
+      "value": false,
+      "reason": "Standard aggregation; prefetch mode is only for pre-loading lookup data.",
+      "confidence": 0.95
+    }
+  ],
+  "blockers": [
+    {
+      "path": "groupFields",
+      "message": "AGGREGATOR groupFields is required. Which fields define the aggregation groups? (e.g. [\"accountNumber\"] or [\"accountNumber\", \"subscriptionNumber\"])"
+    },
+    {
+      "path": "aggregationFields[0].field",
+      "message": "AGGREGATOR aggregation source field is required. Which event field should be aggregated (summed, counted, etc.)?"
+    },
+    {
+      "path": "eventTimeField",
+      "when": {
+        "path": "timeoutType",
+        "equals": "EventTime"
+      },
+      "message": "AGGREGATOR eventTimeField is required when timeoutType is EventTime. Which event field contains the timestamp used for time-windowing?"
+    }
+  ]
+}

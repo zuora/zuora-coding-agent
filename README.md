@@ -16,6 +16,8 @@ Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
 | `/zuora-is-migration-build` | Generate IS migration implementation artifacts |
 | `/zuora-order-migration-design` | Produce order migration design, sequencing, and edge-case analysis |
 | `/zuora-order-migration-build` | Generate order migration implementation artifacts |
+| `/zuora-mediation-meter-design` | Design a Zuora Mediation meter — pick type, define topology, and collect per-operator field values |
+| `/zuora-mediation-meter-build` | Compose an importable Zuora Mediation meter JSON from a design |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
 | `/zuora-review` | Review work for Zuora best practices |
 
@@ -191,6 +193,7 @@ For significant changes, open an issue first to discuss the proposed change.
 | Amy | Invoice Settlement Migration |
 | Richard | Order Migration |
 | Jianfeng | MCP Tool |
+| Gautam | Mediation |
 
 ## License
 

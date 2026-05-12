@@ -1,0 +1,24 @@
+{
+  "key": "KAFKA_SINK",
+  "nodeType": "SINK",
+  "operatorType": "KAFKA",
+  "metadata": {
+    "connectionName": null,
+    "topic": null,
+    "dataFormat": "JSON",
+    "schemaId": null,
+    "keyFields": []
+  },
+  "label": "Kafka Sink",
+  "assumptions": [],
+  "blockers": [
+    {
+      "path": "connectionName",
+      "message": "Kafka sink connectionName is required."
+    },
+    {
+      "path": "topic",
+      "message": "Kafka sink topic is required. Which topic should processed events be published to?"
+    }
+  ]
+}

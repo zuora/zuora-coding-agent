@@ -1,0 +1,98 @@
+{
+  "key": "CURRENCY_LOOKUP",
+  "nodeType": "PROCESSOR",
+  "operatorType": "CURRENCY_LOOKUP",
+  "metadata": {
+    "fromCurrency": {
+      "type": null,
+      "currency": null,
+      "field": null
+    },
+    "toCurrency": {
+      "type": null,
+      "currency": null,
+      "field": null
+    },
+    "rateType": {
+      "type": null,
+      "field": null
+    },
+    "dateField": {
+      "field": null,
+      "timeFormat": null
+    },
+    "rateField": null,
+    "continueWhenNoDataFound": false
+  },
+  "label": "Currency Lookup",
+  "assumptions": [
+    {
+      "path": "continueWhenNoDataFound",
+      "value": false,
+      "reason": "Stop processing when no exchange rate is found to avoid incorrect billing.",
+      "confidence": 0.9
+    }
+  ],
+  "blockers": [
+    {
+      "path": "fromCurrency.type",
+      "message": "CURRENCY_LOOKUP fromCurrency.type is required. Is the source currency STATIC (fixed code) or FROM_EVENT (read from an event field)?"
+    },
+    {
+      "path": "fromCurrency.currency",
+      "when": {
+        "path": "fromCurrency.type",
+        "equals": "STATIC"
+      },
+      "message": "CURRENCY_LOOKUP fromCurrency.currency is required when type is STATIC. What is the source currency code? (e.g. 'EUR')"
+    },
+    {
+      "path": "fromCurrency.field",
+      "when": {
+        "path": "fromCurrency.type",
+        "equals": "FROM_EVENT"
+      },
+      "message": "CURRENCY_LOOKUP fromCurrency.field is required when type is FROM_EVENT. Which event field contains the source currency code?"
+    },
+    {
+      "path": "toCurrency.type",
+      "message": "CURRENCY_LOOKUP toCurrency.type is required. Is the target currency STATIC (fixed code) or FROM_EVENT (read from an event field)?"
+    },
+    {
+      "path": "toCurrency.currency",
+      "when": {
+        "path": "toCurrency.type",
+        "equals": "STATIC"
+      },
+      "message": "CURRENCY_LOOKUP toCurrency.currency is required when type is STATIC. What is the target currency code? (e.g. 'USD')"
+    },
+    {
+      "path": "toCurrency.field",
+      "when": {
+        "path": "toCurrency.type",
+        "equals": "FROM_EVENT"
+      },
+      "message": "CURRENCY_LOOKUP toCurrency.field is required when type is FROM_EVENT. Which event field contains the target currency code?"
+    },
+    {
+      "path": "rateType.type",
+      "message": "CURRENCY_LOOKUP rateType.type is required. Which exchange rate type? (ASK, BID, MIDPOINT, HIGH_ASK, HIGH_BID, LOW_ASK, LOW_BID, or FROM_EVENT)"
+    },
+    {
+      "path": "rateType.field",
+      "when": {
+        "path": "rateType.type",
+        "equals": "FROM_EVENT"
+      },
+      "message": "CURRENCY_LOOKUP rateType.field is required when rateType is FROM_EVENT. Which event field contains the exchange rate?"
+    },
+    {
+      "path": "dateField.field",
+      "message": "CURRENCY_LOOKUP dateField.field is required. Which event field contains the date used to look up the exchange rate?"
+    },
+    {
+      "path": "rateField",
+      "message": "CURRENCY_LOOKUP rateField is required. What output field name should the looked-up exchange rate be written to? (e.g. 'exchangeRate')"
+    }
+  ]
+}

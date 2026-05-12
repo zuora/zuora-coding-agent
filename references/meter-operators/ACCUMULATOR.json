@@ -1,0 +1,40 @@
+{
+  "key": "ACCUMULATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "ACCUMULATOR",
+  "metadata": {
+    "groupFields": [],
+    "aggregationFields": [
+      {
+        "field": null,
+        "aggregation": "SUM",
+        "targetField": null
+      }
+    ]
+  },
+  "label": "Accumulator",
+  "assumptions": [
+    {
+      "path": "aggregationFields[0].aggregation",
+      "value": "SUM",
+      "reason": "SUM is the most common accumulation function for usage totals.",
+      "confidence": 0.85
+    },
+    {
+      "path": "aggregationFields[0].targetField",
+      "value": "totalQuantity",
+      "reason": "Default output field name; defaults to source field name if omitted.",
+      "confidence": 0.7
+    }
+  ],
+  "blockers": [
+    {
+      "path": "groupFields",
+      "message": "ACCUMULATOR groupFields is required. Which fields define the accumulation groups? (e.g. [\"accountNumber\"] or [\"accountNumber\", \"subscriptionNumber\"])"
+    },
+    {
+      "path": "aggregationFields[0].field",
+      "message": "ACCUMULATOR aggregation source field is required. Which event field should be accumulated?"
+    }
+  ]
+}

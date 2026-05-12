@@ -1,0 +1,11 @@
+{
+  "key": "USER_INPUT",
+  "nodeType": "SOURCE",
+  "operatorType": "USER_INPUT",
+  "metadata": {
+    "data": []
+  },
+  "label": "User Input Source",
+  "assumptions": [],
+  "blockers": []
+}

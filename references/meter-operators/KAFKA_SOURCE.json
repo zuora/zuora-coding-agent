@@ -1,0 +1,41 @@
+{
+  "key": "KAFKA_SOURCE",
+  "nodeType": "SOURCE",
+  "operatorType": "KAFKA",
+  "metadata": {
+    "connectionName": null,
+    "topic": null,
+    "dataFormat": "JSON",
+    "schemaId": null,
+    "offsetResetStrategy": "LATEST"
+  },
+  "label": "Kafka Source",
+  "assumptions": [
+    {
+      "path": "dataFormat",
+      "value": "JSON",
+      "reason": "JSON is the most common Kafka message format.",
+      "confidence": 0.85
+    },
+    {
+      "path": "offsetResetStrategy",
+      "value": "LATEST",
+      "reason": "Start from latest offset to avoid reprocessing historical events.",
+      "confidence": 0.8
+    }
+  ],
+  "blockers": [
+    {
+      "path": "connectionName",
+      "message": "Kafka connectionName is required. Which Connections entry should this source use?"
+    },
+    {
+      "path": "topic",
+      "message": "Kafka topic is required. Which topic should this source consume from?"
+    },
+    {
+      "path": "schemaId",
+      "message": "Kafka source schemaId is required. Which schema should be used to parse messages? (get the ID from the Schema Registry)"
+    }
+  ]
+}

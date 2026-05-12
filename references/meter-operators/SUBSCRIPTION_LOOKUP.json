@@ -1,0 +1,82 @@
+{
+  "key": "SUBSCRIPTION_LOOKUP",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SUBSCRIPTION_LOOKUP",
+  "metadata": {
+    "lookupType": "AccountAndChargeName",
+    "accountNumberField": null,
+    "chargeNameField": null,
+    "subscriptionIdField": null,
+    "appendFields": [
+      {
+        "referenceField": null,
+        "eventField": null
+      }
+    ],
+    "mapFields": [],
+    "continueWhenNoDataFound": false
+  },
+  "label": "Subscription Lookup",
+  "assumptions": [
+    {
+      "path": "lookupType",
+      "value": "AccountAndChargeName",
+      "reason": "AccountAndChargeName is the most common subscription lookup type.",
+      "confidence": 0.8
+    },
+    {
+      "path": "continueWhenNoDataFound",
+      "value": false,
+      "reason": "Stop processing events where no subscription match is found.",
+      "confidence": 0.9
+    },
+    {
+      "path": "includeActiveAndCancelledSubsOnly",
+      "value": true,
+      "reason": "Only match active or cancelled subscriptions; exclude other statuses.",
+      "confidence": 0.85
+    },
+    {
+      "path": "includeSegmentsActiveOnDateOnly",
+      "value": false,
+      "reason": "Include all rate plan charge segments by default, not just those active on the event date.",
+      "confidence": 0.8
+    },
+    {
+      "path": "includeUsageChargesOnly",
+      "value": false,
+      "reason": "Include all charge types unless the meter only processes usage charges.",
+      "confidence": 0.8
+    }
+  ],
+  "blockers": [
+    {
+      "path": "accountNumberField",
+      "message": "SUBSCRIPTION_LOOKUP accountNumberField is required. Which event field contains the account number?"
+    },
+    {
+      "path": "chargeNameField",
+      "when": {
+        "path": "lookupType",
+        "equals": "AccountAndChargeName"
+      },
+      "message": "SUBSCRIPTION_LOOKUP chargeNameField is required for AccountAndChargeName lookup. Which event field contains the charge name?"
+    },
+    {
+      "path": "subscriptionIdField",
+      "when": {
+        "path": "lookupType",
+        "equals": "SubscriptionId"
+      },
+      "message": "SUBSCRIPTION_LOOKUP subscriptionIdField is required for SubscriptionId lookup. Which event field contains the subscription ID?"
+    },
+    {
+      "path": "eventTimeField",
+      "when": {
+        "path": "includeSegmentsActiveOnDateOnly",
+        "equals": true
+      },
+      "message": "SUBSCRIPTION_LOOKUP eventTimeField is required when includeSegmentsActiveOnDateOnly is true. Which event field contains the date to use for segment filtering?"
+    }
+  ]
+}

@@ -1,0 +1,262 @@
+{
+  "_source_sha": "daa2c68",
+  "_source_repo": "developer-agent-WF/developer-agent",
+  "_source_path": "tools/meter_operators/",
+  "generated_at": "2026-04-20T12:34:03.474623+00:00",
+  "total_operators": 35,
+  "by_node_type": {
+    "SOURCE": [
+      "EVENT_STORE_SOURCE",
+      "ZUORA_BULK_API",
+      "KAFKA_SOURCE",
+      "S3_SOURCE",
+      "LOCAL_FILE",
+      "SNOWFLAKE_SOURCE",
+      "ZUORA_QUERY",
+      "USER_INPUT"
+    ],
+    "PROCESSOR": [
+      "FILTER",
+      "MAP",
+      "AGGREGATOR",
+      "ACCUMULATOR",
+      "REALTIME_EVENT_AGGREGATOR",
+      "CURRENCY_LOOKUP",
+      "CORRELATOR",
+      "DEDUPLICATE",
+      "PARTITION",
+      "SUBSCRIPTION_LOOKUP",
+      "HTTP",
+      "BILLING_RATING",
+      "REALTIME_CHARGING",
+      "PERSIST_ACCUMULATOR",
+      "SCRIPT_MAP",
+      "SCRIPT_FILTER",
+      "SCRIPT_AGGREGATOR",
+      "SCRIPT_ACCUMULATOR",
+      "SCRIPT_CORRELATOR"
+    ],
+    "SINK": [
+      "EVENT_STORE_SINK",
+      "ZUORA_USAGE",
+      "ZUORA_RATING",
+      "ZUORA_WAREHOUSE",
+      "KAFKA_SINK",
+      "S3_SINK",
+      "SNOWFLAKE_SINK",
+      "NOOP"
+    ]
+  },
+  "operators": [
+    {
+      "key": "EVENT_STORE_SOURCE",
+      "nodeType": "SOURCE",
+      "operatorType": "EVENT_STORE",
+      "file": "EVENT_STORE_SOURCE.json"
+    },
+    {
+      "key": "ZUORA_BULK_API",
+      "nodeType": "SOURCE",
+      "operatorType": "ZUORA_BULK_API",
+      "file": "ZUORA_BULK_API.json"
+    },
+    {
+      "key": "KAFKA_SOURCE",
+      "nodeType": "SOURCE",
+      "operatorType": "KAFKA",
+      "file": "KAFKA_SOURCE.json"
+    },
+    {
+      "key": "S3_SOURCE",
+      "nodeType": "SOURCE",
+      "operatorType": "S3",
+      "file": "S3_SOURCE.json"
+    },
+    {
+      "key": "LOCAL_FILE",
+      "nodeType": "SOURCE",
+      "operatorType": "LOCAL_FILE",
+      "file": "LOCAL_FILE.json"
+    },
+    {
+      "key": "SNOWFLAKE_SOURCE",
+      "nodeType": "SOURCE",
+      "operatorType": "SNOWFLAKE",
+      "file": "SNOWFLAKE_SOURCE.json"
+    },
+    {
+      "key": "ZUORA_QUERY",
+      "nodeType": "SOURCE",
+      "operatorType": "ZUORA_QUERY",
+      "file": "ZUORA_QUERY.json"
+    },
+    {
+      "key": "USER_INPUT",
+      "nodeType": "SOURCE",
+      "operatorType": "USER_INPUT",
+      "file": "USER_INPUT.json"
+    },
+    {
+      "key": "FILTER",
+      "nodeType": "PROCESSOR",
+      "operatorType": "FILTER",
+      "file": "FILTER.json"
+    },
+    {
+      "key": "MAP",
+      "nodeType": "PROCESSOR",
+      "operatorType": "MAP",
+      "file": "MAP.json"
+    },
+    {
+      "key": "AGGREGATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "AGGREGATOR",
+      "file": "AGGREGATOR.json"
+    },
+    {
+      "key": "ACCUMULATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "ACCUMULATOR",
+      "file": "ACCUMULATOR.json"
+    },
+    {
+      "key": "REALTIME_EVENT_AGGREGATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "REALTIME_EVENT_AGGREGATOR",
+      "file": "REALTIME_EVENT_AGGREGATOR.json"
+    },
+    {
+      "key": "CURRENCY_LOOKUP",
+      "nodeType": "PROCESSOR",
+      "operatorType": "CURRENCY_LOOKUP",
+      "file": "CURRENCY_LOOKUP.json"
+    },
+    {
+      "key": "CORRELATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "CORRELATOR",
+      "file": "CORRELATOR.json"
+    },
+    {
+      "key": "DEDUPLICATE",
+      "nodeType": "PROCESSOR",
+      "operatorType": "DEDUPLICATE",
+      "file": "DEDUPLICATE.json"
+    },
+    {
+      "key": "PARTITION",
+      "nodeType": "PROCESSOR",
+      "operatorType": "PARTITION",
+      "file": "PARTITION.json"
+    },
+    {
+      "key": "SUBSCRIPTION_LOOKUP",
+      "nodeType": "PROCESSOR",
+      "operatorType": "SUBSCRIPTION_LOOKUP",
+      "file": "SUBSCRIPTION_LOOKUP.json"
+    },
+    {
+      "key": "HTTP",
+      "nodeType": "PROCESSOR",
+      "operatorType": "HTTP",
+      "file": "HTTP.json"
+    },
+    {
+      "key": "BILLING_RATING",
+      "nodeType": "PROCESSOR",
+      "operatorType": "BILLING_RATING",
+      "file": "BILLING_RATING.json"
+    },
+    {
+      "key": "REALTIME_CHARGING",
+      "nodeType": "PROCESSOR",
+      "operatorType": "REALTIME_CHARGING",
+      "file": "REALTIME_CHARGING.json"
+    },
+    {
+      "key": "PERSIST_ACCUMULATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "PERSIST_ACCUMULATOR",
+      "file": "PERSIST_ACCUMULATOR.json"
+    },
+    {
+      "key": "SCRIPT_MAP",
+      "nodeType": "PROCESSOR",
+      "operatorType": "SCRIPT_MAP",
+      "file": "SCRIPT_MAP.json"
+    },
+    {
+      "key": "SCRIPT_FILTER",
+      "nodeType": "PROCESSOR",
+      "operatorType": "SCRIPT_FILTER",
+      "file": "SCRIPT_FILTER.json"
+    },
+    {
+      "key": "SCRIPT_AGGREGATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "SCRIPT_AGGREGATOR",
+      "file": "SCRIPT_AGGREGATOR.json"
+    },
+    {
+      "key": "SCRIPT_ACCUMULATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "SCRIPT_ACCUMULATOR",
+      "file": "SCRIPT_ACCUMULATOR.json"
+    },
+    {
+      "key": "SCRIPT_CORRELATOR",
+      "nodeType": "PROCESSOR",
+      "operatorType": "SCRIPT_CORRELATOR",
+      "file": "SCRIPT_CORRELATOR.json"
+    },
+    {
+      "key": "EVENT_STORE_SINK",
+      "nodeType": "SINK",
+      "operatorType": "EVENT_STORE",
+      "file": "EVENT_STORE_SINK.json"
+    },
+    {
+      "key": "ZUORA_USAGE",
+      "nodeType": "SINK",
+      "operatorType": "ZUORA_USAGE",
+      "file": "ZUORA_USAGE.json"
+    },
+    {
+      "key": "ZUORA_RATING",
+      "nodeType": "SINK",
+      "operatorType": "ZUORA_RATING",
+      "file": "ZUORA_RATING.json"
+    },
+    {
+      "key": "ZUORA_WAREHOUSE",
+      "nodeType": "SINK",
+      "operatorType": "ZUORA_WAREHOUSE",
+      "file": "ZUORA_WAREHOUSE.json"
+    },
+    {
+      "key": "KAFKA_SINK",
+      "nodeType": "SINK",
+      "operatorType": "KAFKA",
+      "file": "KAFKA_SINK.json"
+    },
+    {
+      "key": "S3_SINK",
+      "nodeType": "SINK",
+      "operatorType": "S3",
+      "file": "S3_SINK.json"
+    },
+    {
+      "key": "SNOWFLAKE_SINK",
+      "nodeType": "SINK",
+      "operatorType": "SNOWFLAKE",
+      "file": "SNOWFLAKE_SINK.json"
+    },
+    {
+      "key": "NOOP",
+      "nodeType": "SINK",
+      "operatorType": "NOOP",
+      "file": "NOOP.json"
+    }
+  ]
+}

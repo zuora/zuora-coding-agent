@@ -1,0 +1,38 @@
+{
+  "key": "SCRIPT_ACCUMULATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SCRIPT_ACCUMULATOR",
+  "metadata": {
+    "groupFields": [],
+    "language": "JS",
+    "source": null,
+    "schemaId": null
+  },
+  "label": "Script Accumulator",
+  "assumptions": [
+    {
+      "path": "language",
+      "value": "JS",
+      "reason": "JS is the default scripting language; PYTHON is also supported.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "path": "language",
+      "message": "SCRIPT_ACCUMULATOR language is required. Which scripting language? ('JS' or 'PYTHON')"
+    },
+    {
+      "path": "source",
+      "message": "SCRIPT_ACCUMULATOR source code is required. Provide the accumulation script (maintains running state per group key)."
+    },
+    {
+      "path": "groupFields",
+      "message": "SCRIPT_ACCUMULATOR groupFields is required. Which fields define the accumulation groups? (e.g. [\"accountNumber\"])"
+    },
+    {
+      "path": "schemaId",
+      "message": "SCRIPT_ACCUMULATOR schemaId is required. Which output schema should the accumulated events conform to? (get the ID from the Schema Registry)"
+    }
+  ]
+}

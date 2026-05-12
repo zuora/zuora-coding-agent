@@ -1,0 +1,28 @@
+{
+  "key": "PARTITION",
+  "nodeType": "PROCESSOR",
+  "operatorType": "PARTITION",
+  "metadata": {
+    "keyType": "All",
+    "specificFields": []
+  },
+  "label": "Partition",
+  "assumptions": [
+    {
+      "path": "keyType",
+      "value": "All",
+      "reason": "Partition by all event fields by default; use SpecificFields to control parallelism.",
+      "confidence": 0.8
+    }
+  ],
+  "blockers": [
+    {
+      "path": "specificFields",
+      "when": {
+        "path": "keyType",
+        "equals": "SpecificFields"
+      },
+      "message": "PARTITION specificFields is required when keyType is SpecificFields. Which fields define the partition key? (e.g. [\"accountNumber\"] to co-locate events by account)"
+    }
+  ]
+}

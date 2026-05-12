@@ -1,0 +1,82 @@
+{
+  "key": "PERSIST_ACCUMULATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "PERSIST_ACCUMULATOR",
+  "metadata": {
+    "aggregation": {
+      "groupByFields": [],
+      "timeField": {
+        "field": null,
+        "format": null,
+        "granularityNumber": 1,
+        "granularity": "hour"
+      },
+      "aggregationFields": [
+        {
+          "source": null,
+          "function": "sum",
+          "target": null
+        }
+      ]
+    },
+    "delayForDownstream": {
+      "value": null,
+      "unit": null
+    },
+    "queryInterval": {
+      "value": null,
+      "unit": null
+    }
+  },
+  "label": "Persist Accumulator",
+  "assumptions": [
+    {
+      "path": "aggregation.timeField.granularity",
+      "value": "hour",
+      "reason": "Hourly granularity is the default accumulation window.",
+      "confidence": 0.8
+    },
+    {
+      "path": "aggregation.timeField.granularityNumber",
+      "value": 1,
+      "reason": "1 unit of granularity (e.g. 1 hour) is the standard window size.",
+      "confidence": 0.8
+    },
+    {
+      "path": "aggregation.aggregationFields[0].function",
+      "value": "sum",
+      "reason": "SUM is the default accumulation function for usage totals.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "path": "aggregation.groupByFields",
+      "message": "PERSIST_ACCUMULATOR groupByFields is required. Which fields define the accumulation groups? (e.g. [\"accountNumber\"])"
+    },
+    {
+      "path": "aggregation.timeField.field",
+      "message": "PERSIST_ACCUMULATOR timeField.field is required. Which event field contains the timestamp for the accumulation window?"
+    },
+    {
+      "path": "aggregation.timeField.format",
+      "message": "PERSIST_ACCUMULATOR timeField.format is required. What is the timestamp format? (e.g. 'yyyy-MM-dd HH:mm:ss' or 'epoch_millis')"
+    },
+    {
+      "path": "aggregation.aggregationFields[0].source",
+      "message": "PERSIST_ACCUMULATOR aggregation source field is required. Which event field should be accumulated?"
+    },
+    {
+      "path": "aggregation.aggregationFields[0].target",
+      "message": "PERSIST_ACCUMULATOR aggregation target field is required. What should the output field be named?"
+    },
+    {
+      "path": "queryInterval.value",
+      "message": "PERSIST_ACCUMULATOR queryInterval value is required. How often should accumulated results be queried downstream? (e.g. value=1, unit='hour')"
+    },
+    {
+      "path": "queryInterval.unit",
+      "message": "PERSIST_ACCUMULATOR queryInterval unit is required. (e.g. 'minute', 'hour', 'day')"
+    }
+  ]
+}
