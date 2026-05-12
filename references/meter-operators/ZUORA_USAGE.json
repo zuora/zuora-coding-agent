@@ -1,0 +1,78 @@
+{
+  "key": "ZUORA_USAGE",
+  "nodeType": "SINK",
+  "operatorType": "ZUORA_USAGE",
+  "metadata": {
+    "fieldMappings": [
+      {
+        "name": "accountNumber",
+        "field": null,
+        "required": true
+      },
+      {
+        "name": "quantity",
+        "field": null,
+        "required": true
+      },
+      {
+        "name": "uom",
+        "field": null,
+        "required": true
+      },
+      {
+        "name": "startDateTime",
+        "field": null,
+        "dateFormat": "yyyy-MM-dd'T'HH:mm:ssZ",
+        "required": true
+      },
+      {
+        "name": "subscriptionNumber",
+        "field": null
+      },
+      {
+        "name": "chargeNumber",
+        "field": null
+      },
+      {
+        "name": "endDateTime",
+        "field": null,
+        "dateFormat": "yyyy-MM-dd'T'HH:mm:ssZ"
+      },
+      {
+        "name": "description",
+        "field": null
+      },
+      {
+        "name": "uniqueKey",
+        "field": null
+      }
+    ]
+  },
+  "label": "Zuora Usage Sink",
+  "assumptions": [
+    {
+      "iterate": "fieldMappings",
+      "item_when": {
+        "field": "name",
+        "equals": "startDateTime"
+      },
+      "item_field_to_set": "dateFormat",
+      "value": "yyyy-MM-dd'T'HH:mm:ssZ",
+      "field_label_template": "fieldMappings[startDateTime].dateFormat",
+      "reason": "ISO 8601 is the standard datetime format for Zuora Usage.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "iterate": "fieldMappings",
+      "item_when": {
+        "field": "required",
+        "equals": true
+      },
+      "require_item_field": "field",
+      "field_label_template": "fieldMappings[{name}].field",
+      "message_template": "ZUORA_USAGE requires a source field mapped to '{name}'. Which event field contains this value?"
+    }
+  ]
+}

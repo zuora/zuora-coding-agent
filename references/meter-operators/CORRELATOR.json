@@ -1,0 +1,67 @@
+{
+  "key": "CORRELATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "CORRELATOR",
+  "metadata": {
+    "startEventField": null,
+    "startEventValue": null,
+    "stopEventField": null,
+    "stopEventValue": null,
+    "timeoutDuration": "1 day",
+    "groupFields": [],
+    "aggregationFields": [
+      {
+        "field": null,
+        "aggregation": "SUM",
+        "targetField": null
+      }
+    ]
+  },
+  "label": "Correlator",
+  "assumptions": [
+    {
+      "path": "timeoutDuration",
+      "value": "1 day",
+      "reason": "Correlation sessions expire after 1 day if no stop event is received.",
+      "confidence": 0.75
+    },
+    {
+      "path": "aggregationFields[0].aggregation",
+      "value": "SUM",
+      "reason": "SUM is the most common aggregation for correlating session usage.",
+      "confidence": 0.85
+    },
+    {
+      "path": "aggregationFields[0].targetField",
+      "value": "totalQuantity",
+      "reason": "Default output field name for the correlated aggregate.",
+      "confidence": 0.7
+    }
+  ],
+  "blockers": [
+    {
+      "path": "startEventField",
+      "message": "CORRELATOR startEventField is required. Which event field identifies the session start event? (e.g. 'eventType')"
+    },
+    {
+      "path": "startEventValue",
+      "message": "CORRELATOR startEventValue is required. What value in startEventField marks a session start? (e.g. 'START')"
+    },
+    {
+      "path": "stopEventField",
+      "message": "CORRELATOR stopEventField is required. Which event field identifies the session stop event?"
+    },
+    {
+      "path": "stopEventValue",
+      "message": "CORRELATOR stopEventValue is required. What value in stopEventField marks a session end? (e.g. 'STOP')"
+    },
+    {
+      "path": "groupFields",
+      "message": "CORRELATOR groupFields is required. Which fields define the session correlation key? (e.g. [\"sessionId\"] or [\"accountId\", \"deviceId\"])"
+    },
+    {
+      "path": "aggregationFields[0].field",
+      "message": "CORRELATOR aggregation source field is required. Which event field should be accumulated across the session?"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "key": "DEDUPLICATE",
+  "nodeType": "PROCESSOR",
+  "operatorType": "DEDUPLICATE",
+  "metadata": {
+    "checkType": "All",
+    "specificFields": [],
+    "ttl": "1 day",
+    "maxSize": 500000
+  },
+  "label": "Deduplicate",
+  "assumptions": [
+    {
+      "path": "checkType",
+      "value": "All",
+      "reason": "Compare the entire event for deduplication.",
+      "confidence": 0.85
+    },
+    {
+      "path": "ttl",
+      "value": "1 day",
+      "reason": "One-day deduplication window is a safe default.",
+      "confidence": 0.75
+    },
+    {
+      "path": "continueWhenDedup",
+      "value": false,
+      "reason": "Drop duplicate events rather than forwarding them downstream.",
+      "confidence": 0.9
+    },
+    {
+      "path": "maxSize",
+      "value": 500000,
+      "reason": "500K in-memory entries is the recommended default; must be >0 and <10,000,000.",
+      "confidence": 0.8
+    }
+  ],
+  "blockers": [
+    {
+      "path": "specificFields",
+      "when": {
+        "path": "checkType",
+        "equals": "SpecificFields"
+      },
+      "message": "DEDUPLICATE specificFields is required when checkType is SpecificFields. Which fields uniquely identify an event? (e.g. [\"transactionId\"] or [\"accountId\", \"eventTime\"])"
+    }
+  ]
+}

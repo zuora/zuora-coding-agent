@@ -1,0 +1,69 @@
+{
+  "key": "SCRIPT_AGGREGATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SCRIPT_AGGREGATOR",
+  "metadata": {
+    "triggerType": "Timeout",
+    "timeoutType": "EventTime",
+    "timeoutDuration": "1 hour",
+    "eventTimeField": null,
+    "eventTimeFormat": null,
+    "groupFields": [],
+    "language": "JS",
+    "source": null,
+    "schemaId": null
+  },
+  "label": "Script Aggregator",
+  "assumptions": [
+    {
+      "path": "triggerType",
+      "value": "Timeout",
+      "reason": "Time-based windowing is the most common aggregation trigger.",
+      "confidence": 0.9
+    },
+    {
+      "path": "timeoutType",
+      "value": "EventTime",
+      "reason": "Event time produces accurate billing windows regardless of processing delays.",
+      "confidence": 0.9
+    },
+    {
+      "path": "timeoutDuration",
+      "value": "1 hour",
+      "reason": "Hourly aggregation is the platform default window.",
+      "confidence": 0.8
+    },
+    {
+      "path": "language",
+      "value": "JS",
+      "reason": "JS is the default scripting language; PYTHON is also supported.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "path": "language",
+      "message": "SCRIPT_AGGREGATOR language is required. Which scripting language? ('JS' or 'PYTHON')"
+    },
+    {
+      "path": "source",
+      "message": "SCRIPT_AGGREGATOR source code is required. Provide the script that accumulates state and emits aggregated output."
+    },
+    {
+      "path": "groupFields",
+      "message": "SCRIPT_AGGREGATOR groupFields is required. Which fields define the aggregation groups? (e.g. [\"accountNumber\"])"
+    },
+    {
+      "path": "eventTimeField",
+      "when": {
+        "path": "timeoutType",
+        "equals": "EventTime"
+      },
+      "message": "SCRIPT_AGGREGATOR eventTimeField is required when timeoutType is EventTime. Which event field contains the timestamp?"
+    },
+    {
+      "path": "schemaId",
+      "message": "SCRIPT_AGGREGATOR schemaId is required. Which output schema should the aggregated events conform to? (get the ID from the Schema Registry)"
+    }
+  ]
+}

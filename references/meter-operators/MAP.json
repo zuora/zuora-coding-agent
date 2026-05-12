@@ -1,0 +1,50 @@
+{
+  "key": "MAP",
+  "nodeType": "PROCESSOR",
+  "operatorType": "MAP",
+  "metadata": {
+    "excludedFields": [],
+    "mapFields": [
+      {
+        "sourceField": null,
+        "targetField": null,
+        "transformType": "direct",
+        "formula": null,
+        "targetType": "string"
+      }
+    ]
+  },
+  "label": "Map",
+  "assumptions": [
+    {
+      "path": "mapFields[0].transformType",
+      "value": "direct",
+      "reason": "Direct field copy is the most common mapping operation.",
+      "confidence": 0.85
+    },
+    {
+      "path": "mapFields[0].targetType",
+      "value": "string",
+      "reason": "String is the default output type; change if numeric operations are needed downstream.",
+      "confidence": 0.8
+    }
+  ],
+  "blockers": [
+    {
+      "path": "mapFields[0].sourceField",
+      "message": "MAP sourceField is required for each mapping rule. Which event field should be mapped?"
+    },
+    {
+      "path": "mapFields[0].targetField",
+      "message": "MAP targetField is required for each mapping rule. What should the output field be named?"
+    },
+    {
+      "path": "mapFields[0].formula",
+      "when": {
+        "path": "mapFields[0].transformType",
+        "equals": "transform"
+      },
+      "message": "MAP formula is required when transformType is 'transform'. Provide a JavaScript expression (e.g. \"event.quantity * 1.1\")."
+    }
+  ]
+}

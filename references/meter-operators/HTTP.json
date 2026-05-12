@@ -1,0 +1,72 @@
+{
+  "key": "HTTP",
+  "nodeType": "PROCESSOR",
+  "operatorType": "HTTP",
+  "metadata": {
+    "connectionName": null,
+    "httpRequestConfig": {
+      "urlPath": null,
+      "httpMethod": "GET",
+      "contentType": "application/json; charset=utf-8",
+      "headers": [],
+      "parameters": [],
+      "body": "",
+      "retries": 0,
+      "timeout": 60000
+    },
+    "httpOutputConfig": {
+      "responseSample": "",
+      "responseToOutputMapper": [],
+      "continueOnFailure": false
+    }
+  },
+  "label": "HTTP Processor",
+  "assumptions": [
+    {
+      "path": "httpRequestConfig.httpMethod",
+      "value": "GET",
+      "reason": "GET is the default HTTP method; use POST when sending event data in the body.",
+      "confidence": 0.8
+    },
+    {
+      "path": "httpRequestConfig.contentType",
+      "value": "application/json; charset=utf-8",
+      "reason": "JSON is the standard content type for mediation HTTP calls.",
+      "confidence": 0.9
+    },
+    {
+      "path": "httpRequestConfig.retries",
+      "value": 0,
+      "reason": "No retries by default; add retries (max 2) only for idempotent endpoints.",
+      "confidence": 0.85
+    },
+    {
+      "path": "httpRequestConfig.timeout",
+      "value": 60000,
+      "reason": "60-second timeout is the platform default.",
+      "confidence": 0.9
+    },
+    {
+      "path": "httpOutputConfig.continueOnFailure",
+      "value": false,
+      "reason": "Stop processing on HTTP failure by default; set true only for non-critical enrichment calls.",
+      "confidence": 0.9
+    },
+    {
+      "path": "skipHttpCallsInTestMode",
+      "value": false,
+      "reason": "HTTP calls execute in test mode unless explicitly skipped.",
+      "confidence": 0.8
+    }
+  ],
+  "blockers": [
+    {
+      "path": "connectionName",
+      "message": "HTTP connectionName is required. Which HTTP connection should be used? (configured in Mediation connections)"
+    },
+    {
+      "path": "httpRequestConfig.urlPath",
+      "message": "HTTP urlPath is required. What is the endpoint path? (e.g. '/api/v1/enrich' — base URL comes from the connection)"
+    }
+  ]
+}

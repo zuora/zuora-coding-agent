@@ -1,0 +1,18 @@
+{
+  "key": "ZUORA_WAREHOUSE",
+  "nodeType": "SINK",
+  "operatorType": "ZUORA_WAREHOUSE",
+  "metadata": {
+    "groupFields": [],
+    "timeField": {
+      "field": null,
+      "format": null,
+      "granularityNumber": 1,
+      "granularity": "hour"
+    },
+    "aggregationFields": []
+  },
+  "label": "Zuora Warehouse Sink",
+  "assumptions": [],
+  "blockers": []
+}

@@ -1,0 +1,13 @@
+{
+  "key": "EVENT_STORE_SINK",
+  "nodeType": "SINK",
+  "operatorType": "EVENT_STORE",
+  "metadata": {
+    "storeId": null,
+    "schemaId": null,
+    "fieldMappings": []
+  },
+  "label": "EventStore Sink",
+  "assumptions": [],
+  "blockers": []
+}

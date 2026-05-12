@@ -1,0 +1,12 @@
+{
+  "_comment": "Canonical empty envelope for predefined meter types (DIRECT, DELTA, CUMULATIVE, SUM, MAX, MIN, COUNT, AVG). Build skill deep-copies this, sets type to the specific value, and fills typeDefinition. NO tasks[] field. Source convention: developer-agent examples 1-5 in meter-complete-examples.md.",
+  "name": "",
+  "description": "",
+  "type": "",
+  "version": "0.0.1",
+  "typeDefinition": {
+    "sourceType": "",
+    "schemaId": "",
+    "fieldMappings": []
+  }
+}

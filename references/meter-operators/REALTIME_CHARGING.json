@@ -1,0 +1,56 @@
+{
+  "key": "REALTIME_CHARGING",
+  "nodeType": "PROCESSOR",
+  "operatorType": "REALTIME_CHARGING",
+  "metadata": {
+    "groupFields": [],
+    "usageQuantityField": null,
+    "usageQuantityAggregation": "SUM",
+    "priceModel": "PerUnit",
+    "unitPrice": null,
+    "priceTable": [],
+    "language": "javascript",
+    "source": ""
+  },
+  "label": "Realtime Charging",
+  "assumptions": [
+    {
+      "path": "priceModel",
+      "value": "PerUnit",
+      "reason": "Per-unit pricing is the most common real-time charging model.",
+      "confidence": 0.8
+    },
+    {
+      "path": "usageQuantityAggregation",
+      "value": "SUM",
+      "reason": "SUM is the default aggregation for usage quantity fields.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "path": "groupFields",
+      "message": "REALTIME_CHARGING groupFields is required. Which fields define the charging groups? (e.g. [\"accountNumber\", \"subscriptionNumber\"])"
+    },
+    {
+      "path": "usageQuantityField",
+      "message": "REALTIME_CHARGING usageQuantityField is required. Which event field contains the usage quantity to charge?"
+    },
+    {
+      "path": "unitPrice",
+      "when": {
+        "path": "priceModel",
+        "equals": "PerUnit"
+      },
+      "message": "REALTIME_CHARGING unitPrice is required when priceModel is PerUnit. What is the price per unit?"
+    },
+    {
+      "path": "priceTable",
+      "when": {
+        "path": "priceModel",
+        "equals": "Tiered"
+      },
+      "message": "REALTIME_CHARGING priceTable is required when priceModel is Tiered. Provide the tiered pricing rules."
+    }
+  ]
+}

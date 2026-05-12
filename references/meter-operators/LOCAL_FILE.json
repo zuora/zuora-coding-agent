@@ -1,0 +1,17 @@
+{
+  "key": "LOCAL_FILE",
+  "nodeType": "SOURCE",
+  "operatorType": "LOCAL_FILE",
+  "metadata": {
+    "schemaId": null,
+    "schemaName": null
+  },
+  "label": "Local File Source",
+  "assumptions": [],
+  "blockers": [
+    {
+      "path": "schemaId",
+      "message": "LOCAL_FILE schemaId is required. What is the Event Definition ID for this file source? (numeric string, e.g. \"1109\")"
+    }
+  ]
+}

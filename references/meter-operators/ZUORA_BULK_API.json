@@ -1,0 +1,18 @@
+{
+  "key": "ZUORA_BULK_API",
+  "nodeType": "SOURCE",
+  "operatorType": "ZUORA_BULK_API",
+  "metadata": {
+    "schemaId": null,
+    "schemaName": null,
+    "keyFields": []
+  },
+  "label": "Zuora Bulk API Source",
+  "assumptions": [],
+  "blockers": [
+    {
+      "path": "schemaId",
+      "message": "schemaId is required. Provide the integer EventSchema ID or a name \u2014 call manage_mediation_meters with operation resolve_entities if the user gave a string name."
+    }
+  ]
+}

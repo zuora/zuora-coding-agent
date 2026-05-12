@@ -1,0 +1,9 @@
+{
+  "key": "NOOP",
+  "nodeType": "SINK",
+  "operatorType": "NOOP",
+  "metadata": {},
+  "label": "No-Op Sink",
+  "assumptions": [],
+  "blockers": []
+}

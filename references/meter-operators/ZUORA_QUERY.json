@@ -1,0 +1,23 @@
+{
+  "key": "ZUORA_QUERY",
+  "nodeType": "SOURCE",
+  "operatorType": "ZUORA_QUERY",
+  "metadata": {
+    "zuora-query": {
+      "table": null,
+      "groupByFields": [],
+      "aggregationFields": [],
+      "delayForDownstream": {
+        "intervalNumber": null,
+        "intervalUnit": null
+      },
+      "queryInterval": {
+        "intervalNumber": null,
+        "intervalUnit": null
+      }
+    }
+  },
+  "label": "Zuora Query Source",
+  "assumptions": [],
+  "blockers": []
+}

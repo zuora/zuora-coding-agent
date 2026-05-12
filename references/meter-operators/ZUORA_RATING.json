@@ -1,0 +1,73 @@
+{
+  "key": "ZUORA_RATING",
+  "nodeType": "SINK",
+  "operatorType": "ZUORA_RATING",
+  "metadata": {
+    "partitionKeys": [],
+    "eventTimeColumn": null,
+    "fieldMappings": [
+      {
+        "name": "AccountNumber",
+        "field": null,
+        "required": true
+      },
+      {
+        "name": "Quantity",
+        "field": null,
+        "required": true
+      },
+      {
+        "name": "StartDateTime",
+        "field": null,
+        "dateFormat": "yyyy-MM-dd",
+        "required": true
+      },
+      {
+        "name": "SubscriptionNumber",
+        "field": null,
+        "required": false
+      },
+      {
+        "name": "ChargeNumber",
+        "field": null,
+        "required": false
+      },
+      {
+        "name": "PRPC_id",
+        "field": null,
+        "required": false
+      }
+    ]
+  },
+  "label": "Zuora Rating Sink",
+  "assumptions": [
+    {
+      "iterate": "fieldMappings",
+      "item_when": {
+        "field": "name",
+        "equals": "StartDateTime"
+      },
+      "item_field_to_set": "dateFormat",
+      "value": "yyyy-MM-dd",
+      "field_label_template": "fieldMappings[StartDateTime].dateFormat",
+      "reason": "ISO date format is the Zuora Rating standard for billing period start.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "iterate": "fieldMappings",
+      "item_when": {
+        "field": "required",
+        "equals": true
+      },
+      "require_item_field": "field",
+      "field_label_template": "fieldMappings[{name}].field",
+      "message_template": "ZUORA_RATING requires a source field mapped to '{name}'. Which event field contains this value?"
+    },
+    {
+      "path": "eventTimeColumn",
+      "message": "ZUORA_RATING eventTimeColumn is required. Which event field contains the event timestamp used for partitioning?"
+    }
+  ]
+}

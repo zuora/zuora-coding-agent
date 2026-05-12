@@ -1,0 +1,67 @@
+{
+  "key": "FILTER",
+  "nodeType": "PROCESSOR",
+  "operatorType": "FILTER",
+  "metadata": {
+    "ruleCombiner": "and",
+    "rules": [
+      {
+        "sourceField": null,
+        "operator": null,
+        "value": null
+      }
+    ]
+  },
+  "label": "Filter",
+  "assumptions": [
+    {
+      "path": "ruleCombiner",
+      "value": "and",
+      "reason": "All conditions must pass \u2014 'and' is the standard default.",
+      "confidence": 0.95
+    }
+  ],
+  "blockers": [
+    {
+      "path": "rules[0].sourceField",
+      "when": {
+        "path": "rules[0]",
+        "is_dict": false
+      },
+      "message": "FILTER rules are required. Provide at least one rule with sourceField and operator."
+    },
+    {
+      "path": "rules[0].sourceField",
+      "when": {
+        "path": "rules[0]",
+        "is_dict": true
+      },
+      "message": "FILTER sourceField is required. Which event field should be filtered on?"
+    },
+    {
+      "path": "rules[0].operator",
+      "when": {
+        "path": "rules[0]",
+        "is_dict": true
+      },
+      "message": "FILTER operator is required. Which comparison? (gt, lt, equal, notEqual, contains, blank, notBlank, etc.)"
+    },
+    {
+      "path": "rules[0].value",
+      "when_all": [
+        {
+          "path": "rules[0]",
+          "is_dict": true
+        },
+        {
+          "path": "rules[0].operator",
+          "not_in": [
+            "blank",
+            "notBlank"
+          ]
+        }
+      ],
+      "message_template": "FILTER value is required for operator '{rules[0].operator}'. What should the field be compared against?"
+    }
+  ]
+}

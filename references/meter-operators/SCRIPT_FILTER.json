@@ -1,0 +1,28 @@
+{
+  "key": "SCRIPT_FILTER",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SCRIPT_FILTER",
+  "metadata": {
+    "language": "JS",
+    "source": null
+  },
+  "label": "Script Filter",
+  "assumptions": [
+    {
+      "path": "language",
+      "value": "JS",
+      "reason": "JS is the default scripting language; PYTHON is also supported.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "path": "language",
+      "message": "SCRIPT_FILTER language is required. Which scripting language? ('JS' or 'PYTHON')"
+    },
+    {
+      "path": "source",
+      "message": "SCRIPT_FILTER source code is required. Provide the script that filters events (receives 'event' object, must return boolean \u2014 true to keep, false to drop)."
+    }
+  ]
+}

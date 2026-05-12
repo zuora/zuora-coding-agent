@@ -1,0 +1,47 @@
+{
+  "key": "REALTIME_EVENT_AGGREGATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "REALTIME_EVENT_AGGREGATOR",
+  "metadata": {
+    "groupFields": [],
+    "aggregationFields": [
+      {
+        "field": null,
+        "aggregation": "SUM",
+        "targetField": null
+      }
+    ],
+    "stateExpireTime": "7 days"
+  },
+  "label": "Realtime Event Aggregator",
+  "assumptions": [
+    {
+      "path": "stateExpireTime",
+      "value": "7 days",
+      "reason": "7-day rolling state is the default for real-time aggregation windows.",
+      "confidence": 0.8
+    },
+    {
+      "path": "aggregationFields[0].aggregation",
+      "value": "SUM",
+      "reason": "SUM is the most common real-time aggregation function for usage events.",
+      "confidence": 0.85
+    },
+    {
+      "path": "aggregationFields[0].targetField",
+      "value": "totalQuantity",
+      "reason": "Default output field name for the aggregated value.",
+      "confidence": 0.7
+    }
+  ],
+  "blockers": [
+    {
+      "path": "groupFields",
+      "message": "REALTIME_EVENT_AGGREGATOR groupFields is required. Which fields define the aggregation key? (e.g. [\"accountNumber\"] or [\"accountNumber\", \"subscriptionNumber\"])"
+    },
+    {
+      "path": "aggregationFields[0].field",
+      "message": "REALTIME_EVENT_AGGREGATOR aggregation source field is required. Which event field should be aggregated?"
+    }
+  ]
+}

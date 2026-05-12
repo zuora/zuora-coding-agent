@@ -1,0 +1,65 @@
+{
+  "key": "SCRIPT_CORRELATOR",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SCRIPT_CORRELATOR",
+  "metadata": {
+    "startEventField": null,
+    "startEventValue": null,
+    "stopEventField": null,
+    "stopEventValue": null,
+    "timeoutDuration": "1 day",
+    "groupFields": [],
+    "language": "JS",
+    "source": null,
+    "schemaId": null
+  },
+  "label": "Script Correlator",
+  "assumptions": [
+    {
+      "path": "timeoutDuration",
+      "value": "1 day",
+      "reason": "Correlation sessions expire after 1 day if no stop event is received.",
+      "confidence": 0.75
+    },
+    {
+      "path": "language",
+      "value": "JS",
+      "reason": "JS is the default scripting language; PYTHON is also supported.",
+      "confidence": 0.85
+    }
+  ],
+  "blockers": [
+    {
+      "path": "language",
+      "message": "SCRIPT_CORRELATOR language is required. Which scripting language? ('JS' or 'PYTHON')"
+    },
+    {
+      "path": "source",
+      "message": "SCRIPT_CORRELATOR source code is required. Provide the correlation script (handles start/stop events and accumulates session state)."
+    },
+    {
+      "path": "startEventField",
+      "message": "SCRIPT_CORRELATOR startEventField is required. Which field identifies the session start event?"
+    },
+    {
+      "path": "startEventValue",
+      "message": "SCRIPT_CORRELATOR startEventValue is required. What value marks a session start?"
+    },
+    {
+      "path": "stopEventField",
+      "message": "SCRIPT_CORRELATOR stopEventField is required. Which field identifies the session stop event?"
+    },
+    {
+      "path": "stopEventValue",
+      "message": "SCRIPT_CORRELATOR stopEventValue is required. What value marks a session end?"
+    },
+    {
+      "path": "groupFields",
+      "message": "SCRIPT_CORRELATOR groupFields is required. Which fields define the session correlation key? (e.g. [\"sessionId\"])"
+    },
+    {
+      "path": "schemaId",
+      "message": "SCRIPT_CORRELATOR schemaId is required. Which output schema should the correlated events conform to? (get the ID from the Schema Registry)"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "key": "SNOWFLAKE_SOURCE",
+  "nodeType": "SOURCE",
+  "operatorType": "SNOWFLAKE",
+  "metadata": {
+    "connectionName": null,
+    "database": null,
+    "schema": null,
+    "table": null,
+    "query": null,
+    "warehouse": null,
+    "role": null,
+    "schemaId": null
+  },
+  "label": "Snowflake Source",
+  "assumptions": [],
+  "blockers": [
+    {
+      "path": "connectionName",
+      "message": "Snowflake connectionName is required."
+    },
+    {
+      "path": "table",
+      "or_paths": [
+        "table",
+        "query"
+      ],
+      "message": "Snowflake table or query is required. Which table should this source read from?"
+    }
+  ]
+}

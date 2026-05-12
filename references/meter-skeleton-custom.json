@@ -1,0 +1,8 @@
+{
+  "_comment": "Canonical empty envelope for CUSTOM meters. Build skill deep-copies this, then populates name/description/version and appends to tasks[]. Source convention: developer-agent examples 6-11 in meter-complete-examples.md.",
+  "name": "",
+  "description": "",
+  "type": "CUSTOM",
+  "version": "0.0.1",
+  "tasks": []
+}
