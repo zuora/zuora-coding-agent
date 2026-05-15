@@ -1,8 +1,114 @@
-# Zuora Coding Agent
+# Zuora Coding Agent Plugin
 
-A plugin for **Claude Code**, **Cursor**, and **Codex** that accelerates Zuora-specific development work — API integrations, Workflow design and build, Meter design and build, Order migration, Invoice Settlement migration, and best-practice validation.
+The **Zuora Coding Agent plugin (ZCA)** is a bundle of skills and related material for developers building against Zuora. ZCA combines task-specific skills with Zuora reference material so your agentic creations can help complete Zuora implementation work. In this content:
 
-Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
+```
+plugin = package of capabilities
+
+skill = task-specific instructions/workflow, often inside a plugin
+```
+A plugin can contribute many skills, but a skill is what your AI client or tool will leverage for work. This is a developers tool, to aid development that then undergoes rigourous testing prior to deployment, do not run any of these skills directly against a Zuora Production tenant. How to avoid doing this is detailed below.
+
+## What's Included
+
+- **Skills**: task playbooks for API design, code generation, Workflow design, Order API migration, Invoice Settlement migration, meter design, validation, and review.
+- **Local Auora MCP Server**: Provides Zuora API and product helpers for API specs, SDK patterns, object queries, reports, workflows, billing documents, and tenant-aware validation.
+- **Reference material**: Zuora-specific migration mappings, workflow patterns, meter templates, and integration best practices.
+
+## What You Can Use ZCA For
+
+You can our ZCA for work such as:
+- Choosing the right Zuora API for a business requirement.
+- Generating SDK or cURL integration code.
+- Migrating legacy Subscribe, Amendment, or REST v1 flows to the Orders API.
+- Planning or building Invoice Settlement migration artifacts.
+- Designing or generating Zuora Workflow JSONs (Workflow uses JSON to export/import Workflows).
+- Designing usage-based billing meters.
+- Validating payloads, reviewing code, or checking Zuora-specific edge cases.
+
+The ZCA is self documenting, you can simply ask your client for more examples or if a particular use case of interest to you would be helped by using ZCA.
+
+## Quick Start
+
+If you're already familiar with REST API development with Zuora, Zuora OAuth clients, and plugins, here are the basics. The following sections provide more details on installation and
+
+1. Obtain `ZUORA_BASE_URL`, `ZUORA_CLIENT_ID`, and `ZUORA_CLIENT_SECRET` OAuth credentials if you don't already have suitable ones.
+2. Install the plugin in Codex, Cursor, or Claude Code.
+3. Configure `ZUORA_BASE_URL`, `ZUORA_CLIENT_ID`, and `ZUORA_CLIENT_SECRET`.
+4. Review the [Disclaimer](#disclaimer)
+5. Start with design-oriented prompts, such as:
+
+   ```text
+   Use Zuora Coding Agent to design an Orders API integration for creating a termed subscription with usage charges.
+   ```
+
+6. Move to build prompts once the approach is clear.
+7. Run validation or review checks before merging or deploying.
+
+
+## Complete Get Started
+
+### 1. A Supported Coding Environment
+
+The plugin can be used from:
+
+- Codex
+- Claude Code
+- Cursor
+
+ZCA also requires Node.js `>= 18`, because the plugin runs `zuora-mcp` through `npx`. Installation instructions for each of these clients are below the [Disclaimer](#disclaimer) section.
+
+### 2. A Zuora OAuth Client
+
+You need standard REST API tenant OAuth credentials from your Zuora tenant:
+
+- `ZUORA_BASE_URL`
+- `ZUORA_CLIENT_ID`
+- `ZUORA_CLIENT_SECRET`
+
+If you don't already suitable credentials [how to obtain them is described in this short video](https://developer.zuora.com/docs/get-started/introduction), but you need to be your tenant's Zuora Administrator, or you need to ask for their assistence. The same page as the video includes instructions on how to identify the URL for the new credentials. Again, do not specify a production tenant in your ZUORA_BASE_URL. You will need these values for the install.
+
+
+#### Security Considerations
+
+Remember that your client id is tied to a tenant login, that, in turn, has various roles and permissions defined. Be sure to use permissions that match your intended work. Read-only permissions are enough for design, query, and review workflows. Additional permissions are needed only when you want the agent to create subscriptions, create or run workflows, export reports, or perform other tenant-changing operations.
+
+### 3. Access To The Relevant Codebase Or Artifact
+
+For migrations and code generation, ZCA is most useful when it can inspect the existing integration code.
+
+For Workflow or meter generation, supply your business requirements and enough tenant-specific detail to avoid guessing. 
+
+### 4. Sandbox-First, Always
+
+Only use ZCA with an API, Developer or Central Sandbox. Review and test the generated outputs prior to running any outputs against a production tenant. Despite ZCA being developed by Zuora, you remain responsible for any results as if the ZCA outputs, such as code or Workflows, had been created solely by you.
+
+
+### Example Prompts
+
+```text
+Use Zuora Coding Agent to propose the right API approach for creating a subscription with a setup fee, recurring charge, and usage charge.
+```
+
+```text
+Use Zuora Coding Agent to generate Node.js SDK code for creating a subscription through the Orders API.
+```
+
+```text
+Use Zuora Coding Agent to analyze this legacy Amendment API code and produce an Orders API migration plan.
+```
+
+```text
+Use Zuora Coding Agent to review this Zuora Workflow JSON for best practices and likely runtime issues.
+```
+
+## Why This Matters
+
+ZCA gives your general purpose coding agent Zuora-specific superpowers. ZCA can help with field mappings, API selection, SDK conventions, migration traps, and validation patterns that you would otherwise have to specify.
+
+## Disclaimer
+
+This plugin uses AI to generate code, API payloads, and migration artifacts. All output should be reviewed and tested before use in any customer-facing environment. Zuora, Inc. makes no warranties regarding the accuracy, completeness, or fitness for purpose of any generated content. **Use at your own risk.**
 
 ## Available commands
 
@@ -23,37 +129,7 @@ Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
 
 The plugin also provides **passive Zuora awareness** — when you discuss Zuora topics in any conversation, it will suggest relevant commands and use zuora-mcp tools to provide accurate answers.
 
-## Disclaimer
-
-This plugin uses AI to generate code, API payloads, and migration artifacts. All output should be reviewed and tested before use in any customer-facing environment. Zuora, Inc. makes no warranties regarding the accuracy, completeness, or fitness for purpose of any generated content. **Use at your own risk.**
-
-## Prerequisites
-
-- [Claude Code](https://claude.ai/code), [Cursor](https://cursor.com), or [Codex](https://openai.com/codex) installed
-- Zuora tenant credentials (OAuth client ID and secret)
-- Node.js >= 18 (for zuora-mcp via npx)
-
-## Setup
-
-Before you begin, create a Zuora OAuth client:
-
-1. Log in to your Zuora tenant
-2. Go to **Settings > Administration > Manage Users**
-3. Navigate to **OAuth Clients** tab
-4. Click **Create OAuth Client**, select permissions, and save
-5. Copy the **Client ID** and **Client Secret**
-
-**Zuora environment URLs:**
-
-| Environment | URL |
-|---|---|
-| US API Sandbox (Cloud 2) | `https://rest.apisandbox.zuora.com` |
-| US Central Sandbox | `https://rest.test.zuora.com` |
-| EU Sandbox | `https://rest.sandbox.eu.zuora.com` |
-| US Production | `https://rest.zuora.com` |
-| EU Production | `https://rest.eu.zuora.com` |
-
----
+Powered by [zuora-mcp](https://www.npmjs.com/package/zuora-mcp).
 
 ### Claude Code
 
