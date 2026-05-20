@@ -33,6 +33,10 @@ The user's migration context and codebase path: $ARGUMENTS
 
 Expected format: `codebase=/path/to/billing-client` or `codebase=/path/to/billing-client context:tenant is production with 500 accounts`
 
+## Tool routing
+
+Use local code search and bundled IS references for code inventory, legacy API detection, mapping tables, and migration-plan structure. Use `mcp__zuora-mcp__zuora_codegen` for API details and model requirements, `mcp__zuora-mcp__query_objects` / `mcp__zuora-mcp__get_account_summary` for tenant state, and `mcp__zuora-mcp__ask_zuora` only when a specific IS capability, prerequisite, or accounting-semantics question remains unresolved after those sources.
+
 ## Workflow
 
 > **When unsure about any aspect of the migration analysis, do NOT guess — list the uncertain items and ask the user before proceeding.**
@@ -42,7 +46,7 @@ Expected format: `codebase=/path/to/billing-client` or `codebase=/path/to/billin
 
 Gather context about the tenant's current state:
 - Ask the user about their tenant: sandbox or production? How many accounts/subscriptions?
-- Call `mcp__zuora-mcp__ask_zuora` to understand IS capabilities and prerequisites
+- Call `mcp__zuora-mcp__ask_zuora` for unresolved IS capability or prerequisite questions; prefer checking the bundled IS references and codegen first when they are likely to have the answer.
 - If the tenant is connected, use `mcp__zuora-mcp__query_objects` to inspect:
   - Account count and billing models in use
   - Invoice volume and credit balance usage

@@ -14,6 +14,10 @@ You are generating Zuora integration code. The user has either already run `/zuo
 
 The user's request: $ARGUMENTS
 
+## Tool routing
+
+This build skill depends on `mcp__zuora-mcp__zuora_codegen` for API specs, model fields, enum values, SDK idioms, and code rules. Do not use generic product knowledge for code generation details. `mcp__zuora-mcp__ask_zuora` is allowed only as a fallback for a specific product-behavior question that remains after codegen and references are checked; include the exact uncertainty and sources already checked.
+
 ## Workflow
 
 ### Step 1: Determine language and scope

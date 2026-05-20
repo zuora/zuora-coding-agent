@@ -11,6 +11,10 @@ You are composing an importable Zuora meter JSON from a design produced by `/zuo
 
 The meter design: $ARGUMENTS
 
+## Tool routing
+
+Build from the design, bundled meter references, operator skeletons, the local linter, and `mcp__zuora-mcp__manage_mediation_meters` for entity resolution. Do not use generic Zuora product knowledge tools for meter operator mapping or metadata shape; those are owned by the local references and linter.
+
 ## Correctness strategy
 
 Because the plugin has no live access to the Zuora mediation validator, `scripts/lint-meter-json.js` is the only pre-import safety net. Defense is layered:

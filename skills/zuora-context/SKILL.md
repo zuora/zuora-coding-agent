@@ -13,10 +13,14 @@ When the user is discussing Zuora-related topics in general conversation (withou
 
 ## Available MCP tools
 
-- **`mcp__zuora-mcp__ask_zuora`** — Ask product-level questions about Zuora Billing, Revenue, CPQ, Payments, and Central Platform. Use this for "how does Zuora handle X?" questions.
+- **`mcp__zuora-mcp__ask_zuora`** — Ask product-level questions about Zuora Billing, Revenue, CPQ, Payments, and Central Platform. Use this only for unresolved "how does Zuora handle X?" questions after local references and specialist tools do not answer the issue.
 - **`mcp__zuora-mcp__zuora_codegen`** — Generate SDK code and look up API specs. Follow the mandatory workflow: `code_guidance` -> `list_api_classes` -> `get_class_apis` -> `get_api_details` -> `get_model_details` -> `code_rules`.
 - **`mcp__zuora-mcp__query_objects`** — Query 40+ Zuora object types with filtering, sorting, and pagination. Use this to inspect tenant data.
 - **`mcp__zuora-mcp__sdk_upgrade`** — Help with SDK version upgrades and changelogs.
+
+## Tool routing
+
+Use built-in tools for repo facts and bundled references. Use specialist MCP tools for their structured domains (`zuora_codegen` for API/spec/model details, `query_objects` for tenant data, Workflow and meter tools for their artifacts). Call `ask_zuora` only when a qualitative product-behavior or best-practice question remains, and include the exact uncertainty plus the sources already checked.
 
 ## When to invoke a dedicated skill
 

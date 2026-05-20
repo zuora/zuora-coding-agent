@@ -14,6 +14,10 @@ You are validating Zuora-related code, API payloads, or design approaches agains
 
 What to validate: $ARGUMENTS
 
+## Tool routing
+
+Use local file reads, bundled references, and `mcp__zuora-mcp__zuora_codegen` for structured validation of APIs, models, fields, enum values, SDK patterns, and payload shape. Use `mcp__zuora-mcp__ask_zuora` only when a concrete product-behavior or best-practice judgment remains after those checks.
+
 ## Workflow
 
 ### Step 1: Identify what to validate
@@ -49,7 +53,7 @@ Read `${CLAUDE_PLUGIN_ROOT}/references/best-practices.md` and check for:
 
 ### Step 4: Domain validation
 
-Call `mcp__zuora-mcp__ask_zuora` for any domain-level questions about whether the approach is correct for the Zuora product area being used (Billing, Revenue, CPQ, Payments).
+Only call `mcp__zuora-mcp__ask_zuora` for a specific unresolved domain-level question about whether the approach is correct for the Zuora product area being used (Billing, Revenue, CPQ, Payments). The prompt must name the exact concern and summarize the codegen/reference checks already completed. Skip this step when structured validation is sufficient.
 
 ### Step 5: Report findings
 

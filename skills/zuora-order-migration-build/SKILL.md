@@ -19,6 +19,10 @@ This could be:
 - Reference to a migration plan document
 - Specific operations to convert (cancel, suspend, resume, renew, create, update)
 
+## Tool routing
+
+Use local file reads and edits for conversion work, bundled mapping references for known S/A-to-Order transformations, and `mcp__zuora-mcp__zuora_codegen` for exact Order API endpoint/model details. Use subscription MCP tools only for their specific create/cancel/renew operations when validation requires them. `mcp__zuora-mcp__ask_zuora` is allowed only as a fallback for a specific Order API capability or migration-tradeoff question that remains after references and codegen are checked. If business intent is ambiguous, ask the user to confirm the mapping.
+
 ## Workflow
 
 **⚠️ CRITICAL PRINCIPLE: Always Modify Existing Files**

@@ -29,6 +29,10 @@ The user's request: $ARGUMENTS
 
 Expected format: `codebase=/path/to/billing-client [additional requirements]`
 
+## Tool routing
+
+Use local code search and file edits for migration implementation work. Use `mcp__zuora-mcp__zuora_codegen` for REST API classes, endpoint details, model fields, enum values, and SDK rules. Use account summary and billing document tools for verification. `mcp__zuora-mcp__ask_zuora` is allowed only as a fallback for a specific IS capability or accounting-semantics question that remains after references and codegen are checked. If business intent is unclear, ask the user to choose the intended mapping before changing code.
+
 ## Workflow
 
 ### Step 2: Review the migration plan

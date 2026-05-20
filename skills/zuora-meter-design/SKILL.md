@@ -11,6 +11,10 @@ You are designing a Zuora meter. The user has described a usage-billing requirem
 
 The user's meter requirement: $ARGUMENTS
 
+## Tool routing
+
+This skill is normally answerable from the bundled meter references plus `mcp__zuora-mcp__manage_mediation_meters` for existing-meter lookup. Do not call generic Zuora product knowledge tools just because the user uses a UI label that is not an operator name. Search the meter references, `_manifest.json`, and operator skeletons first.
+
 ## Workflow
 
 ### Step 0: Update or Create?

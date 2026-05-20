@@ -20,6 +20,10 @@ This could be:
 - Description of their current integration approach
 - Tenant context for data-driven analysis
 
+## Tool routing
+
+Use local code reads and bundled Order/Amendment mapping references for endpoint inventory, field mappings, and migration-plan structure. Use `mcp__zuora-mcp__zuora_codegen` for exact Order API endpoint/model requirements, `mcp__zuora-mcp__query_objects` / `mcp__zuora-mcp__get_account_summary` for tenant state, and `mcp__zuora-mcp__ask_zuora` only when a specific Order API capability, limitation, or migration tradeoff remains unresolved after those sources.
+
 ## Workflow
 
 ### Step 1: Analyze Customer Code
@@ -136,7 +140,7 @@ If tenant is connected and user wants data-driven analysis:
 - Understand subscription structures in production
 
 **3.3 Call Zuora knowledge base**
-- Use `mcp__zuora-mcp__ask_zuora` for Order API capabilities and best practices
+- Call `mcp__zuora-mcp__ask_zuora` for unresolved Order API capability or best-practice questions; prefer checking the mapping references (Step 2) first when they are likely to have the answer. Skip this when local mappings already answer the issue.
 
 **Output:** Current state summary with statistics
 

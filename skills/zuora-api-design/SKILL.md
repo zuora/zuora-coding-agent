@@ -14,6 +14,10 @@ You are designing a Zuora API integration approach. The user has described a bus
 
 The user's business requirement: $ARGUMENTS
 
+## Tool routing
+
+Use `mcp__zuora-mcp__zuora_codegen` for endpoint discovery, request/response schemas, fields, enum values, SDK method details, and API-specific constraints. Use bundled references for integration patterns and general best practices. Use `mcp__zuora-mcp__ask_zuora` only if a product-behavior or business-process question remains after those sources are checked.
+
 ## Workflow
 
 ### Step 1: Clarify the requirement
@@ -35,7 +39,7 @@ Call `mcp__zuora-mcp__zuora_codegen` in this order:
 
 ### Step 3: Clarify domain questions
 
-Call `mcp__zuora-mcp__ask_zuora` for product-level questions about Zuora Billing, Revenue, CPQ, or Payments behavior. Use this to confirm assumptions about how Zuora handles the business scenario.
+Call `mcp__zuora-mcp__ask_zuora` for unresolved product-level questions about Zuora Billing, Revenue, CPQ, or Payments behavior. Prefer checking endpoint specs (Step 2) and reference patterns (Step 5) first when they are likely to have the answer, but don't delay if the question is clearly qualitative. Skip this step when specs and references are sufficient.
 
 ### Step 4: Check existing data model
 

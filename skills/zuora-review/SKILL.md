@@ -14,6 +14,10 @@ You are reviewing Zuora-related implementation work for best practices, complete
 
 What to review: $ARGUMENTS
 
+## Tool routing
+
+Use local file reads and bundled references for implementation facts and baseline best practices. Use `mcp__zuora-mcp__zuora_codegen` for SDK/API-specific rules and `mcp__zuora-mcp__query_objects` only when tenant state matters to the review. Use `mcp__zuora-mcp__ask_zuora` only for a concrete product-behavior or best-practice judgment that remains unresolved after those sources.
+
 ## Workflow
 
 ### Step 1: Understand scope
@@ -29,7 +33,7 @@ Read the files or description. Determine what aspects to review:
 ### Step 2: Gather Zuora context
 
 Use MCP tools as needed:
-- `mcp__zuora-mcp__ask_zuora` — for product-level best practices relevant to the implementation
+- `mcp__zuora-mcp__ask_zuora` — for unresolved product-level best-practice questions; prefer reading the bundled references (Step 3) first when they are likely to have the answer, but call earlier if the question is clearly qualitative
 - `mcp__zuora-mcp__zuora_codegen` with `code_rules` — for SDK-specific patterns
 - `mcp__zuora-mcp__query_objects` — to check tenant state if relevant to the review
 

@@ -21,14 +21,23 @@ When working on Zuora-related tasks, use the zuora-mcp server for authoritative 
 ## MCP tools available (via zuora-mcp)
 
 - `mcp__zuora-mcp__zuora_codegen` — SDK code generation (Java, Python, Node.js, C#, curl). Always follow the mandatory sequence: `code_guidance` → `list_api_classes` → `get_class_apis` → `get_api_details` → `get_model_details` → `code_rules`. Never guess field names or enum values.
-- `mcp__zuora-mcp__ask_zuora` — Product knowledge (Billing, Revenue, CPQ, Payments)
+- `mcp__zuora-mcp__ask_zuora` — Product knowledge (Billing, Revenue, CPQ, Payments). Use only for unresolved qualitative product behavior, business-process semantics, migration tradeoffs, or best-practice judgment after local references and specialist tools have been checked.
 - `mcp__zuora-mcp__query_objects` — Query 40+ Zuora object types
 - `mcp__zuora-mcp__manage_workflows` — Discover, manage, import/export workflows
 - `mcp__zuora-mcp__run_workflows` — Execute workflows with status monitoring
+- `mcp__zuora-mcp__manage_mediation_meters` — Discover, resolve entities for, export/import, and manage Zuora Mediation meters
 - `mcp__zuora-mcp__create_subscriptions` — Create subscriptions via Order API
 - `mcp__zuora-mcp__get_account_summary` — Comprehensive account details
 - `mcp__zuora-mcp__manage_billing_documents` — Invoices, credit/debit memos
 - `mcp__zuora-mcp__manage_reports` / `mcp__zuora-mcp__run_reports` — Report management
+
+## Tool routing policy
+
+1. Use built-in tools first for local repo facts: file reads, search, edits, tests, shell commands, and bundled reference docs.
+2. Use specialist MCP tools before generic product knowledge tools: `zuora_codegen` for API specs and SDK details, `query_objects` for tenant records, `manage_workflows` for Workflow state/capabilities, `manage_mediation_meters` for meter operators and meter JSON, and managed billing/subscription tools for their specific operations.
+3. Use direct HTTP first when a skill explicitly provides a credential-backed endpoint recipe and asks for raw tenant metadata; use MCP only as the documented fallback.
+4. Use `mcp__zuora-mcp__ask_zuora` only when a qualitative product question remains after the sources above are checked.
+5. When using `mcp__zuora-mcp__ask_zuora`, ask the exact unresolved question and mention the sources already checked. Do not call it only because a user-facing label is unfamiliar; search the bundled references and catalogs first.
 
 ## Key rules
 
