@@ -2,7 +2,7 @@
 name: zuora-order-migration-build
 description: Generate Order API implementation code by converting customer's Subscription/Amendment/Subscribe Action API code (supports both preview and create modes)
 argument-hint: [customer code file paths or migration plan reference]
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__create_subscriptions, mcp__zuora-mcp__cancel_subscriptions, mcp__zuora-mcp__renew_subscriptions]
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__create_subscriptions, mcp__zuora-mcp__manage_subscriptions]
 ---
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.

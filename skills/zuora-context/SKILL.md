@@ -13,10 +13,27 @@ When the user is discussing Zuora-related topics in general conversation (withou
 
 ## Available MCP tools
 
-- **`mcp__zuora-mcp__ask_zuora`** — Ask product-level questions about Zuora Billing, Revenue, CPQ, Payments, and Central Platform. Use this only for unresolved "how does Zuora handle X?" questions after local references and specialist tools do not answer the issue.
-- **`mcp__zuora-mcp__zuora_codegen`** — Generate SDK code and look up API specs. Follow the mandatory workflow: `code_guidance` -> `list_api_classes` -> `get_class_apis` -> `get_api_details` -> `get_model_details` -> `code_rules`.
-- **`mcp__zuora-mcp__query_objects`** — Query 40+ Zuora object types with filtering, sorting, and pagination. Use this to inspect tenant data.
+MCP tools serve three purposes:
+1. **Look up specs** — inform code generation with API metadata, field names, enum values.
+2. **Perform operations on the tenant** — when the user asks to directly do something (e.g., "create a product," "query my subscriptions"), use the appropriate tool.
+3. **Test/validate artifacts** — verify generated workflows, subscriptions, etc.
+
+When generating code for the customer's repository, output Zuora REST API or SDK calls — never embed MCP tool references. If intent is ambiguous (do it now vs. write code for it), ask the user.
+
+**Metadata & guidance tools** (for looking up API specs, field names, best practices):
+- **`mcp__zuora-mcp__zuora_codegen`** — Look up API classes, endpoints, request/response models, field names, enum values, and SDK code rules. Follow the mandatory workflow: `code_guidance` → `list_api_classes` → `get_class_apis` → `get_api_details` → `get_model_details` → `code_rules`.
+- **`mcp__zuora-mcp__ask_zuora`** — Ask product-level questions about Zuora Billing, Revenue, CPQ, Payments, and Central Platform. Use only for unresolved "how does Zuora handle X?" questions after local references and specialist tools do not answer the issue.
 - **`mcp__zuora-mcp__sdk_upgrade`** — Help with SDK version upgrades and changelogs.
+
+**Tenant inspection tools** (for reading live tenant data to inform code generation):
+- **`mcp__zuora-mcp__query_objects`** — Query 40+ Zuora object types with filtering, sorting, and pagination. Use to inspect tenant data (accounts, subscriptions, products, etc.).
+- **`mcp__zuora-mcp__get_account_summary`** — Get comprehensive account view including recent memos.
+
+**Operational tools** (for testing/validating generated artifacts against the tenant, or other available MCP tools):
+- **`mcp__zuora-mcp__manage_workflows`** / **`run_workflows`** — Import, export, list, and execute workflows in the tenant.
+- **`mcp__zuora-mcp__create_subscriptions`** / **`manage_subscriptions`** — Create or manage subscriptions for validation.
+- **`mcp__zuora-mcp__manage_billing_documents`** — Verify billing document generation.
+- Other `manage_*` tools as needed for their specific domains.
 
 ## Tool routing
 

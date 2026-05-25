@@ -18,18 +18,32 @@ When working on Zuora-related tasks, use the zuora-mcp server for authoritative 
 - `/zuora-validate` — Validate code/payloads against Zuora patterns
 - `/zuora-review` — Review work for Zuora best practices
 
+## MCP tools vs customer code
+
+MCP tools serve three purposes:
+1. **Look up specs** — use `zuora_codegen`, `ask_zuora`, `query_objects` to inform code generation.
+2. **Perform operations on the tenant** — when the user asks to directly do something (e.g., "create a product," "run this workflow," "query my subscriptions"), use the appropriate MCP tool to execute it.
+3. **Test/validate artifacts** — use operational tools to verify generated workflows, subscriptions, etc.
+
+When generating code for the customer's repository, always output Zuora REST API or SDK calls — never embed MCP tool references in generated code. If the user's intent is ambiguous (do it now vs. write code for it), ask them to clarify.
+
 ## MCP tools available (via zuora-mcp)
 
-- `mcp__zuora-mcp__zuora_codegen` — SDK code generation (Java, Python, Node.js, C#, curl). Always follow the mandatory sequence: `code_guidance` → `list_api_classes` → `get_class_apis` → `get_api_details` → `get_model_details` → `code_rules`. Never guess field names or enum values.
-- `mcp__zuora-mcp__ask_zuora` — Product knowledge (Billing, Revenue, CPQ, Payments). Use only for unresolved qualitative product behavior, business-process semantics, migration tradeoffs, or best-practice judgment after local references and specialist tools have been checked.
-- `mcp__zuora-mcp__query_objects` — Query 40+ Zuora object types
-- `mcp__zuora-mcp__manage_workflows` — Discover, manage, import/export workflows
-- `mcp__zuora-mcp__run_workflows` — Execute workflows with status monitoring
-- `mcp__zuora-mcp__manage_mediation_meters` — Discover, resolve entities for, export/import, and manage Zuora Mediation meters
-- `mcp__zuora-mcp__create_subscriptions` — Create subscriptions via Order API
-- `mcp__zuora-mcp__get_account_summary` — Comprehensive account details
-- `mcp__zuora-mcp__manage_billing_documents` — Invoices, credit/debit memos
-- `mcp__zuora-mcp__manage_reports` / `mcp__zuora-mcp__run_reports` — Report management
+**Metadata & guidance** (look up specs to inform code generation):
+- `mcp__zuora-mcp__zuora_codegen` — API classes, endpoints, models, fields, enum values, SDK code rules. Always follow: `code_guidance` → `list_api_classes` → `get_class_apis` → `get_api_details` → `get_model_details` → `code_rules`. Never guess field names or enum values.
+- `mcp__zuora-mcp__ask_zuora` — Product knowledge (Billing, Revenue, CPQ, Payments). Use only for unresolved qualitative product behavior after specialist tools are checked.
+- `mcp__zuora-mcp__sdk_upgrade` — SDK version info, changelogs, upgrade guidance.
+
+**Tenant inspection** (read live data to inform code generation):
+- `mcp__zuora-mcp__query_objects` — Query 40+ Zuora object types with filtering, sorting, pagination.
+- `mcp__zuora-mcp__get_account_summary` — Comprehensive account details including recent memos.
+
+**Operational** (test/validate generated artifacts against the tenant, or other available MCP tools):
+- `mcp__zuora-mcp__manage_workflows` / `run_workflows` — Discover, import/export, execute workflows.
+- `mcp__zuora-mcp__manage_mediation_meters` — Meter operators, entity resolution, import/export (planned).
+- `mcp__zuora-mcp__create_subscriptions` / `manage_subscriptions` — Create or manage subscriptions for validation.
+- `mcp__zuora-mcp__manage_billing_documents` — Verify billing document generation.
+- Other `manage_*` tools as needed for their specific domains.
 
 ## Tool routing policy
 
