@@ -11,7 +11,7 @@ A plugin can contribute many skills, but a skill is what your AI client or tool 
 
 ## What's Included
 
-- **Skills**: task playbooks for API design, code generation, Workflow design, Order API migration, Invoice Settlement migration, meter design, validation, and review.
+- **Skills**: task playbooks for API design, code generation, Workflow design, Order API migration, Invoice Settlement migration, meter design, dynamic pricing setup, validation, and review.
 - **Local Auora MCP Server**: Provides Zuora API and product helpers for API specs, SDK patterns, object queries, reports, workflows, billing documents, and tenant-aware validation.
 - **Reference material**: Zuora-specific migration mappings, workflow patterns, meter templates, and integration best practices.
 
@@ -24,6 +24,7 @@ You can our ZCA for work such as:
 - Planning or building Invoice Settlement migration artifacts.
 - Designing or generating Zuora Workflow JSONs (Workflow uses JSON to export/import Workflows).
 - Designing usage-based billing meters.
+- Designing or executing Commerce Catalog dynamic pricing setups.
 - Validating payloads, reviewing code, or checking Zuora-specific edge cases.
 
 The ZCA is self documenting, you can simply ask your client for more examples or if a particular use case of interest to you would be helped by using ZCA.
@@ -124,6 +125,8 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 | `/zuora-order-migration-build` | Generate order migration implementation artifacts |
 | `/zuora-meter-design` | Design a Zuora meter — pick type, define topology, and collect per-operator field values |
 | `/zuora-meter-build` | Compose an importable Zuora meter JSON from a design |
+| `/zuora-dynamic-pricing-design` | Design a Commerce Catalog setup with dynamic pricing |
+| `/zuora-dynamic-pricing-build` | Execute the dynamic pricing setup on the tenant |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
 | `/zuora-review` | Review work for Zuora best practices |
 

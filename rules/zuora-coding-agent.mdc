@@ -15,6 +15,10 @@ When working on Zuora-related tasks, use the zuora-mcp server for authoritative 
 - `/zuora-is-migration-build` — IS migration implementation artifacts
 - `/zuora-order-migration-design` — Order migration design, sequencing, and edge-case analysis
 - `/zuora-order-migration-build` — Order migration implementation artifacts
+- `/zuora-meter-design` — Design a Zuora meter topology and operator configuration
+- `/zuora-meter-build` — Compose and lint importable Zuora meter JSON
+- `/zuora-dynamic-pricing-design` — Design a Commerce Catalog setup with dynamic pricing
+- `/zuora-dynamic-pricing-build` — Execute the dynamic pricing setup on the tenant
 - `/zuora-validate` — Validate code/payloads against Zuora patterns
 - `/zuora-review` — Review work for Zuora best practices
 

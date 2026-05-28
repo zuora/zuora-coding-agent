@@ -53,6 +53,10 @@ If the user's intent clearly maps to a dedicated skill, **do not answer generica
 | Building Invoice Settlement migration artifacts | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-is-migration-build/SKILL.md` |
 | Planning Order API and migration | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-order-migration-design/SKILL.md` |
 | Building Order API and migration artifacts | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-order-migration-build/SKILL.md` |
+| Designing a meter topology | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-meter-design/SKILL.md` |
+| Building meter JSON | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-meter-build/SKILL.md` |
+| Designing dynamic pricing / Commerce Catalog | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-dynamic-pricing-design/SKILL.md` |
+| Setting up dynamic pricing on tenant | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-dynamic-pricing-build/SKILL.md` |
 | Validating code or payloads | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-validate/SKILL.md` |
 | Reviewing implementation | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-review/SKILL.md` |
 
