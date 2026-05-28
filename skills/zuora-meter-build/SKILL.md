@@ -151,7 +151,9 @@ node scripts/lint-meter-json.js --assign-uuids <path>
 
 This does two things in one pass: (a) validates structure and reports errors / warnings, (b) if there are zero errors, rewrites every non-UUID `id` (and its references in `predecessors[]`) to a fresh UUID while preserving referential integrity.
 
-- On **errors**: read the rule codes, fix the JSON (use Edit), re-run Step 5. Do NOT report success if errors remain.
+- On **errors**: read each error's rule code and field path, fix the JSON (use Edit), then tell the user what was wrong and what you changed before re-running:
+  > "Lint found 2 errors — fixed: `[E001] tasks[1].metadata.topic is required` (added placeholder), `[E003] predecessors[0].id mismatch` (corrected ID reference). Re-running…"
+  Re-run Step 5. Do NOT report success if errors remain.
 - On **warnings-only**: surface the warnings in the final report but proceed.
 
 ### Step 6: Re-lint read-only

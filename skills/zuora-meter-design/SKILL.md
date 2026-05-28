@@ -1,8 +1,10 @@
 ---
 name: zuora-meter-design
-description: Design a Zuora meter — pick type, define topology, and collect per-operator field values
-argument-hint: <business requirement for the meter>
-allowed-tools: [Read, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_mediation_meters]
+description: "Design a Zuora meter — args: <businessRequirement> [meterId]"
+argument-hint: |
+  1: <business requirement for new meter>
+  2: <meter ID (integer)> — to update an existing meter (e.g. /zuora-meter-design 456)
+allowed-tools: [Read, Glob, Grep, Bash, Agent, AskUserQuestion, mcp__zuora-mcp__manage_mediation_meters]
 ---
 
 You are designing a Zuora meter. The user has described a usage-billing requirement; your job is to turn it into a prose design detailed enough that `/zuora-meter-build` can compose an importable meter JSON without re-interviewing the user.
@@ -22,7 +24,7 @@ This skill is normally answerable from the bundled meter references plus `mcp__z
 Before anything else, determine whether the user is updating an existing meter or creating a new one.
 
 **Detect an update scenario if ANY of the following are true:**
-- `$ARGUMENTS` contains a numeric meter ID (e.g. `456`, `1234`) or a UUID
+- `$ARGUMENTS` contains a numeric meter ID (e.g. `456`, `1234`)
 - `$ARGUMENTS` or conversation context contains phrases like "update meter", "modify meter", "clone meter", "change meter", "edit meter"
 - The user has provided a `meterId` in their request
 
@@ -54,13 +56,39 @@ Skip this step entirely. Proceed directly to **Step 1**.
 
 ### Step 1: Understand the requirement
 
-If the input is vague, ask targeted questions (one per message):
+**If `$ARGUMENTS` is empty** (user gave no description), use `AskUserQuestion` to ask one question:
 
-- What raw event source is feeding usage data? (Kafka topic, S3 bucket, Zuora Bulk upload, Snowflake, HTTP, …)
-- What's the billable outcome? (raw pass-through, aggregation over time windows, real-time rating, …)
-- If aggregating: what function (SUM, MAX, MIN, COUNT, AVG), what window (hour, day, month)?
-- Where do finalized records go? (Zuora Usage, Zuora Rating, S3 archive, Snowflake, multi-sink fan-out, …)
-- Filtering, enrichment, deduplication, subscription lookup needed?
+```
+AskUserQuestion({
+  questions: [
+    {
+      header: "What to do",
+      question: "What would you like to do?",
+      multiSelect: false,
+      options: [
+        {
+          label: "Create a new meter",
+          description: "Design a meter from scratch"
+        },
+        {
+          label: "Update an existing meter",
+          description: "Modify or extend an existing meter by its numeric ID"
+        }
+      ]
+    }
+  ]
+})
+```
+
+- If they chose **"Update an existing meter"**: ask them in plain text — "Please share the numeric meter ID you'd like to update (e.g. 456)." — then use their answer as the `meterId` and jump back to **Step 0** to fetch and walk through the meter before continuing.
+- If they chose **"Create a new meter"**: ask one follow-up question in plain text — "What's your meter idea or business requirement?" — then use their answer as the input for the rest of Step 1.
+
+**If `$ARGUMENTS` has a description**, skip the opener and use the answers already present. Only follow up on whatever is still missing from:
+
+- Source (Kafka, S3, Zuora Bulk, Snowflake, HTTP, …)
+- Billable outcome (pass-through, aggregation function + window, real-time rating, …)
+- Destination (Zuora Usage, Zuora Rating, S3, Snowflake, multi-sink, …)
+- Any special needs: filtering, enrichment, deduplication, subscription lookup
 
 ### Step 2: Read references in parallel
 
@@ -120,7 +148,34 @@ Output in chat (no file writes, no JSON):
 - **Data flow** — what each node emits to the next, any schemas / field mappings
 - **Unresolved identifiers** — names that need real integer IDs before import
 - **Blockers** — numbered list of questions the user MUST answer before `/zuora-meter-build` can run
-- **Next step** — "Run `/zuora-meter-build` with this design once blockers are resolved."
+- **Next step** — ask the confirmation question below.
+
+After outputting the design, ask:
+
+```
+AskUserQuestion({
+  questions: [
+    {
+      header: "Next step",
+      question: "Does this design look right to you?",
+      multiSelect: false,
+      options: [
+        {
+          label: "Looks good — build it",
+          description: "Proceed to /zuora-meter-build with this design"
+        },
+        {
+          label: "I want to adjust something",
+          description: "Tell me what to change and I'll update the design"
+        }
+      ]
+    }
+  ]
+})
+```
+
+- If **"Looks good — build it"**: respond with "Run `/zuora-meter-build` to generate the meter JSON from this design."
+- If **"I want to adjust something"**: ask the user what to change, apply the update, re-output the affected sections, then ask the confirmation question again.
 
 ## Do NOT
 

@@ -7,14 +7,18 @@
     "accountNumberField": null,
     "chargeNameField": null,
     "subscriptionIdField": null,
+    "needPrefetch": false,
+    "continueWhenNoDataFound": false,
+    "includeUsageChargesOnly": true,
+    "includeActiveAndCancelledSubsOnly": true,
+    "includeSegmentsActiveOnDateOnly": false,
     "appendFields": [
       {
         "referenceField": null,
         "eventField": null
       }
     ],
-    "mapFields": [],
-    "continueWhenNoDataFound": false
+    "mapFields": []
   },
   "label": "Subscription Lookup",
   "assumptions": [
