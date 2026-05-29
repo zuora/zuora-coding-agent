@@ -11,6 +11,29 @@ When picking an `action_type`, follow this order:
 3. Read the matching entry in `workflow-triggers-and-linkages.md` for the allowed `linkage_type` hooks.
 4. When in doubt, prefer the most common Tier 1 task; do not invent an `action_type`.
 
+### Data-read selection guide
+
+| Situation | Correct choice | Notes |
+| --- | --- | --- |
+| Fetch ≤ 2000 rows into `Data.<object>` for downstream Liquid/tasks | `Query` | Synchronous; result lives in `Data.*`. Default choice. |
+| Fetch > 2000 rows or need a CSV/ZIP for downstream `Iterate` | `Export` | SOAP bulk export; produces a file in `Data.Files.*`. |
+| Large async ZOQL export (stateful/stateless AQuA job) | `Data::Aqua` | Same ZOQL language as `Query`/`Export`; async; always produces a file — adds a download step before data is usable. |
+| Joined/nested read that fits in GraphQL | `GraphQuery` | Result lives in `Data.<baseObject>`. |
+| Run SQL against the Zuora Data Warehouse | `Data::Warehouse` | Results are streamed/exported externally — **writes nothing to `Data.*`**; downstream Liquid cannot reference warehouse results. |
+
+**Default to `Query`.** Only reach for `Data::Aqua` when the dataset is too large for `Export` or you need AQuA's stateful/incremental extraction. `Data::Aqua` uses the same ZOQL query language as `Query`/`Export` — it is **not** SQL and does not support JOINs. `Data::Warehouse` runs SQL but its output is not accessible in `Data.*`, so it is not a substitute for `Query` when downstream tasks need to reference results.
+
+### Transform/compute selection guide (avoid overusing JavaScript)
+
+| Situation | Correct choice | Wrong choice |
+| --- | --- | --- |
+| Compute a value, reshape `Data.*`, conditional logic | `Logic::Liquid` | `Script::JavaScript` |
+| Transform JSON structure or reshape a response payload | `Logic::JSONTransform` | `Script::JavaScript` |
+| Parse/transform XML | `Logic::XMLTransform` | `Script::JavaScript` |
+| Require Node.js libraries, complex business logic, or computation not possible in Liquid | `Script::JavaScript` | — |
+
+**`Script::JavaScript` is a last resort**, not the default. It is OPAQUE (downstream `Data.*` references require `_expected_response_schema` or `_opaque_trusted`), has a hard 20 s default timeout (5 min max), and produces output that the linter cannot statically verify. Always ask: can `Logic::Liquid` or `Logic::JSONTransform` do this? If yes, use those instead.
+
 ## Tier 1 — the 80% cases
 
 These thirteen action types cover the vast majority of production workflows. Know them cold.

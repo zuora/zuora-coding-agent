@@ -37,6 +37,14 @@ This sequence is critical — call `mcp__zuora-mcp__zuora_codegen` in this exact
 
 For simple queries (single API, known models), you may skip step 2 and go directly to step 3.
 
+### Step 2.5: Resolve custom field names (when the request includes custom fields)
+
+If the request involves custom fields (fields ending in `__c`) on any Zuora object:
+
+1. Call `mcp__zuora-mcp__query_objects` with `objectType=<objectName>` and `help=fields` to retrieve the live field schema from the tenant.
+2. Extract the exact field names from the `properties` map in the response — custom field names are **case-sensitive** and must be used verbatim as returned (e.g., `Region__c`, not `region__c`).
+3. **Never invent or lowercase custom field names.** If `query_objects` returns no properties (no tenant context), ask the user to provide the exact names.
+
 ### Step 3: Generate code
 
 Following the patterns from `code_guidance` and rules from `code_rules`:
@@ -44,6 +52,7 @@ Following the patterns from `code_guidance` and rules from `code_rules`:
 - Include SDK client initialization and authentication setup
 - Use correct model classes and constructors from `get_model_details` response
 - Use actual enum values — never guess enum strings
+- Use exact custom field names from Step 2.5 — never guess or lowercase them
 - Include error handling (try/catch, HTTP status checks, retry logic)
 - Include pagination handling for list/query operations
 - Add comments mapping code to business requirements
@@ -70,6 +79,7 @@ Recommend the user run `/zuora-validate` on the generated code to check for corr
 
 - NEVER generate code before completing steps 2.1 through 2.6. The MCP responses contain actual SDK structure.
 - NEVER guess field names or enum values — always use values from `get_model_details`.
+- NEVER guess or lowercase custom field names (`__c` fields) — always resolve them from the live tenant via `query_objects help=fields` (Step 2.5). Custom field names are case-sensitive.
 - NEVER use setter methods like `setName()` in Java — use fluent builder pattern.
 - For discriminated types in Java/C#: instantiate the specific subtype first, then wrap in the base request class.
 - Always include proper error handling — at minimum, catch and log HTTP errors.

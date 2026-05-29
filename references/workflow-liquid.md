@@ -72,7 +72,7 @@ So a typical `event_parameters` entry for InvoicePosted writes `Data.Invoice.Id`
 | Access                         | When available                                             |
 | ------------------------------ | ---------------------------------------------------------- |
 | `Credentials.zuora.url`        | Always.                                                    |
-| `Credentials.zuora.rest_endpoint` | Always.                                                 |
+| `Credentials.zuora.rest_endpoint` | Always. This value already ends with `v1/` (e.g. `https://rest.zuora.com/v1/`). Do NOT append `/v1` to it — that produces a `/v1/v1/` double-prefix. Append only the path segment after `v1/`: e.g. `{{ Credentials.zuora.rest_endpoint }}subscriptions/{{...}}`. For non-v1 paths the Rails source uses `.gsub('v1/', 'other-path/')`. |
 | `Credentials.zuora.username`   | Only for Basic auth tenants. Raises on OAuth tenants.      |
 | `Credentials.zuora.password`   | Only for Basic auth tenants.                               |
 | `Credentials.zuora.client_id`  | Only for OAuth tenants.                                    |

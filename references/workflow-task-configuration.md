@@ -282,6 +282,7 @@ The `data_contract` blocks in `workflow-task-templates.json` (covered separately
 
 - `object_id` with `[*]` triggers fan-out. The portion before `[*]` is treated as a Liquid path into `Data` (e.g. `Data.Subscription[*].Id`), and the model derives the `iterated_object` (`Subscription`) from the substring before `[*]`. If that scope is not bound, `task_process` raises `Object '...' not found in data payload.`
 - `fieldsToNull` is the only allowed nested array under `parameters.fields[<object>]`; other arrays will be SOAP-encoded as a single concatenated string.
+- **`Subscription.PaymentTerm` and Flexible Billing:** On tenants where Flexible Billing is enabled, updating `PaymentTerm` at the subscription level via the SOAP `Update` task may not work as expected. Before using a SOAP `Update` task to change `PaymentTerm` on a `Subscription` object, confirm with the user whether Flexible Billing is enabled on their tenant. If it is, use `mcp__zuora-mcp__ask_zuora` to determine the correct API path for updating `PaymentTerm` in that configuration.
 
 ### Callout
 

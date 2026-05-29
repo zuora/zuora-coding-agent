@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.3] - 2026-05-29
+
+### Improved
+- Workflow design and build now correctly guide task-type selection — `Query` as the default data-read, `Logic::Liquid` over `Script::JavaScript` for transforms, and clearer distinctions between `Export`, `Data::Aqua`, and `Data::Warehouse`
+- Error handlers in workflows no longer reference failed task output scopes (avoids silent Liquid rendering failures)
+- Custom field names (`__c`) are now resolved from the live tenant before code generation — never guessed or lowercased
+- Fixed a common `Credentials.zuora.rest_endpoint` double-prefix bug (`/v1/v1/`) in workflow Liquid templates
+
 ## [1.3.2] - 2026-05-28
 
 ### Improved

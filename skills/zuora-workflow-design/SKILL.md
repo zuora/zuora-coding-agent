@@ -87,17 +87,23 @@ The Build skill will materialize these answers into the JSON; the Design skill's
 
 Translate the business process into a linear / branching / iterating sequence of tasks. For each step, pick the correct `action_type` from the catalog:
 
-- Data read: `Query`, `Export`, `GraphQuery`, `Data::Aqua`, `Data::BillingPreviewRun`, `Data::Warehouse`.
+- Data read: `Query` (≤ 2000 rows, synchronous, ZOQL — **default choice**; result lives in `Data.*`), `Export` (> 2000 rows or need a CSV/ZIP file), `GraphQuery` (joined/nested GraphQL reads; result in `Data.*`), `Data::Aqua` (async ZOQL bulk export — stateful/stateless AQuA jobs; always adds a file download step before data is usable; uses ZOQL, **not** SQL), `Data::Warehouse` (SQL against the Zuora Data Warehouse — output is **not** in `Data.*`, downstream tasks cannot reference it; use only when exporting externally), `Data::BillingPreviewRun`.
 - Iteration: `Iterate` (hooks `For Each`, `Complete`, `Failure`).
 - Branching: `If` (`True` / `False`), `Logic::Case` (`Case_1` … `Case_N` / `Case_Else`).
 - External integration: `Callout`, `AsynchronousCallout`.
 - Notifications: `Email`, `Notifications::SMS`.
 - CRUD: `Create`, `Update`, `Delete`, `CustomObject::*`.
 - Amendments: `NewProduct`, `RemoveProduct`, `Suspend`, `Resume`, `Cancel`.
+
+**Subscription `PaymentTerm` with Flexible Billing:** When the requirement involves updating `PaymentTerm` on a subscription, always confirm with the user whether Flexible Billing is enabled on their tenant. On tenants with Flexible Billing enabled, updating `PaymentTerm` via a SOAP `Update` task on the `Subscription` object may not work as expected. If Flexible Billing is enabled, consult `mcp__zuora-mcp__ask_zuora` to determine the correct API path before choosing an implementation approach.
 - Billing/Payment: `Billing::BillRun`, `InvoiceGenerate`, `WriteOff`, `Payment::PaymentRun`.
 - Approval: `Approval` (`Approve` / `Reject` / `Failure`).
 
 When unsure, prefer a Tier 1 task type over a specialist.
+
+**Transform/compute tasks — prefer `Logic::Liquid` and `Logic::JSONTransform` over `Script::JavaScript`.** Use `Script::JavaScript` only when the computation genuinely requires Node.js libraries or logic that Liquid cannot express. JavaScript is OPAQUE, has a 20 s default timeout, and requires an `_expected_response_schema` or `_opaque_trusted` declaration for any downstream `Data.*` references.
+
+**Object query fields — only include fields the Zuora object actually supports.** Before listing fields in a `Query` or `Export` task, verify them against the live tenant describe endpoint or the bundled `references/zuora-standard-fields.json`. Invented field names are accepted by the JSON importer but raise `WorkflowError` at runtime. Custom fields must be confirmed by the user (they end in `__c` and vary per tenant).
 
 ### Step 5c: Trace data flow between tasks
 

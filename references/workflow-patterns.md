@@ -82,6 +82,17 @@ Run on a cron schedule.
 - `retry_rules.retry_count` 0..10; `retry_rules.retry_window` 0..60 seconds (Callout-class validation).
 - For batch operations, route `For Each` → body → `Complete` and handle failed rows with a downstream `If` on `Data.<object>.success`.
 
+### What is available on the Failure branch
+
+When a task fails and its `Failure` hook fires, the `Data.*` scope contains only what was produced by **successfully completed upstream tasks** — the failed task's own output scope is **NOT** populated (it never completed). Safe references in an error handler are:
+
+- Workflow-level seeds: `Data.Workflow.*`, event parameters, callout parameters.
+- Output of any task that **fully completed** before the failed task (i.e., tasks on the upstream path whose hook was `Success`).
+- `WorkflowInstance.*`, `WorkflowSetup.*`, `TaskInstance.*` — always populated.
+- `GlobalConstants.*` — always populated.
+
+**Do NOT reference** the failed task's own output scope in the error handler. For example, if a `Query Invoice` task fails, `Data.Invoice.*` is absent on the Failure path; using it in the error Email/Callout body will raise a `Liquid::UndefinedVariable` or silently render empty. Use `TaskInstance.name` or static strings to identify the failing step instead.
+
 ## Workflow discovery and management
 
 Use `mcp__zuora-mcp__manage_workflows`:

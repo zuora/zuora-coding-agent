@@ -68,5 +68,7 @@
 ## Custom fields
 
 - Custom field names end with `__c` (double underscore + c)
-- Pass custom fields as a JSON object in the custom fields parameter
+- Custom field names are **case-sensitive** — the casing used when the field was created must be preserved exactly (e.g., `MyRegion__c` ≠ `myregion__c`)
+- **Never guess or lowercase custom field names.** Always resolve them from the live tenant via `query_objects` with `help=fields` before generating any code that references them
+- Pass custom fields as top-level properties on the request object (same level as standard fields) — not inside a nested `customFields` wrapper, unless the specific API requires one
 - Validate custom field names exist in the tenant before using them
