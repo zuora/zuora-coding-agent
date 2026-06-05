@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.5] - 2026-06-05
+
+### Added
+- Local linter scripts: `scripts/lint-meter-json.js` and `scripts/lint-workflow-json.js` for pre-import structural and semantic validation
+
+### Improved
+- Workflow build and design skills now correctly handle tenant-custom events — a non-standard event name is kept in `event_triggers[]` with `event_trigger: true` rather than dropping the trigger
+- Fixed linter rule code `E121` → `E007`; added new rule `W123` (event parameters configured but `event_trigger` flag not set)
+- Workflow triggers reference updated to clarify that multiple trigger flags are valid on one workflow
+
 ## [1.3.4] - 2026-06-05
 
 ### Added
