@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.4] - 2026-06-05
+
+### Added
+- New reference docs for meter script codegen (JS/Python signatures, per-operator patterns) and workflow Liquid filter signatures sourced from `filters.rb`
+
+### Improved
+- Meter design skill now classifies requests upfront — operator questions, troubleshooting, and existing-meter review are answered directly without triggering the full intake flow
+- Meter build skill adds a script fast-path for code/snippet requests, and now runs API `validate_meter` before the local linter; can call `create_meter` after user confirmation
+- Workflow build skill adds correctness checks for bill run filter limits, Zuora callout auth, Data Query consolidation, Liquid shim minimization, CRUD update consolidation, duplicate `/v1/` URLs, and run-prompt `default: null` crash
+- Fixed workflow event special-token list — only tokens in `$event_special_tokens.tokens` are safe; multi-trigger workflows (e.g. on-demand + scheduled) are now explicitly supported
+
 ## [1.3.3] - 2026-05-29
 
 ### Improved
