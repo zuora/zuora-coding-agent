@@ -4,7 +4,7 @@ Reference for selecting the right trigger style, the correct `call_type`, and fo
 
 ## Trigger types
 
-Every workflow carries four boolean flags on the `workflow` envelope. Exactly one should normally be `true`; leaving all four `false` makes the workflow unreachable.
+Every workflow carries four boolean flags on the `workflow` envelope. At least one must be `true`; multiple flags are valid when the same task graph should run in more than one way. Leaving all four `false` makes the workflow unreachable.
 
 | Flag                | Purpose                                                               | Additional fields required                                          |
 | ------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
@@ -19,7 +19,7 @@ Default when in doubt: `ondemand_trigger: true`, all others `false` (the empty-s
 
 See `workflow-events.md` for the full standard event catalog, the `<canonical_name_corrections>` table, and how to use the `mcp__zuora-mcp__ask_zuora` tool to verify custom event registration via `GET /events/event-triggers`.
 
-- `parameters.event_triggers` is an array of canonical event names. The 32 standard events are listed in `workflow-enums.json` -> `standard_events.events` (sourced from `WorkflowDefinitionForm.js` `defaultEvents`). Common gotcha: "BillRunCompleted" is **not** a real event name; the canonical value is `BillingRunCompletion`.
+- `parameters.event_triggers` is an array of canonical standard event names or exact registered custom event names. The 32 standard events are listed in `workflow-enums.json` -> `standard_events.events` (sourced from `WorkflowDefinitionForm.js` `defaultEvents`). Common gotcha: "BillRunCompleted" is **not** a real event name; the canonical value is `BillingRunCompletion`. If the user provides a tenant-custom event name, keep it in `event_triggers[]`, set `workflow.event_trigger: true`, and verify or document that the custom event must already be registered.
 - `parameters.event_parameters` is the contract that tells Rails which event payload fields to bind into the workflow's `Data` scope. Shape:
 
 ```json
@@ -243,9 +243,9 @@ Required additional fields `[lint E131, E133, E175]`:
 }
 ```
 
-Required additional fields `[lint E121, E122]`:
+Required additional fields `[lint E007, E122]`:
 
-- `parameters.event_triggers[]`: array of canonical event-name strings. Resolve via `workflow-enums.json` -> `standard_events` (the lookup includes `$canonical_name_corrections` for natural-language requests like "BillRunCompleted").
+- `parameters.event_triggers[]`: array of canonical standard event-name strings or exact registered custom event names. Resolve via `workflow-enums.json` -> `standard_events` first (the lookup includes `$canonical_name_corrections` for natural-language requests like "BillRunCompleted"); if no match, preserve the user-provided custom event name and verify registration.
 - `parameters.event_parameters[]`: array of `{eventName, params: [...]}`. Both the outer and inner arrays MUST be JSON arrays (not Hashes). Each `params[*].value` uses `<Object.Field>` placeholder syntax sourced from `GET /notifications/email-templates/info/selections?category=<category>`.
 
 For the full event derivation guide, see `workflow-events.md`.

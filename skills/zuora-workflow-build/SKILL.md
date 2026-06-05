@@ -269,7 +269,7 @@ After tasks and linkages are in place, fill out the rest of `workflow.*`. Use `w
 7. **Trigger flags**: set at least one to `true`; multiple trigger flags are valid when they launch the same task graph (for example, on-demand plus scheduled). NEVER set `ui_trigger` (it is not a column on the `workflows` table and is silently dropped).
 8. **`workflow.interval`** + **`workflow.timezone`**: required IFF `scheduled_trigger == true`. Use `interval_schema.examples` and `interval_schema.timezone.examples` from `workflow-enums.json`.
 9. **`workflow.parameters`** — start from the skeleton's seven always-present keys (`fields`, `entity_name`, `entity_id`, `skipping_check: "db"`, `file_encryption: "false"`, `secure_error_msgs: "false"`, `show_run_prompt`, `callout_response`). Then layer in:
-   - **For event triggers**: append `event_triggers: ["<canonical name>"]` and `event_parameters: [{eventName, params: [...]}]`. Resolve the user's intent through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first. Emit BOTH `event_parameters` AND each `params` value as JSON arrays (not Hashes).
+   - **For event triggers**: set `workflow.event_trigger: true`, append `event_triggers: ["<canonical or registered custom name>"]`, and append matching `event_parameters: [{eventName, params: [...]}]`. Resolve the user's intent through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first. If the name is not standard and not a correction, treat the user-provided name as a custom event candidate; keep the exact registered custom event name in `event_triggers[]` instead of omitting the trigger. Emit BOTH `event_parameters` AND each `params` value as JSON arrays (not Hashes).
    - **For callout triggers**: populate `parameters.fields[]` with the inbound payload schema if known.
    - **For workflow-level run prompts**: set each ordinary input field to `object_name: "Workflow"` and reference it as `Data.Workflow.<field_name>`. Use `object_name: "Files"` only for `File-Field` uploads, and use another `object_name` only when it is a real supported Zuora object from the run-prompt dropdown. NEVER create semantic grouping objects such as `BillRunConfig`, `RequestParams`, or `InputConfig`.
    - **For run-prompt/callout JSON fields**: never emit `default: null` when `datatype` is `"JSON"`. `Workflow::Setup` validates JSON field size with `field['default'].size`, so null/boolean/number defaults crash import. Use `[]` for array inputs, `{}` for object/map inputs, or a valid JSON string/default when the user supplied one.
@@ -290,7 +290,7 @@ After tasks and linkages are in place, fill out the rest of `workflow.*`. Use `w
 
 ### Step 3c: Optional event-trigger preflight
 
-When the workflow is event-triggered AND any value in `parameters.event_triggers[]` is **not** in `workflow-enums.json` -> `standard_events.events` (after applying `$canonical_name_corrections`), verify that the custom event is registered before considering the workflow lint-clean.
+When the workflow is event-triggered AND any value in `parameters.event_triggers[]` is **not** in `workflow-enums.json` -> `standard_events.events` (after applying `$canonical_name_corrections`), verify that the custom event is registered before considering the workflow lint-clean. A non-standard name is a registration prerequisite, not a reason to set `workflow.event_trigger` false or leave `parameters.event_triggers[]` empty.
 
 Try this lookup once, in order:
 

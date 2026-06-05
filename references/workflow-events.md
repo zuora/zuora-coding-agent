@@ -97,7 +97,7 @@ These rules come from `WorkflowSettingsForm.js` L388-400.
 
 ## Custom events
 
-If the user references an event name not in the standard catalog and not in the corrections table, the workflow will not trigger until the event is registered. Three options:
+If the user references an event name not in the standard catalog and not in the corrections table, treat the name as a tenant-custom event candidate. The workflow envelope is still event-triggered: set `workflow.event_trigger: true`, use the exact registered custom event `name` in `parameters.event_triggers[]`, and create a matching `parameters.event_parameters[*].eventName` entry. The workflow will not trigger until the event is registered. Three options:
 
 1. **Manual registration** (recommended for one-off setups): Settings -> Notifications -> Custom Events in the Zuora UI.
 2. **API registration** via `POST /events/event-triggers` with payload:
@@ -120,8 +120,8 @@ If the user references an event name not in the standard catalog and not in the 
 
 For each event the user wants to react to:
 
-1. **Resolve the canonical name.** Look up the user's intent in `standard_events.$canonical_name_corrections`, then in `standard_events.events`. If no match, fall to "Custom events" above.
-2. **Add to `parameters.event_triggers[]`.** Append the canonical name string. Multiple events can share one workflow.
+1. **Resolve the canonical or registered custom name.** Look up the user's intent in `standard_events.$canonical_name_corrections`, then in `standard_events.events`. If no match, treat the user-provided string as a custom event name and follow "Custom events" above; do not disable the event trigger solely because the name is tenant-custom.
+2. **Add to `parameters.event_triggers[]`.** Append the canonical standard name or exact registered custom event name string. Multiple events can share one workflow.
 3. **Build the matching `parameters.event_parameters[*]` entry.** Shape:
    ```json
    {
@@ -176,10 +176,11 @@ Similarly, the downstream `Export.parameters.where_clause` references `Invoice.B
 
 | Code | Rule |
 |---|---|
-| `E121` | `event_trigger == true` but `parameters.event_triggers[]` is empty or missing |
+| `E007` | `event_trigger == true` but `parameters.event_triggers[]` is empty or missing |
 | `E122` | `event_trigger == true` but `parameters.event_parameters[]` is empty, missing, or has at least one entry whose `eventName` is not in `event_triggers[]` |
 | `E120` | `parameters.event_parameters[*]` shape is wrong (missing `eventName`, missing/non-array `params`, or `params[*]` missing `object`/`key`/`value`) |
 | `W121` | `event_triggers[]` contains a name that is not in the standard catalog and the MCP preflight (`GET /events/event-triggers`) did not confirm registration |
+| `W123` | `event_triggers[]` or `event_parameters[]` is populated but `workflow.event_trigger` is not `true`, so the configured event will not launch the workflow |
 | `E177` | `event_parameters[*].params[*].value` uses the form `<BaseObject.Field>` where `BaseObject` does not match the event's declared `baseObject` (from `$event_base_objects.events`) and is not prefixed by `Event.` / `DataSource.` |
 | `W179` | `event_parameters[*].params[*].value` is a `<...>` token that is neither a known special token (`$event_special_tokens.tokens`) nor a statically-verified `<BaseObject.Field>`; prompts the composer to fetch `GET /notifications/email-templates/info/selections?category=<category>` via MCP before emission |
 
@@ -189,4 +190,4 @@ Similarly, the downstream `Export.parameters.where_clause` references `Invoice.B
 - `zuora-standard-fields.json` -> `$event_base_objects.events`, `$event_special_tokens.tokens`
 - `workflow-triggers-and-linkages.md` -> "Workflow-level field derivation by trigger style"
 - `workflow-skeleton.json` -> default `parameters` shape with the always-present keys
-- `scripts/lint-workflow-json.js` -> rules `E120`, `E121`, `E122`, `W121`, `E177`, `W179`
+- `scripts/lint-workflow-json.js` -> rules `E007`, `E120`, `E122`, `W121`, `W123`, `E177`, `W179`
