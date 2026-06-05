@@ -8,7 +8,7 @@ These JSONs double as regression fixtures for `scripts/lint-workflow-json.js`. K
 
 **Requirement.** When an invoice is posted in Zuora, export it to the ERP's `/invoices` endpoint.
 
-**Design choice:** single-task linear flow, event-triggered on `InvoicePosted`. The event payload maps `<Event.Object.Id>` into `Data.Invoice.Id`, so a single `Callout` can POST the invoice id.
+**Design choice:** single-task linear flow, event-triggered on `InvoicePosted`. The event payload maps the described `<Invoice.Id>` merge field into `Data.Invoice.Id`, so a single `Callout` can POST the invoice id.
 
 ```json
 {
@@ -28,8 +28,8 @@ These JSONs double as regression fixtures for `scripts/lint-workflow-json.js`. K
         {
           "eventName": "InvoicePosted",
           "params": [
-            { "object": "Invoice", "key": "Id",        "value": "<Event.Object.Id>" },
-            { "object": "Invoice", "key": "AccountId", "value": "<Event.Payload.AccountId>" }
+            { "object": "Invoice", "key": "Id",        "value": "<Invoice.Id>" },
+            { "object": "Invoice", "key": "AccountId", "value": "<Invoice.AccountId>" }
           ]
         }
       ]
@@ -344,9 +344,9 @@ Checklist highlights:
         {
           "eventName": "PaymentProcessed",
           "params": [
-            { "object": "Payment", "key": "Id",        "value": "<Event.Object.Id>" },
-            { "object": "Payment", "key": "AccountId", "value": "<Event.Payload.AccountId>" },
-            { "object": "Payment", "key": "Amount",    "value": "<Event.Payload.Amount>" }
+            { "object": "Payment", "key": "Id",        "value": "<Payment.Id>" },
+            { "object": "Payment", "key": "AccountId", "value": "<Payment.AccountId>" },
+            { "object": "Payment", "key": "Amount",    "value": "<Payment.Amount>" }
           ]
         }
       ]
@@ -672,9 +672,9 @@ This is the **declare-schema** protocol from Step 3e of `zuora-workflow-build/SK
         {
           "eventName": "InvoicePosted",
           "params": [
-            { "object": "Invoice", "key": "Id",        "value": "<Event.Object.Id>" },
-            { "object": "Invoice", "key": "AccountId", "value": "<Event.Payload.AccountId>" },
-            { "object": "Invoice", "key": "Amount",    "value": "<Event.Payload.Amount>" }
+            { "object": "Invoice", "key": "Id",        "value": "<Invoice.Id>" },
+            { "object": "Invoice", "key": "AccountId", "value": "<Invoice.AccountId>" },
+            { "object": "Invoice", "key": "Amount",    "value": "<Invoice.Amount>" }
           ]
         }
       ]

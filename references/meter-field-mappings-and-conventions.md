@@ -56,22 +56,25 @@ Field mappings appear in: ZUORA_USAGE and ZUORA_RATING sink `metadata.fieldMappi
 
 ## Entity Resolution Rules
 
-**Before generating a meter, always resolve names to IDs** using `mcp__zuora-mcp__manage_mediation_meters` with `operation: "resolve_entities"` when the user provides string names rather than numeric IDs.
+**Always resolve every entity reference** (event store, schema, connection) through the API — regardless of whether the user provides a name or a numeric ID. The `query` parameter accepts either; the API matches by both name and ID and returns all matches.
 
-### How to Detect Name vs ID
-- `"es1"`, `"my-store"`, `"usage-events"` → **NAME** → call `manage_mediation_meters` with `operation: "resolve_entities"`
-- `123`, `9999`, `"12345"` → **already an ID** — use directly, do NOT resolve
+Use the appropriate operation on `mcp__zuora-mcp__manage_mediation_meters`:
 
-### When to Resolve
-Resolve names for:
-- **Event schemas / EventStore schemas** → `schemaNames`
-- **Event stores** → `eventStoreNames`
-- **Connections** (Kafka, S3, Snowflake, HTTP) → `connectionNames`
+- **Event store** → call with `operation: "list_event_stores"` and `query: "<name or id>"` — use the `id` from the returned result as `storeId`; the response also contains store metadata
+- **Schema** → call with `operation: "list_schemas"` and `query: "<name or id>"` — use the `id` from the returned result as `schemaId`; the response also contains the full field definitions
+- **Connection** (Kafka, S3, Snowflake, HTTP) → call with `operation: "list_connections"` and `query: "<name or id>"` — verify `status` is `ACTIVE` and use the returned `id`
+
+### If Multiple Matches Are Returned
+Show the list to the user and ask them to choose one before continuing:
+> "I found multiple matches for `<input>`. Which one did you mean?"
+> 1. `<id>` — `<name>` (`<type/status>`)
+> 2. `<id>` — `<name>` (`<type/status>`)
 
 ### If Resolution Fails
-If `resolve_entities` returns any unresolved entries, **do not finalize the meter as fully resolved**. Instead, follow the draft-first flow: return draft JSON with unresolved ID fields set to `null`, include explicit blockers telling the user which names must be verified, and ask the user to confirm or correct those names before finalizing.
+If the API returns no matching result, **do not finalize the meter**. Return draft JSON with unresolved fields set to `null`, include explicit blockers telling the user which references could not be found, and ask them to verify the name or ID before finalizing.
 
-Do not invent, guess, or silently substitute IDs for unresolved entries. Only use resolved IDs from the tool response or user-provided numeric IDs.
+Do not invent, guess, or silently substitute IDs for unresolved entries. Only use IDs returned by the list operations.
+
 ---
 
 ## Connection Names
@@ -93,7 +96,7 @@ Connection names are managed separately in the Connections feature. If the user 
 
 - Use simple sequential numeric string IDs: `"101"` for sources, `"201"–"299"` for processors, `"301"` for sinks
 - Use `"202"`, `"203"`, etc. for additional processors in the same meter
-- IDs will be automatically converted to UUIDs by the validate_meter_config tool after validation — you do NOT need to generate UUIDs
+- IDs are provisional — they are rewritten to UUIDs by the local linter (`lint-meter-json.js --assign-uuids`) before import. Do NOT generate UUIDs yourself and do NOT rely on `validate_meter` to assign them.
 - `predecessors[].id` must reference an existing task ID from the same meter
 
 ---

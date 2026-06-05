@@ -15,7 +15,19 @@
     "rollingFileSizeUnit": "MB"
   },
   "label": "S3 Sink",
-  "assumptions": [],
+  "hints": {
+    "fileFormat": "CSV | EXCEL | PARQUET | JSON | XML | AVRO",
+    "formatOption.hasHeader": "true | false",
+    "rollingFileSizeUnit": "MB | GB"
+  },
+  "assumptions": [
+    {
+      "path": "fileFormat",
+      "value": "JSON",
+      "reason": "JSON is a common S3 sink format; change to CSV, EXCEL, PARQUET, XML, or AVRO if your files differ.",
+      "confidence": 0.7
+    }
+  ],
   "blockers": [
     {
       "path": "connectionName",
@@ -24,6 +36,11 @@
     {
       "path": "path",
       "message": "S3 sink path is required. Which S3 destination path should output files be written to?"
+    },
+    {
+      "path": "fileFormat",
+      "allowed_values": ["CSV", "EXCEL", "PARQUET", "JSON", "XML", "AVRO"],
+      "message": "S3 sink fileFormat '{fileFormat}' is not supported. Allowed values: CSV, EXCEL, PARQUET, JSON, XML, AVRO."
     }
   ]
 }

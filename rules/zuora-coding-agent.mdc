@@ -44,7 +44,7 @@ When generating code for the customer's repository, always output Zuora REST API
 
 **Operational** (test/validate generated artifacts against the tenant, or other available MCP tools):
 - `mcp__zuora-mcp__manage_workflows` / `run_workflows` — Discover, import/export, execute workflows.
-- `mcp__zuora-mcp__manage_mediation_meters` — Meter operators, entity resolution, import/export (planned).
+- `mcp__zuora-mcp__manage_mediation_meters` — Mediation meter operations: `get_meter`, `create_meter`, `validate_meter`, `list_connections`, `list_event_stores`, `list_schemas`.
 - `mcp__zuora-mcp__create_subscriptions` / `manage_subscriptions` — Create or manage subscriptions for validation.
 - `mcp__zuora-mcp__manage_billing_documents` — Verify billing document generation.
 - Other `manage_*` tools as needed for their specific domains.

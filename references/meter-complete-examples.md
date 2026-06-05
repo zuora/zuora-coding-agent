@@ -1,5 +1,7 @@
 # Complete Meter Examples
 
+> **Default rule**: Always use `CUSTOM` type unless the user explicitly requests a predefined type by name. Examples 1–5 below are shown for reference only — do not use them as templates unless the user has specifically asked for that predefined type.
+
 ## Example 1: Direct Pass-Through (DIRECT type)
 
 Simplest meter — no aggregation, no transformation. Use when events already have all required fields.
@@ -232,10 +234,7 @@ Events have account + charge name but not subscription/charge numbers. Lookup en
         "lookupType": "AccountAndChargeName",
         "accountNumberField": "CustomerId",
         "chargeNameField": "ChargeName",
-        "appendFields": [
-          {"eventField": "subscriptionNumber", "referenceField": "Subscription.Name"},
-          {"eventField": "chargeNumber", "referenceField": "RatePlanCharge.ChargeNumber"}
-        ]
+        "continueWhenNoDataFound": false
       },
       "predecessors": [{"id": "101"}]
     },
@@ -571,6 +570,8 @@ Write processed usage to both Zuora billing and S3 archive simultaneously.
 ---
 
 ## Quick Reference: Type Selection
+
+> **Reminder**: Default to `CUSTOM` unless the user explicitly names a predefined type. The table below is a reference for when a predefined type has been explicitly requested.
 
 | Scenario | Use | Config Required |
 |----------|-----|----------------|

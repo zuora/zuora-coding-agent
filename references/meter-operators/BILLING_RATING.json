@@ -5,39 +5,48 @@
   "metadata": {
     "fieldMappings": [
       {
-        "name": "StartDateTime",
+        "name": "SubscriptionNumber",
         "field": null,
-        "dateFormat": "yyyy-MM-dd",
-        "required": true
+        "required": true,
+        "type": null
       },
       {
         "name": "ChargeNumber",
         "field": null,
-        "required": true
+        "required": true,
+        "type": null
       },
       {
         "name": "Quantity",
         "field": null,
-        "required": true
+        "required": true,
+        "type": null
+      },
+      {
+        "name": "StartDateTime",
+        "field": null,
+        "dateFormat": "yyyy-MM-dd",
+        "required": false,
+        "type": null
       },
       {
         "name": "UniqueId",
         "field": null,
-        "required": true
+        "required": false,
+        "type": null
       },
       {
         "name": "AccountNumber",
         "field": null,
-        "required": true
-      },
-      {
-        "name": "SubscriptionNumber",
-        "field": null,
-        "required": true
+        "required": false,
+        "type": null
       }
     ]
   },
   "label": "Billing Rating",
+  "hints": {
+    "fieldMappings[].type": "string | number | boolean | datetime | object | array — if an EventSchema is available (from call_mediation_api), look up the schema field definitions and use the matching type; do not guess or default arbitrarily. Hints show valid options — the schema tells you which one to use."
+  },
   "assumptions": [
     {
       "iterate": "fieldMappings",

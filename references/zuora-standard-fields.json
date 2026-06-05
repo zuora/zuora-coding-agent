@@ -4,7 +4,7 @@
   "$usage": {
     "lookup": "objects.<ObjectName>.fields[]",
     "join": "objects.<ObjectName>.related_objects[] -- list of dot-prefixable joinable objects in ZOQL SELECT (e.g. 'Subscription.Account.Name')",
-    "linter_rule": "W177 (undeclared-describe-field): when parameters.fields[<object>] or parameters.fields[<object>].<FieldName> is not in MCP describe AND not in this catalog, emit W177. Downgrade to notice when MCP was unreachable."
+    "linter_rule": "W177 (undeclared-describe-field): when parameters.fields[<object>], parameters.fields[<object>].<FieldName>, or a field referenced in parameters.where_clause is not in MCP/live describe AND not in this catalog, emit W177. Downgrade to notice when MCP/live describe was unreachable."
   },
   "$conventions": {
     "field_case": "Pascal-case (e.g. AccountId), matching SOAP API serialization. ZOQL is case-insensitive but the agent should preserve PascalCase for clarity.",

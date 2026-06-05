@@ -10,9 +10,15 @@
         "aggregation": "SUM",
         "targetField": null
       }
-    ]
+    ],
+    "order":"ASC",
+    "sortField": null
   },
   "label": "Accumulator",
+  "hints": {
+    "aggregationFields[].aggregation": "SUM | MIN | MAX | AVG | COUNT | DELTA",
+    "order": "ASC | DESC"
+  },
   "assumptions": [
     {
       "path": "aggregationFields[0].aggregation",

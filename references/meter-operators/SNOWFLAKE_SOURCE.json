@@ -27,5 +27,8 @@
       ],
       "message": "Snowflake table or query is required. Which table should this source read from?"
     }
-  ]
+  ],
+  "hints": {
+    "schemaId": "integer ID from call_mediation_api list_schemas \u2014 use data.id"
+  }
 }

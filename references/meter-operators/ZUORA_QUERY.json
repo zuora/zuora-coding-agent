@@ -19,5 +19,12 @@
   },
   "label": "Zuora Query Source",
   "assumptions": [],
-  "blockers": []
+  "blockers": [],
+  "hints": {
+    "zuora-query.groupByFields": "event field names from schema properties to GROUP BY (e.g. [\"accountNumber\", \"subscriptionId\"])",
+    "zuora-query.aggregationFields[].source": "event field name from schema properties",
+    "zuora-query.aggregationFields[].target": "output field name",
+    "zuora-query.delayForDownstream.unit": "minute | hour | day",
+    "zuora-query.queryInterval.unit": "minute | hour | day"
+  }
 }

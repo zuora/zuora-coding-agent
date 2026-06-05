@@ -6,7 +6,6 @@
     "Data::Aqua",
     "Data::BillingPreviewRun",
     "Data::Link",
-    "Data::Warehouse",
     "Export",
     "Query",
     "If",
@@ -321,7 +320,7 @@
     },
     "none": {
       "$summary": "Side-effect-only or non-data tasks: writes nothing into Data.* that downstream tasks can consume.",
-      "examples": ["Email", "Notifications::SMS", "Notifications::Kafka", "Delay", "UI::Page", "UI::Stop", "UI::WebShare", "Upload::FTP", "Upload::SFTP", "Upload::S3", "Data::Warehouse", "UsageMediation::Source", "UsageMediation::Watermark", "UsageMediation::Filter", "UsageMediation::Map", "UsageMediation::Group", "UsageMediation::Sink"],
+      "examples": ["Email", "Notifications::SMS", "Notifications::Kafka", "Delay", "UI::Page", "UI::Stop", "UI::WebShare", "Upload::FTP", "Upload::SFTP", "Upload::S3", "UsageMediation::Source", "UsageMediation::Watermark", "UsageMediation::Filter", "UsageMediation::Map", "UsageMediation::Group", "UsageMediation::Sink"],
       "linter_validates": "no contribution to available_scopes"
     }
   },
@@ -363,11 +362,11 @@
     },
     "ondemand_trigger": {
       "seeds": "Data.Workflow.* + Data.<Object>.<field> for every entry in workflow.parameters.fields[]",
-      "$note": "fields[] are user-supplied at launch time."
+      "$note": "fields[] are user-supplied at launch time. Ordinary workflow inputs should use object_name 'Workflow'; use 'Files' for file uploads or a real supported dropdown object."
     },
     "scheduled_trigger": {
       "seeds": "Data.Workflow.* + Data.<Object>.<field> for every default in workflow.parameters.fields[]",
-      "$note": "Same as ondemand but values come from defaults (no user prompt)."
+      "$note": "Same as ondemand but values come from defaults (no user prompt). Ordinary workflow inputs should use object_name 'Workflow'; use 'Files' for file uploads or a real supported dropdown object."
     }
   },
 

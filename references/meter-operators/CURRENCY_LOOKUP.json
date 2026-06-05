@@ -25,6 +25,11 @@
     "continueWhenNoDataFound": false
   },
   "label": "Currency Lookup",
+  "hints": {
+    "fromCurrency.type": "STATIC | FROM_EVENT",
+    "toCurrency.type": "STATIC | FROM_EVENT",
+    "rateType.type": "ASK | BID | MIDPOINT | HIGH_ASK | HIGH_BID | LOW_ASK | LOW_BID | FROM_EVENT"
+  },
   "assumptions": [
     {
       "path": "continueWhenNoDataFound",

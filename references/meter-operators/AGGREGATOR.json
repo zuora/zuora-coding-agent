@@ -18,6 +18,11 @@
     ]
   },
   "label": "Aggregator",
+  "hints": {
+    "triggerType": "Timeout",
+    "timeoutType": "EventTime | ProcessingTime",
+    "aggregationFields[].aggregation": "SUM | MIN | MAX | AVG | COUNT | DELTA"
+  },
   "assumptions": [
     {
       "path": "triggerType",

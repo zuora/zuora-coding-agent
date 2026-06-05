@@ -15,12 +15,23 @@
     "incremental": false
   },
   "label": "S3 Source",
+  "hints": {
+    "fileFormat": "CSV | EXCEL | PARQUET | JSON | XML | AVRO",
+    "formatOption.hasHeader": "true | false",
+    "incremental": "true | false"
+  },
   "assumptions": [
     {
       "path": "incremental",
       "value": false,
       "reason": "Process all files in the path (not just new ones).",
       "confidence": 0.75
+    },
+    {
+      "path": "fileFormat",
+      "value": "JSON",
+      "reason": "JSON is a common S3 source format; change to CSV, EXCEL, PARQUET, XML, or AVRO if your files differ.",
+      "confidence": 0.7
     }
   ],
   "blockers": [
@@ -34,11 +45,16 @@
     },
     {
       "path": "fileFormat",
-      "message": "S3 fileFormat is required. Specify CSV, JSON, or PARQUET."
+      "message": "S3 fileFormat is required. Specify CSV, EXCEL, PARQUET, JSON, XML, or AVRO."
+    },
+    {
+      "path": "fileFormat",
+      "allowed_values": ["CSV", "EXCEL", "PARQUET", "JSON", "XML", "AVRO"],
+      "message": "S3 fileFormat '{fileFormat}' is not supported. Allowed values: CSV, EXCEL, PARQUET, JSON, XML, AVRO."
     },
     {
       "path": "schemaId",
-      "message": "S3 source schemaId is required. Which schema should be used to parse the files? (get the ID from the Schema Registry)"
+      "message": "schemaId is required. Provide EventSchema ID or name — use call_mediation_api to get EventSchema Details."
     },
     {
       "path": "formatOption",

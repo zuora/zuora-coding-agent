@@ -43,5 +43,11 @@
       "path": "aggregationFields[0].field",
       "message": "REALTIME_EVENT_AGGREGATOR aggregation source field is required. Which event field should be aggregated?"
     }
-  ]
+  ],
+  "hints": {
+    "groupFields": "event field names from schema properties to group by (e.g. [\"accountNumber\"])",
+    "aggregationFields[].field": "event field name from schema properties to aggregate",
+    "aggregationFields[].aggregation": "SUM | MIN | MAX | AVG | COUNT | DELTA",
+    "aggregationFields[].targetField": "output field name; defaults to source field name if omitted"
+  }
 }

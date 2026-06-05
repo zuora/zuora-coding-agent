@@ -42,11 +42,11 @@ Every task is classified into one of five categories. The agent (and the linter)
 
 | Category | What we know at design time | Examples | Linter behaviour |
 |---|---|---|---|
-| **DETERMINISTIC** | Both the **scope** (`Data.X`) and the **field shape** (`X.field1, X.field2, …`) are known from the task model + parameters. | `Query`, `Create`, `Update`, `CustomObject::Query`, `CustomObject::Create`, `CustomObject::Update`, all amendments (`NewProduct`, `RemoveProduct`, `Suspend`, `Resume`, `Cancel`), `InvoiceGenerate`, `Billing::ReverseInvoice`, `Payment::GatewayReconciliation` | Validates `Data.X.<field>` references; emits `W171` if the field isn't in the contract. |
+| **DETERMINISTIC** | Both the **scope** (`Data.X`) and the **field shape** (`X.field1, X.field2, …`) are known from the task model + parameters. | `Query`, `Create`, `Update`, `CustomObject::Query`, `CustomObject::Create`, `CustomObject::Update`, legacy SOAP amendments (`NewProduct`, `RemoveProduct`, `Suspend`, `Resume`, `Cancel`), `InvoiceGenerate`, `Billing::ReverseInvoice`, `Payment::GatewayReconciliation` | Validates `Data.X.<field>` references; emits `W171` if the field isn't in the contract. |
 | **SEMI-DETERMINISTIC** | The **scope** is known; the **field shape** is partially known (standardized model fields), or the contents come from a free-form expression (e.g., GraphQL selection set, Liquid `{% assign %}`s, report column names). | `Export`, `Billing::BillRun`, `Payment::PaymentRun`, `Data::BillingPreviewRun`, `Data::Aqua`, `Data::Link`, `GraphQuery`, `Logic::Liquid`, `Reporting::RunReport`, `Reporting::OracleFusionReport`, `File::DownloadFile`, `File::ZuoraImport`, `File::FileOperations`, `File::FileStreamingUpload`, `File::BulkDataLoader`, `File::CustomPDF::CustomDocument`, `Billing::CurrencyConversion`, `Billing::CustomBillingDocument`, `Usage::ImportUsage`, `Attachment`, `Download::SFTP`, `Download::S3` | Scope-level validation only. `W171` is downgraded to a notice (`fields_partial_known`). |
 | **OPAQUE** | The **scope** is known (or can be derived from `placement`); the **field shape is unknowable** until runtime. | `Callout`, `AsynchronousCallout`, `Logic::Lambda`, `Script::JavaScript`, `Logic::JSONTransform`, `Logic::XMLTransform`, `Logic::CSVTranslator`, `Logic::ResponseFormatter`, `Execute::WorkflowTask`, `Mediation::SendEvents` | Downstream `Data.<scope>.<field>` references emit `W172` unless the task carries `parameters._opaque_trusted = "true"` or `parameters._expected_response_schema = {...}`. |
 | **SCOPING** | The task **does not produce new positive writes**; it **routes execution** along branches and/or **rebinds** an existing scope. | `If`, `Logic::Case`, `Iterate`, `Logic::Merge`, `Approval`, `Delete`, `CustomObject::Delete` | `Iterate` triggers `W173` if a downstream task references the iterated scope as an array. `Logic::Case` triggers `W174` if a downstream task references a scope that's only produced on some branches. |
-| **NONE** | Side-effect-only or non-data tasks: writes nothing into `Data.*`. | `Email`, `Notifications::SMS`, `Notifications::Kafka`, `Delay`, `UI::Page`, `UI::Stop`, `UI::WebShare`, `Upload::FTP`, `Upload::SFTP`, `Upload::S3`, `Data::Warehouse`, all `UsageMediation::*`, `File::CustomPDF::CustomDocument` (file-only) | No writes contributed; downstream tasks see only what predecessors wrote. |
+| **NONE** | Side-effect-only or non-data tasks: writes nothing into `Data.*`. | `Email`, `Notifications::SMS`, `Notifications::Kafka`, `Delay`, `UI::Page`, `UI::Stop`, `UI::WebShare`, `Upload::FTP`, `Upload::SFTP`, `Upload::S3`, all `UsageMediation::*`, `File::CustomPDF::CustomDocument` (file-only) | No writes contributed; downstream tasks see only what predecessors wrote. |
 
 These categories live in `workflow-task-templates.json` as `data_contract.predictability` on every task entry. The default fallback (`$default_data_contract`) is `opaque` so the linter is conservative for unknown task types.
 
@@ -71,6 +71,8 @@ Per-trigger summary:
 - **ondemand**: seed = `Data.Workflow.*` + every `parameters.fields[]` entry the user populated when launching.
 - **scheduled**: seed = `Data.Workflow.*` + every `parameters.fields[]` default value.
 
+Workflows can enable multiple trigger flags on one setup. When they do, the shared task graph must either consume only data that all enabled triggers provide, or normalize trigger-specific data into a common scope before later tasks reference it. For example, an on-demand + scheduled workflow can share one graph when scheduled-only inputs have defaults and on-demand users can override those same `Data.Workflow.*` values at run time.
+
 ## 4. The `placement` parameter pattern
 
 Many tasks accept a `parameters.placement` (or aliased) key that controls where its output lands in `Data`. This avoids name collisions when you have two Queries against the same object, or two Callouts both defaulting to `Data.Callout`, etc.
@@ -91,6 +93,8 @@ Many tasks accept a `parameters.placement` (or aliased) key that controls where 
 | `Logic::Liquid` | `Data.Liquid` | `parameters.placement` |
 | `Execute::WorkflowTask` | `Data.ExecuteWorkflow` | `parameters.placement` |
 | `Mediation::SendEvents` | `Data.SendEvents` | `parameters.placement` |
+
+For `Callout` / `AsynchronousCallout`, `include_response_code` defaults to `"true"`. In that common shape, parsed response fields live under `Data.<payload>.ResponseBody.*`; direct `Data.<payload>.<field>` access is correct only when the producing callout explicitly sets `include_response_code = "false"`.
 
 **Best practice**: always set `parameters.placement` explicitly when more than one of these tasks appears in a workflow (e.g., two Callouts that both default to `Data.Callout` will merge unpredictably).
 
@@ -143,6 +147,8 @@ Example:
 Downstream tasks can now reference `{{ Data.Liquid.account_count }}` and `{{ Data.Liquid.greeting }}`.
 
 The linter scans `parameters.code` for `assign <name>` and `capture <name>` and adds those names to the available `Data.Liquid.*` symbol set. Other `Logic::Liquid` tasks higher up in the graph contribute their own names too (the set unions). When `parameters.placement` is set, the scope key changes to `Data.<placement>.<name>` instead of `Data.Liquid.<name>`.
+
+Do not add a separate `Logic::Liquid` task just to prepare one value for the next task. Most task parameters already render Liquid, so simple date calculations, boolean branch decisions, and request bodies can live directly in the consuming task's predicate, `If` / `Logic::Case` clause, date parameter, or Callout `raw_body`. Keep `Logic::Liquid` when it produces shared context for multiple downstream tasks, normalizes a large reusable payload, or needs an explicit workflow step. The linter reports avoidable one-consumer Liquid shim tasks as `W187`.
 
 ## 9. Opaque tasks: three protocols
 
@@ -225,6 +231,8 @@ function compute_available_data(workflow):
     seed["UIAction"] = ["ObjectId", "ObjectName", "ObjectNumber"]
   for f in workflow.parameters.fields[]:
     seed[f.object_name] |= [f.field_name]   # union
+    # Ordinary run-prompt/callout inputs should use object_name "Workflow";
+    # use "Files" for File-Field uploads or a real supported dropdown object.
   for ev in workflow.parameters.event_parameters[]:
     for p in ev.params[]:
       seed[p.object] |= [p.key]
@@ -350,7 +358,7 @@ Mutations and the rules they trigger:
 | `Payment::PaymentRun` | `Data.PaymentRun` (+ `Data.PaymentRunSummary`) | SEMI-DETERMINISTIC |
 | `Export` | `Data.Export.<object>` + `Data.Files.<file_holder>` | SEMI-DETERMINISTIC |
 | `Execute::WorkflowTask` | `Data.{placement \| 'ExecuteWorkflow'}` | OPAQUE |
-| `NewProduct` / `RemoveProduct` / `Suspend` / `Resume` / `Cancel` | `Data.Subscription` | DETERMINISTIC |
+| `NewProduct` / `RemoveProduct` / `Suspend` / `Resume` / `Cancel` | `Data.Subscription` | DETERMINISTIC legacy SOAP amendment output. For new-stack subscription cancellation, prefer Orders API `CancelSubscription` via `Callout`. |
 
 Every task entry in `workflow-task-templates.json` has a `data_contract.predictability` field. The linter and the build skill use these uniformly.
 

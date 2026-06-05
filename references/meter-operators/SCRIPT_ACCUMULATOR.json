@@ -17,14 +17,13 @@
       "confidence": 0.85
     }
   ],
+  "generatable_fields": {
+    "source": "Generate this from the user's business logic description. See references/meter-operator-codegen.md for the SCRIPT_ACCUMULATOR signature and examples. Note: SCRIPT_ACCUMULATOR receives events in batches; the step function must return null to keep accumulating or an output object to release. Ask the user: what is the release trigger condition, what fields to accumulate, and what should the released output look like?"
+  },
   "blockers": [
     {
       "path": "language",
-      "message": "SCRIPT_ACCUMULATOR language is required. Which scripting language? ('JS' or 'PYTHON')"
-    },
-    {
-      "path": "source",
-      "message": "SCRIPT_ACCUMULATOR source code is required. Provide the accumulation script (maintains running state per group key)."
+      "message": "SCRIPT_ACCUMULATOR language: 'JS' or 'PYTHON'? Default: JS."
     },
     {
       "path": "groupFields",

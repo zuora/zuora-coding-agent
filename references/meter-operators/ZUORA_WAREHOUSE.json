@@ -14,5 +14,14 @@
   },
   "label": "Zuora Warehouse Sink",
   "assumptions": [],
-  "blockers": []
+  "blockers": [],
+  "hints": {
+    "groupFields": "event field names from schema properties to group by",
+    "timeField.field": "event field name where eventTime=true in schema",
+    "timeField.format": "timeFormat from schema's eventTime field",
+    "timeField.granularity": "minute | hour | day | week | month | year",
+    "aggregationFields[].field": "event field name from schema properties to aggregate",
+    "aggregationFields[].aggregation": "SUM | MIN | MAX | AVG | COUNT | DELTA",
+    "aggregationFields[].targetField": "output field name"
+  }
 }

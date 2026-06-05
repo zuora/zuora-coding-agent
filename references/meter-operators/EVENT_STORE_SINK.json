@@ -8,6 +8,10 @@
     "fieldMappings": []
   },
   "label": "EventStore Sink",
+  "hints": {
+    "fieldMappings[].field": "use EventSchema field names from call_mediation_api (list_schemas) — do not invent field names",
+    "fieldMappings[].type": "string | number | boolean | datetime | object | array — use the type from the EventSchema"
+  },
   "assumptions": [],
   "blockers": []
 }

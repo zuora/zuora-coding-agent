@@ -10,7 +10,7 @@
   "blockers": [
     {
       "path": "storeId",
-      "message": "storeId is required. Provide the integer EventStore ID (e.g. 337) or a name \u2014 call manage_mediation_meters with operation resolve_entities if the user gave a string name."
+      "message": "storeId is required. Provide the integer EventStore ID (e.g. 337) or a name \u2014 call manage_mediation_meters with operation list_event_stores (with name=<the name>) if the user gave a string name."
     }
   ]
 }

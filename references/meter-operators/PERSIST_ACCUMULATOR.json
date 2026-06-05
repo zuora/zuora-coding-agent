@@ -78,5 +78,16 @@
       "path": "queryInterval.unit",
       "message": "PERSIST_ACCUMULATOR queryInterval unit is required. (e.g. 'minute', 'hour', 'day')"
     }
-  ]
+  ],
+  "hints": {
+    "aggregation.groupByFields": "event field names from schema properties to group by",
+    "aggregation.timeField.field": "event field name where eventTime=true in schema",
+    "aggregation.timeField.format": "timeFormat from schema's eventTime field (e.g. \"yyyy-MM-dd'T'HH:mm:ss\")",
+    "aggregation.timeField.granularity": "minute | hour | day | week | month | year",
+    "aggregation.aggregationFields[].source": "event field name from schema properties",
+    "aggregation.aggregationFields[].function": "sum | min | max | avg | count | delta",
+    "aggregation.aggregationFields[].target": "output field name",
+    "delayForDownstream.unit": "minute | hour | day",
+    "queryInterval.unit": "minute | hour | day"
+  }
 }

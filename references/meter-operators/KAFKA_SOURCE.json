@@ -10,6 +10,10 @@
     "offsetResetStrategy": "LATEST"
   },
   "label": "Kafka Source",
+  "hints": {
+    "dataFormat": "JSON | AVRO",
+    "offsetResetStrategy": "LATEST | EARLIEST"
+  },
   "assumptions": [
     {
       "path": "dataFormat",
@@ -35,7 +39,7 @@
     },
     {
       "path": "schemaId",
-      "message": "Kafka source schemaId is required. Which schema should be used to parse messages? (get the ID from the Schema Registry)"
+      "message": "schemaId is required. Provide EventSchema ID or name \u2014 use call_mediation_api to get EventSchema Details."
     }
   ]
 }

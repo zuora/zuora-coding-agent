@@ -9,11 +9,14 @@
     "stopEventValue": null,
     "timeoutDuration": "1 day",
     "groupFields": [],
-    "language": "JS",
+    "language": "javascript",
     "source": null,
     "schemaId": null
   },
   "label": "Script Correlator",
+  "hints": {
+    "language": "javascript | PYTHON"
+  },
   "assumptions": [
     {
       "path": "timeoutDuration",
@@ -23,15 +26,15 @@
     },
     {
       "path": "language",
-      "value": "JS",
-      "reason": "JS is the default scripting language; PYTHON is also supported.",
+      "value": "javascript",
+      "reason": "JavaScript is the default scripting language; Python is also supported.",
       "confidence": 0.85
     }
   ],
   "blockers": [
     {
       "path": "language",
-      "message": "SCRIPT_CORRELATOR language is required. Which scripting language? ('JS' or 'PYTHON')"
+      "message": "SCRIPT_CORRELATOR language is required. Which scripting language? ('javascript' or 'python')"
     },
     {
       "path": "source",

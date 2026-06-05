@@ -74,5 +74,9 @@
       "field_label_template": "fieldMappings[{name}].field",
       "message_template": "ZUORA_USAGE requires a source field mapped to '{name}'. Which event field contains this value?"
     }
-  ]
+  ],
+  "hints": {
+    "fieldMappings[].field": "event field name from schema properties mapped to this Zuora usage field",
+    "fieldMappings[].dateFormat": "timeFormat from schema's eventTime field for datetime mappings (e.g. \"yyyy-MM-dd'T'HH:mm:ssZ\")"
+  }
 }

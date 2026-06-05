@@ -7,6 +7,9 @@
     "specificFields": []
   },
   "label": "Partition",
+  "hints": {
+    "keyType": "All | SpecificFields"
+  },
   "assumptions": [
     {
       "path": "keyType",

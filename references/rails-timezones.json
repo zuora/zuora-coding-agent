@@ -2,7 +2,7 @@
   "$source": "ActiveSupport::TimeZone::MAPPING (Rails 7.0.3.1, activesupport/lib/active_support/values/time_zone.rb L31-L183).",
   "$validation": "Workflow's `timezone` column must equal one of the keys in `mapping` (i.e. one of `friendly_names`). Validated by `validates :timezone, inclusion: ActiveSupport::TimeZone.all.map(&:name)` (workflow/rails/app/models/workflow/setup.rb L32). At runtime, Rails resolves the friendly name to the IANA value via `ActiveSupport::TimeZone.find_tzinfo(name).name` and appends it to the Rufus cron string (workflow/rails/app/models/workflow.rb L335-336).",
   "$gotchas": [
-    "Bare IANA names like `America/New_York`, `Europe/London`, `UTC` (the IANA spelling, vs the Rails alias) ARE NOT in this list and FAIL validation, even though Rufus would happily accept them. Convert IANA -> friendly name before persisting.",
+    "Bare IANA names like `America/New_York` and `Europe/London` ARE NOT in this list and FAIL validation, even though Rufus would happily accept them. Convert IANA -> friendly name before persisting. `UTC` is valid because Rails also exposes it as a friendly name.",
     "Some friendly names alias to the same IANA zone (e.g. `London` and `Edinburgh` both map to `Europe/London`). Either name is valid; pick the one your users recognize.",
     "`UTC` here is the friendly name. Its IANA value is `Etc/UTC`."
   ],

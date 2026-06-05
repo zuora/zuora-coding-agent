@@ -15,6 +15,10 @@
     ]
   },
   "label": "Map",
+  "hints": {
+    "mapFields[].transformType": "direct | transform",
+    "mapFields[].targetType": "string | number | boolean | datetime | object | array — if an EventSchema is available (from call_mediation_api), use the schema field type; do not guess"
+  },
   "assumptions": [
     {
       "path": "mapFields[0].transformType",

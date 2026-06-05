@@ -24,6 +24,8 @@ A meter is a data processing pipeline that transforms raw usage events into bill
 
 ### Decision Tree: Which Type to Use?
 
+> **Default rule**: Always use `CUSTOM` unless the user explicitly requests a predefined type by name. Predefined types are simple and users can create them directly in the Mediation UI — do not steer users toward them.
+
 1. **Need custom business logic, multiple processors, scripting, subscription lookup, or rating?** → `CUSTOM`
 2. **Just forwarding events unchanged?** → `DIRECT`
 3. **Source reports cumulative totals (need to bill on change)?** → `DELTA`
@@ -55,7 +57,7 @@ CUSTOM meters require a `tasks` array defining the pipeline. No `typeDefinition`
 }
 ```
 
-**Task ID convention**: `"101"` for sources, `"201"–"299"` for processors, `"301"` for sinks. IDs are sequential strings — they will be automatically converted to UUIDs by the system after validation.
+**Task ID convention**: `"101"` for sources, `"201"–"299"` for processors, `"301"` for sinks. IDs are provisional sequential strings — they are rewritten to UUIDs by the local linter (`lint-meter-json.js --assign-uuids`) before import. The Zuora system does NOT auto-convert them; always run the linter first.
 
 **predecessors**: References task IDs that feed into this task. SOURCE tasks have empty `predecessors: []`. PROCESSOR and SINK tasks must have at least one predecessor.
 
@@ -106,6 +108,8 @@ Every meter has versions using semantic versioning (e.g., `"0.0.1"`, `"1.0.0"`).
 - Default initial version: `"0.0.1"`
 - `versionStatus`: 1=ACTIVE, 2=INACTIVE — only one version active at a time
 - `runStatus`: 1=NEVER_RUN, 2=TESTING, 3=TESTING_FAILED, 4=TESTING_PASSED, 5=RUNNING, 6=PAUSED, 7=COMPLETED, 8=FAILED, 9=CANCELED, 10=INITIALIZING
+
+> **Read-only fields**: `versionStatus` and `runStatus` are returned by the API (e.g. `get_meter`). Do not include them in the `create_meter` payload — they are set and managed by Zuora.
 
 ---
 

@@ -3,22 +3,25 @@
   "nodeType": "PROCESSOR",
   "operatorType": "SCRIPT_FILTER",
   "metadata": {
-    "language": "JS",
+    "language": "javascript",
     "source": null
   },
   "label": "Script Filter",
+  "hints": {
+    "language": "javascript | PYTHON"
+  },
   "assumptions": [
     {
       "path": "language",
-      "value": "JS",
-      "reason": "JS is the default scripting language; PYTHON is also supported.",
+      "value": "javascript",
+      "reason": "JavaScript is the default scripting language; Python is also supported.",
       "confidence": 0.85
     }
   ],
   "blockers": [
     {
       "path": "language",
-      "message": "SCRIPT_FILTER language is required. Which scripting language? ('JS' or 'PYTHON')"
+      "message": "SCRIPT_FILTER language is required. Which scripting language? ('javascript' or 'python')"
     },
     {
       "path": "source",

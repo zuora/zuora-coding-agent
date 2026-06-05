@@ -1,5 +1,17 @@
 # Validation Rules and Error Messages
 
+## How to Use This Reference
+
+Before importing a meter, call `validate_meter` via `mcp__zuora-mcp__manage_mediation_meters`:
+
+```json
+{ "operation": "validate_meter", "tasks": <the tasks[] array from the composed JSON> }
+```
+
+This returns `{ valid: boolean, errors: [...] }`. Use the error messages and rules below to diagnose and fix any errors returned. Only proceed to `create_meter` after `validate_meter` returns `valid: true`.
+
+---
+
 ## Meter-Level Validation
 
 | Rule | Error Message |

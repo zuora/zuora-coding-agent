@@ -9,6 +9,9 @@
     "maxSize": 500000
   },
   "label": "Deduplicate",
+  "hints": {
+    "checkType": "All | SpecificFields"
+  },
   "assumptions": [
     {
       "path": "checkType",

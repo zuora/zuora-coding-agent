@@ -13,6 +13,10 @@
     ]
   },
   "label": "Filter",
+  "hints": {
+    "ruleCombiner": "and | or",
+    "rules[].operator": "gt | gte | lt | lte | equal | notEqual | contains | notContains | startsWith | notStartsWith | endsWith | notEndsWith | in | notIn | blank | notBlank"
+  },
   "assumptions": [
     {
       "path": "ruleCombiner",
@@ -22,6 +26,11 @@
     }
   ],
   "blockers": [
+    {
+      "path": "ruleCombiner",
+      "allowed_values": ["and", "or"],
+      "message": "FILTER ruleCombiner '{ruleCombiner}' is not supported. Allowed values: and, or."
+    },
     {
       "path": "rules[0].sourceField",
       "when": {
@@ -44,7 +53,7 @@
         "path": "rules[0]",
         "is_dict": true
       },
-      "message": "FILTER operator is required. Which comparison? (gt, lt, equal, notEqual, contains, blank, notBlank, etc.)"
+      "message": "FILTER operator is required. Valid operators: gt, gte, lt, lte, equal, notEqual, contains, notContains, startsWith, notStartsWith, endsWith, notEndsWith, in, notIn, blank, notBlank"
     },
     {
       "path": "rules[0].value",
@@ -62,6 +71,13 @@
         }
       ],
       "message_template": "FILTER value is required for operator '{rules[0].operator}'. What should the field be compared against?"
+    },
+    {
+      "iterate": "rules",
+      "item_field": "operator",
+      "item_allowed_values": ["gt", "gte", "lt", "lte", "equal", "notEqual", "contains", "notContains", "startsWith", "notStartsWith", "endsWith", "notEndsWith", "in", "notIn", "blank", "notBlank"],
+      "field_label_template": "rules[].operator",
+      "message_template": "FILTER rules[].operator '{operator}' is not valid. Allowed values: gt, gte, lt, lte, equal, notEqual, contains, notContains, startsWith, notStartsWith, endsWith, notEndsWith, in, notIn, blank, notBlank."
     }
   ]
 }

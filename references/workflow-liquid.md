@@ -45,7 +45,7 @@ Access patterns:
 
 ### Workflow input parameters
 
-When a workflow is triggered with input parameters (ondemand form, callout body, sub-workflow call), those values live at `Data.Workflow.<key>`.
+When a workflow is triggered with ordinary input parameters (ondemand form, callout body, sub-workflow call), define each prompt field with `object_name: "Workflow"` and read those values at `Data.Workflow.<key>`. Do not invent object names to group inputs.
 
 ```liquid
 {{ Data.Workflow.accountNumber }}
@@ -60,10 +60,12 @@ Event-triggered workflows get their event payload mapped through `workflow.param
 | ------------------------ | ----------------------------------------------------- |
 | `<Event.Category>`       | `data['name']` — the event name (e.g., `InvoicePosted`). |
 | `<Event.Date>`           | `data['eventTime']` formatted as `%F` (UTC date).     |
-| `<Event.Object.Id>`      | `payload['OCP_OBJECT_ID']['contextValue']`.           |
-| `<Event.Payload.<key>>`  | `payload[<key>]['contextValue']`.                     |
+| `<Event.Timestamp>`      | `data['eventTime']`.                                  |
+| `<Functions.Today>`      | Current date formatted as `%F`.                       |
+| `<Tenant.ID>`            | `data['tenantId']`.                                   |
+| `<Tenant.Name>`          | Empty string in the current Rails implementation.     |
 
-So a typical `event_parameters` entry for InvoicePosted writes `Data.Invoice.Id`, `Data.Invoice.AccountId`, `Data.Account.Id`, etc., which downstream tasks then reference as usual.
+Any other angle-bracket token is treated as a notifications merge-field token: Rails strips the brackets plus an optional `Event.` or `DataSource.` prefix, then looks up that literal key in the event payload. Before emitting tokens such as `<Invoice.Id>` or `<BillingRun.Id>`, fetch the event's merge fields from `/notifications/email-templates/info/selections?category=<event-id-or-custom-category>` and pick a published value. A typical `event_parameters` entry for InvoicePosted writes `Data.Invoice.Id`, `Data.Invoice.AccountId`, etc., which downstream tasks then reference as usual.
 
 ## `Credentials` — Zuora tenant access
 
@@ -72,25 +74,26 @@ So a typical `event_parameters` entry for InvoicePosted writes `Data.Invoice.Id`
 | Access                         | When available                                             |
 | ------------------------------ | ---------------------------------------------------------- |
 | `Credentials.zuora.url`        | Always.                                                    |
-| `Credentials.zuora.rest_endpoint` | Always. This value already ends with `v1/` (e.g. `https://rest.zuora.com/v1/`). Do NOT append `/v1` to it — that produces a `/v1/v1/` double-prefix. Append only the path segment after `v1/`: e.g. `{{ Credentials.zuora.rest_endpoint }}subscriptions/{{...}}`. For non-v1 paths the Rails source uses `.gsub('v1/', 'other-path/')`. |
-| `Credentials.zuora.username`   | Only for Basic auth tenants. Raises on OAuth tenants.      |
-| `Credentials.zuora.password`   | Only for Basic auth tenants.                               |
+| `Credentials.zuora.rest_endpoint` | Always. This value is the Zuora REST v1 base URL and already includes the `v1` segment (for example `https://rest.zuora.com/v1/`). Do NOT append `/v1` to it -- that can produce a `/v1/v1/` double-prefix. |
+| `Credentials.zuora.username`   | Only for Basic auth tenants. Raises on OAuth tenants; do not use for Zuora API Callout headers. |
+| `Credentials.zuora.password`   | Only for Basic auth tenants; do not use for Zuora API Callout headers. |
 | `Credentials.zuora.client_id`  | Only for OAuth tenants.                                    |
 | `Credentials.zuora.client_secret` | Only for OAuth tenants.                                 |
 
-Canonical header block for Zuora callouts (Basic auth):
+Canonical Zuora API Callout auth block:
 
 ```json
 {
+  "authorization": { "type": "zuora" },
   "headers": [
-    { "key": "apiAccessKeyId",    "value": "{{ Credentials.zuora.username }}" },
-    { "key": "apiSecretAccessKey", "value": "{{ Credentials.zuora.password }}" },
-    { "key": "Content-Type",      "value": "application/json" }
+    { "key": "Content-Type", "value": "application/json" }
   ]
 }
 ```
 
-Do not hard-code tenant URLs or credentials in callouts; always use `Credentials.zuora.rest_endpoint` and the header template above. Rails rejects plain-text credentials on non-reporting callouts (`Callout#task_setup_validation`).
+For v1 APIs, append only the resource path after `v1/`: `{{ Credentials.zuora.rest_endpoint }}orders`, `{{ Credentials.zuora.rest_endpoint }}subscriptions/{{ Data.Subscription.Id }}`. Do not emit `{{ Credentials.zuora.rest_endpoint }}/v1/orders`, and do not use the fragile `{{ Credentials.zuora.rest_endpoint | replace: "/v1/", "" }}/v1/orders` form. For non-v1 APIs, first normalize the base explicitly, for example `{{ Credentials.zuora.rest_endpoint | split: "/v1" | first }}/oauth/token`.
+
+Do not hard-code tenant URLs or credentials in callouts; for Zuora APIs, always use `Credentials.zuora.rest_endpoint` with `authorization.type = "zuora"`. Do not add `apiAccessKeyId`, `apiSecretAccessKey`, `Authorization`, or bearer-token headers; Rails rejects some plain-text credential headers and the built-in Zuora auth path is what preserves tenant/entity context.
 
 ## `WorkflowInstance`, `WorkflowSetup`, `TaskInstance`
 
@@ -123,7 +126,7 @@ Define constants in Workflow Settings → Global Constants; they are loaded on e
 
 ## Filters
 
-Zuora extends stock Liquid with the `Liquid::Filters` module. Frequently used filters:
+Zuora registers stock Liquid filters plus the Workflow-specific `Liquid::Filters` module from `~/Workspace/workflow/rails/lib/liquid/filters.rb`. Before writing a `Logic::Liquid` task, check whether a standard Liquid filter or a Workflow-specific filter already expresses the operation. Prefer built-in filters over manual `for` / `if` / `push` loops for simple array selection or grouping. See `workflow-liquid-filters.md` for argument counts, argument types, return values, and examples.
 
 | Filter        | Example                                                | Purpose                                  |
 | ------------- | ------------------------------------------------------ | ---------------------------------------- |
@@ -136,7 +139,16 @@ Zuora extends stock Liquid with the `Liquid::Filters` module. Frequently used fi
 | `split` / `join` | `{{ "a,b,c" | split: "," | join: " - " }}`          | Token manipulation.                      |
 | `size`        | `{{ Data.Invoice | size }}`                            | Collection length.                       |
 
-Standard Liquid filters (`upcase`, `downcase`, `strip`, `slice`, `truncate`, `first`, `last`, …) all work.
+Standard Liquid filters (`upcase`, `downcase`, `strip`, `slice`, `truncate`, `first`, `last`, …) all work. Workflow-specific filters most relevant to composition:
+
+- `where` / `where_exp`: select rows without manual `for` + `if` + `push` loops, e.g. `{% assign active = Data.Subscription | where: "Status", "Active" %}` or `{% assign overdue = Data.Invoice | where_exp: "inv", "inv.Balance > 0" %}`.
+- `group_by` / `group_by_exp`: bucket rows without constructing grouping hashes by hand.
+- `parse_json` / `to_json` / `to_xml`: parse or emit structured payloads without string-concatenating JSON/XML.
+- `date_manip`, `date_between`, `date_diff`, `in_time_zone`, `timezone`, `http_date`: date math and timezone formatting.
+- `regex`, `money`, `base64_encode` / `base64_decode`, `md5`, `sha1`, `sha2`, `hmac*`: validated text, numeric, encoding, and signing helpers.
+- `push` / `pop` / `shift` / `unshift`: array mutation helpers; use them for true array construction, not simple filtering that `where` or `where_exp` can express.
+
+Anti-pattern: `{% assign active = null | array %}{% for sub in Data.Subscription %}{% if sub.Status == "Active" %}{% assign active = active | push: sub %}{% endif %}{% endfor %}`. Preferred: `{% assign active = Data.Subscription | where: "Status", "Active" %}`. Keep manual loops only when transforming rows or building a custom shape; the linter reports obvious manual selection loops as `W184`.
 
 ## Strict mode and `strict_variables`
 

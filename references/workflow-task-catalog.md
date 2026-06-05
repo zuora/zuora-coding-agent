@@ -1,6 +1,6 @@
 # Zuora Workflow Task Catalog
 
-Canonical list of Zuora Workflow `action_type` values (71 total). This is a narrative reference; the machine-readable source of truth for composing tasks is `workflow-task-templates.json`, which pairs every entry below with a ready-to-use JSON template, parameter rules, enums, and `required_at_import` columns.
+Canonical list of supported Zuora Workflow `action_type` values. This is a narrative reference; the machine-readable source of truth for composing tasks is `workflow-task-templates.json`, which pairs every entry below with a ready-to-use JSON template, parameter rules, enums, and `required_at_import` columns.
 
 Distilled from `Task.action_type` in `~/Workspace/workflow/rails/app/models/task.rb:636-681`.
 
@@ -19,9 +19,9 @@ When picking an `action_type`, follow this order:
 | Fetch > 2000 rows or need a CSV/ZIP for downstream `Iterate` | `Export` | SOAP bulk export; produces a file in `Data.Files.*`. |
 | Large async ZOQL export (stateful/stateless AQuA job) | `Data::Aqua` | Same ZOQL language as `Query`/`Export`; async; always produces a file — adds a download step before data is usable. |
 | Joined/nested read that fits in GraphQL | `GraphQuery` | Result lives in `Data.<baseObject>`. |
-| Run SQL against the Zuora Data Warehouse | `Data::Warehouse` | Results are streamed/exported externally — **writes nothing to `Data.*`**; downstream Liquid cannot reference warehouse results. |
+| Run SQL-style row queries for workflow logic | `Data::Link` / Data Query | Supported SQL-style query surface; result rows can feed downstream `Iterate` / `Callout` logic. |
 
-**Default to `Query`.** Only reach for `Data::Aqua` when the dataset is too large for `Export` or you need AQuA's stateful/incremental extraction. `Data::Aqua` uses the same ZOQL query language as `Query`/`Export` — it is **not** SQL and does not support JOINs. `Data::Warehouse` runs SQL but its output is not accessible in `Data.*`, so it is not a substitute for `Query` when downstream tasks need to reference results.
+**Default to `Query`.** Only reach for `Data::Aqua` when the dataset is too large for `Export` or you need AQuA's stateful/incremental extraction. `Data::Aqua` uses the same ZOQL query language as `Query`/`Export` — it is **not** SQL and does not support JOINs. Use `Data::Link` / Data Query when the workflow needs SQL-style row results.
 
 ### Transform/compute selection guide (avoid overusing JavaScript)
 
@@ -61,8 +61,7 @@ These thirteen action types cover the vast majority of production workflows. Kno
 - `GraphQuery` — GraphQL queries with variables (best for joined or nested reads).
 - `Data::Aqua` — Async Queuing API (AQuA) stateful/stateless extracts.
 - `Data::BillingPreviewRun` — run a billing preview against accounts.
-- `Data::Link` — join two Data collections.
-- `Data::Warehouse` — run SQL against the Zuora Data Warehouse.
+- `Data::Link` — Data Query / SQL-style row query whose results can feed downstream Workflow tasks.
 
 ### Logic / Transform
 
@@ -83,11 +82,12 @@ These thirteen action types cover the vast majority of production workflows. Kno
 
 ### Amendments
 
-- `NewProduct`, `RemoveProduct`, `Suspend`, `Resume`, `Cancel` — subscription amendments. Each requires `object_id` = subscription id.
+- `NewProduct`, `RemoveProduct`, `Suspend`, `Resume`, `Cancel` — legacy SOAP subscription amendments. Each requires `object_id` = subscription id.
+- For subscription cancellation on the new API stack, prefer a Zuora-authorized `Callout` to Orders API (`{{ Credentials.zuora.rest_endpoint }}orders`) with an `orderActions[]` entry whose `type` is `"CancelSubscription"`. Use `Cancel` only for explicitly legacy amendment workflows.
 
 ### Billing
 
-- `Billing::BillRun` — create / batch / replicate a bill run.
+- `Billing::BillRun` — create / batch / replicate a bill run. Use a custom Zuora `Callout` to `{{ Credentials.zuora.rest_endpoint }}bill-runs` when the requirement needs bill-run filters this OOTB task does not support (for example account-number, batch-number, or APM/PRPC filters). Do not use the legacy object CRUD endpoint `/object/bill-run` for Create a bill run.
 - `InvoiceGenerate` — SOAP InvoiceGenerate for a single account.
 - `WriteOff` — settlement or amendment-based invoice write-off.
 - `Billing::ReverseInvoice` — reverse an invoice.

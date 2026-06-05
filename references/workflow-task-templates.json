@@ -104,7 +104,7 @@
       "default_scope_when_unset": "Callout",
       "scope_template": "Data.{parameters.validation.payload_location | 'Callout'}",
       "writes": [
-        { "to_template": "Data.{parameters.validation.payload_location | 'Callout'}", "shape": "object", "fields": "OPAQUE", "notes": "Parsed JSON / SOAP-XML / text response of the external endpoint. Shape is not statically knowable." }
+        { "to_template": "Data.{parameters.validation.payload_location | 'Callout'}", "shape": "object", "fields": "OPAQUE", "notes": "Parsed JSON / SOAP-XML / text response of the external endpoint. Shape is not statically knowable. When include_response_code is true or omitted, response fields live under ResponseBody; direct Data.<payload>.<field> paths require include_response_code = \"false\"." }
       ],
       "reads": [
         { "from_param": "url", "shape": "liquid" },
@@ -234,7 +234,8 @@
           "options_source": "['none', 'zuora', 'basic_auth', 'oauth1', 'oauth2', 'hmac', 'cert', 'netsuite_tba'] (see partials/auth + tasks_controller.rb L702-707).",
           "controller_permit": "parameters.authorization.type (L627)",
           "model_validation": "When type == 'zuora' and tenant has multiple entities, entity_id is required.",
-          "default": "none"
+          "default": "none",
+          "notes": "For Zuora API URLs, set type to 'zuora'. Do not use type 'none' with apiAccessKeyId, apiSecretAccessKey, Authorization, or bearer-token headers; Workflow's Zuora auth mode injects the tenant credentials and entity context."
         },
         {
           "$field": "parameters.basic_auth / parameters.oauth1 / parameters.oauth2 / parameters.hmac / parameters.cert / parameters.netsuite_tba",
@@ -1834,7 +1835,7 @@
   },
 
   "Data::Link": {
-    "description": "Join Data payload rows across two collections.",
+    "description": "Data Query task for SQL-style row queries and joins whose results can feed downstream Workflow tasks.",
     "hooks": ["Success", "Failure"],
     "template": {
       "id": "<<TASK_ID>>",
@@ -1873,44 +1874,6 @@
       ],
       "opaque": false,
       "fields_partial_known": true
-    }
-  },
-
-  "Data::Warehouse": {
-    "description": "Query the Zuora Data Warehouse.",
-    "hooks": ["Success", "Failure"],
-    "template": {
-      "id": "<<TASK_ID>>",
-      "name": "Warehouse",
-      "parameters": {
-        "query": "<<REQUIRED: SQL query>>",
-        "strict_variables": "true"
-      },
-      "action_type": "Data::Warehouse",
-      "object": null,
-      "object_id": null,
-      "call_type": "REST",
-      "task_id": "<<UPSTREAM_TASK_ID_OR_NULL>>",
-      "css": { "top": "<<TOP>>", "left": "<<LEFT>>" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": [],
-      "zuora_org_id": null,
-      "zuora_org_ids": []
-    },
-    "required_params": ["query"],
-    "required_at_import": [],
-    "param_enums": {},
-    "boolean_string_params": ["strict_variables"],
-    "data_contract": {
-      "predictability": "none",
-      "writes": [],
-      "reads": [
-        { "from_param": "query", "shape": "liquid" }
-      ],
-      "opaque": false,
-      "$notes": "Data Warehouse query results are streamed/exported externally; no Data.* scope is added to the workflow payload."
     }
   },
 
@@ -3025,7 +2988,7 @@
   },
 
   "Cancel": {
-    "description": "Cancel a subscription via SOAP amendment.",
+    "description": "Legacy SOAP amendment task for subscription cancellation. For new API stack cancellation, prefer a Zuora Callout to Orders API with orderActions[].type = \"CancelSubscription\".",
     "hooks": ["Success", "Failure"],
     "template": {
       "id": "<<TASK_ID>>",
@@ -3056,7 +3019,7 @@
       "default_scope_when_unset": "Subscription",
       "scope_template": "Data.Subscription",
       "writes": [
-        { "to_template": "Data.Subscription", "shape": "Hash", "fields": "SubscriptionId, AmendmentIds, InvoiceId, CreditMemoId, TotalDeltaTcv, success", "notes": "Result of Cancel amendment. parameters.cancel_options sets CancellationPolicy / CancellationEffectiveDate etc." }
+        { "to_template": "Data.Subscription", "shape": "Hash", "fields": "SubscriptionId, AmendmentIds, InvoiceId, CreditMemoId, TotalDeltaTcv, success", "notes": "Result of legacy SOAP Cancel amendment. parameters.cancel_options sets CancellationPolicy / CancellationEffectiveDate etc. Use Orders API CancelSubscription for new-stack subscription cancellation unless the workflow explicitly requires legacy amendments." }
       ],
       "reads": [
         { "from_param": "object_id", "shape": "liquid" },
@@ -3112,7 +3075,7 @@
       ],
       "opaque": false
     },
-    "notes": "replicate mode requires parameters.SourceBillRunId. single mode requires parameters.AccountId."
+    "notes": "replicate mode requires parameters.SourceBillRunId. single mode requires parameters.AccountId. OOTB Billing::BillRun supports standard bill-run fields and v1 single-account/subscription filters via AccountId/SubscriptionIds; it does not support arbitrary billRunFilters such as BatchNumberFilter, AccountNumberFilter, or APM/ProductRatePlanCharge IDs. Use a custom Zuora Callout to the bill run API for unsupported filters."
   },
 
   "InvoiceGenerate": {
@@ -3558,8 +3521,8 @@
       "default_scope_when_unset": "Callout",
       "scope_template": "Data.{parameters.validation.payload_location | 'Callout'}  AND  Data.{parameters.polling_validation.polling_payload_location | 'Callout'}",
       "writes": [
-        { "to_template": "Data.{parameters.validation.payload_location | 'Callout'}", "shape": "object", "fields": "OPAQUE", "notes": "Initial async response body." },
-        { "to_template": "Data.{parameters.polling_validation.polling_payload_location | 'Callout'}", "shape": "object", "fields": "OPAQUE", "notes": "Polling response body once finish_status is reached." }
+        { "to_template": "Data.{parameters.validation.payload_location | 'Callout'}", "shape": "object", "fields": "OPAQUE", "notes": "Initial async response body. When include_response_code is true or omitted, fields live under ResponseBody." },
+        { "to_template": "Data.{parameters.polling_validation.polling_payload_location | 'Callout'}", "shape": "object", "fields": "OPAQUE", "notes": "Polling response body once finish_status is reached. When polling_include_response_code is true or omitted, fields live under ResponseBody." }
       ],
       "reads": [
         { "from_param": "url", "shape": "liquid" },

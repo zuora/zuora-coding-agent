@@ -2,6 +2,21 @@
   "key": "SUBSCRIPTION_LOOKUP",
   "nodeType": "PROCESSOR",
   "operatorType": "SUBSCRIPTION_LOOKUP",
+  "ui_display_name": "Enrichment",
+  "ui_groups": {
+    "Basic": {
+      "ui_label": "Enrich events using Account Number and Charge Name or Subscription Id",
+      "lookupTypes": ["AccountAndChargeName", "SubscriptionId"]
+    },
+    "ZSO": {
+      "ui_label": "Enrich events using Product or Account data",
+      "lookupTypes": ["Account", "Product"]
+    },
+    "Query": {
+      "ui_label": "Enrich events using Data Query",
+      "lookupTypes": ["Advanced"]
+    }
+  },
   "metadata": {
     "lookupType": "AccountAndChargeName",
     "accountNumberField": null,
@@ -9,7 +24,7 @@
     "subscriptionIdField": null,
     "needPrefetch": false,
     "continueWhenNoDataFound": false,
-    "includeUsageChargesOnly": true,
+    "includeUsageChargesOnly": false,
     "includeActiveAndCancelledSubsOnly": true,
     "includeSegmentsActiveOnDateOnly": false,
     "appendFields": [
@@ -20,30 +35,153 @@
     ],
     "mapFields": []
   },
-  "label": "Subscription Lookup",
+  "variants": {
+    "AccountAndChargeName": {
+      "ui_label": "Account Number & Charge Name",
+      "ui_group": "Basic",
+      "description": "Standard subscription lookup — resolves subscription and charge by account number and charge name. Fixed output fields: accountNumber, subscriptionNumber, chargeNumber, uom.",
+      "needPrefetch": false,
+      "required": ["lookupType", "accountNumberField", "chargeNameField"],
+      "example": {
+        "lookupType": "AccountAndChargeName",
+        "accountNumberField": "customerId",
+        "chargeNameField": "productName",
+        "continueWhenNoDataFound": false,
+        "includeActiveAndCancelledSubsOnly": true,
+        "includeSegmentsActiveOnDateOnly": false
+      },
+      "fixed_output_fields": ["accountNumber", "subscriptionNumber", "chargeNumber", "uom"]
+    },
+    "SubscriptionId": {
+      "ui_label": "Subscription ID",
+      "ui_group": "Basic",
+      "description": "Lookup by subscription ID. Fixed output fields: accountNumber, subscriptionNumber, chargeNumber, uom.",
+      "needPrefetch": false,
+      "required": ["lookupType", "subscriptionIdField"],
+      "example": {
+        "lookupType": "SubscriptionId",
+        "subscriptionIdField": "subscriptionId",
+        "continueWhenNoDataFound": false
+      },
+      "fixed_output_fields": ["accountNumber", "subscriptionNumber", "chargeNumber", "uom"]
+    },
+    "Account": {
+      "ui_label": "Account",
+      "ui_group": "ZSO",
+      "description": "Prefetch-based enrichment from Account, Subscription, RatePlan, RatePlanCharge, ProductRatePlanCharge, or RatePlanChargeTier. mapFields is the join key (event field → reference field). appendFields defines which reference fields to append to the event.",
+      "needPrefetch": true,
+      "required": ["lookupType", "mapFields", "appendFields"],
+      "allowed_reference_objects": ["Account", "Subscription", "RatePlan", "RatePlanCharge", "ProductRatePlanCharge", "RatePlanChargeTier"],
+      "reference_field_syntax": "Object.FieldName — e.g. Account.AccountNumber, Subscription.Name, RatePlanCharge.UOM, RatePlanChargeTier.StartingUnit",
+      "example": {
+        "lookupType": "Account",
+        "needPrefetch": true,
+        "continueWhenNoDataFound": false,
+        "mapFields": [
+          {"eventField": "accountId", "referenceField": "Account.AccountNumber"}
+        ],
+        "appendFields": [
+          {"eventField": "subscriptionNumber", "referenceField": "Subscription.Name"},
+          {"eventField": "chargeNumber", "referenceField": "RatePlanCharge.ChargeNumber"},
+          {"eventField": "uom", "referenceField": "RatePlanCharge.UOM"}
+        ]
+      }
+    },
+    "Product": {
+      "ui_label": "Product",
+      "ui_group": "ZSO",
+      "description": "Prefetch-based enrichment from Product, ProductRatePlan, ProductRatePlanCharge, or ProductRatePlanChargeTier. mapFields is the join key. appendFields defines output.",
+      "needPrefetch": true,
+      "required": ["lookupType", "mapFields", "appendFields"],
+      "allowed_reference_objects": ["Product", "ProductRatePlan", "ProductRatePlanCharge", "ProductRatePlanChargeTier"],
+      "reference_field_syntax": "Object.FieldName — e.g. Product.Name, ProductRatePlanCharge.UOM, ProductRatePlanCharge.Id",
+      "example": {
+        "lookupType": "Product",
+        "needPrefetch": true,
+        "continueWhenNoDataFound": false,
+        "mapFields": [
+          {"eventField": "productName", "referenceField": "Product.Name"}
+        ],
+        "appendFields": [
+          {"eventField": "prpcId", "referenceField": "ProductRatePlanCharge.Id"},
+          {"eventField": "uom", "referenceField": "ProductRatePlanCharge.UOM"}
+        ]
+      }
+    },
+    "Advanced": {
+      "ui_label": "Advanced",
+      "ui_group": "Query",
+      "description": "Data Query enrichment using a custom SQL JOIN query. The sql field is a broad dataset query with no per-event binding. The backend executes it as: SELECT * FROM (<sql>) temp WHERE <mapFields join condition>. mapFields defines the event-to-SQL join key. appendFields defines which SQL columns to append to the event.",
+      "needPrefetch": true,
+      "required": ["lookupType", "sql", "mapFields", "appendFields"],
+      "sql_notes": [
+        "Write a broad JOIN query — do NOT put per-event WHERE conditions in the sql field",
+        "The backend wraps it at runtime: SELECT * FROM (<your sql>) temp WHERE <mapFields join condition> = <event value>",
+        "mapFields defines the join key: eventField is the event field name, referenceField is the SQL SELECT column alias",
+        "appendFields defines output: referenceField must match the SQL SELECT column alias exactly (bare alias, not table.column)",
+        "appendFields[].type is optional — set to 'number' for numeric columns, omit or set null for string (drives output schema type)",
+        "Supports JOINs across any Zuora Billing objects queryable via Data Query"
+      ],
+      "example": {
+        "lookupType": "Advanced",
+        "needPrefetch": true,
+        "continueWhenNoDataFound": false,
+        "sql": "SELECT a.AccountNumber, s.Name AS SubscriptionNumber, rpc.ChargeNumber, rpc.UOM FROM Account a JOIN Subscription s ON s.AccountId = a.Id JOIN RatePlan rp ON rp.SubscriptionId = s.Id JOIN RatePlanCharge rpc ON rpc.RatePlanId = rp.Id",
+        "mapFields": [
+          {"eventField": "subscriptionNumber", "referenceField": "SubscriptionNumber"}
+        ],
+        "appendFields": [
+          {"eventField": "accountNumber", "referenceField": "AccountNumber"},
+          {"eventField": "chargeNumber", "referenceField": "ChargeNumber"},
+          {"eventField": "uom", "referenceField": "UOM"}
+        ]
+      }
+    },
+    "CustomObject": {
+      "ui_label": "Custom Object",
+      "ui_group": "internal",
+      "description": "Prefetch-based enrichment using a tenant Custom Object. Requires prefetch v4 to be enabled on the tenant. referenceField uses namespace__objectname.fieldname__c syntax.",
+      "needPrefetch": true,
+      "required": ["lookupType", "mapFields", "appendFields"],
+      "reference_field_syntax": "namespace__objectname.fieldname__c — e.g. default__myobject.AccountNumber__c",
+      "example": {
+        "lookupType": "CustomObject",
+        "needPrefetch": true,
+        "continueWhenNoDataFound": false,
+        "mapFields": [
+          {"eventField": "accountNumber", "referenceField": "default__myobject.AccountNumber__c"}
+        ],
+        "appendFields": [
+          {"eventField": "birthday", "referenceField": "default__myobject.Birthday__c"},
+          {"eventField": "salary", "referenceField": "default__myobject.Salary__c", "type": "number"}
+        ]
+      }
+    }
+  },
+  "label": "Enrichment",
   "assumptions": [
     {
       "path": "lookupType",
       "value": "AccountAndChargeName",
-      "reason": "AccountAndChargeName is the most common subscription lookup type.",
+      "reason": "AccountAndChargeName is the most common enrichment type — matches by account number and charge name.",
       "confidence": 0.8
     },
     {
       "path": "continueWhenNoDataFound",
       "value": false,
-      "reason": "Stop processing events where no subscription match is found.",
+      "reason": "Drop events with no match. Set to true only if unmatched events should pass through with null enrichment fields.",
       "confidence": 0.9
     },
     {
       "path": "includeActiveAndCancelledSubsOnly",
       "value": true,
-      "reason": "Only match active or cancelled subscriptions; exclude other statuses.",
+      "reason": "Only match active or cancelled subscriptions; exclude draft/suspended/expired.",
       "confidence": 0.85
     },
     {
       "path": "includeSegmentsActiveOnDateOnly",
       "value": false,
-      "reason": "Include all rate plan charge segments by default, not just those active on the event date.",
+      "reason": "Include all rate plan charge segments by default. Set to true and provide eventTimeField only when segment date filtering is required.",
       "confidence": 0.8
     },
     {
@@ -56,31 +194,38 @@
   "blockers": [
     {
       "path": "accountNumberField",
-      "message": "SUBSCRIPTION_LOOKUP accountNumberField is required. Which event field contains the account number?"
+      "when": {"path": "lookupType", "equals": "AccountAndChargeName"},
+      "message": "Which event field contains the account number? (required for AccountAndChargeName lookup)"
     },
     {
       "path": "chargeNameField",
-      "when": {
-        "path": "lookupType",
-        "equals": "AccountAndChargeName"
-      },
-      "message": "SUBSCRIPTION_LOOKUP chargeNameField is required for AccountAndChargeName lookup. Which event field contains the charge name?"
+      "when": {"path": "lookupType", "equals": "AccountAndChargeName"},
+      "message": "Which event field contains the charge name? (required for AccountAndChargeName lookup)"
     },
     {
       "path": "subscriptionIdField",
-      "when": {
-        "path": "lookupType",
-        "equals": "SubscriptionId"
-      },
-      "message": "SUBSCRIPTION_LOOKUP subscriptionIdField is required for SubscriptionId lookup. Which event field contains the subscription ID?"
+      "when": {"path": "lookupType", "equals": "SubscriptionId"},
+      "message": "Which event field contains the subscription ID? (required for SubscriptionId lookup)"
     },
     {
       "path": "eventTimeField",
-      "when": {
-        "path": "includeSegmentsActiveOnDateOnly",
-        "equals": true
-      },
-      "message": "SUBSCRIPTION_LOOKUP eventTimeField is required when includeSegmentsActiveOnDateOnly is true. Which event field contains the date to use for segment filtering?"
+      "when": {"path": "includeSegmentsActiveOnDateOnly", "equals": true},
+      "message": "includeSegmentsActiveOnDateOnly is true — which event field contains the datetime for segment filtering?"
+    },
+    {
+      "path": "mapFields",
+      "when": {"path": "lookupType", "not_in": ["AccountAndChargeName", "SubscriptionId"]},
+      "message": "mapFields is required for Account/Product/Advanced/CustomObject lookup. It is the join key the backend uses to match each event to a row in the enrichment dataset. Each entry: {eventField: <event field name>, referenceField: <SQL column alias or Object.FieldName>}."
+    },
+    {
+      "path": "appendFields",
+      "when": {"path": "lookupType", "not_in": ["AccountAndChargeName", "SubscriptionId"]},
+      "message": "appendFields is required. Each entry: {eventField: <name to write onto the event>, referenceField: <SQL column alias or Object.FieldName>}. For Advanced: referenceField must match the SQL SELECT alias exactly (bare alias, not table.column)."
+    },
+    {
+      "path": "sql",
+      "when": {"path": "lookupType", "equals": "Advanced"},
+      "message": "sql is required for Advanced lookup. Write a broad JOIN query with no per-event WHERE conditions — the backend adds the per-event filter automatically using mapFields. Example: SELECT a.AccountNumber, s.Name AS SubscriptionNumber FROM Account a JOIN Subscription s ON s.AccountId = a.Id"
     }
   ]
 }

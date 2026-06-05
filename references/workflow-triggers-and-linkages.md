@@ -40,7 +40,7 @@ See `workflow-events.md` for the full standard event catalog, the `<canonical_na
 ### Scheduled-trigger details
 
 - `interval` is 6-token cron parsed by `Rufus::Scheduler.parse` (`workflow/setup.rb:161-166`). Tokens: `<sec> <min> <hour> <day-of-month> <month> <day-of-week>`. The React UI always emits second=0, e.g., `0 30 09 /1 * *` = "daily at 09:30". The `/N` syntax means "every N units".
-- `timezone` must be a valid IANA time zone name (`UTC`, `America/Los_Angeles`, `Europe/London`, `Asia/Tokyo`, …). Resolved at runtime via `ActiveSupport::TimeZone.find_tzinfo(self.timezone).name` (`workflow.rb:335`).
+- `timezone` must be a Rails `ActiveSupport::TimeZone` friendly name (`UTC`, `Pacific Time (US & Canada)`, `London`, `Tokyo`, …). Bare IANA names such as `America/Los_Angeles` can be resolved by `find_tzinfo`, but they fail the `Workflow::Setup` inclusion validator (`workflow/setup.rb:32`) during import. At runtime Rails resolves the friendly name via `ActiveSupport::TimeZone.find_tzinfo(self.timezone).name` (`workflow.rb:335`).
 - Both `interval` and `timezone` are required when `scheduled_trigger == true` (`workflow/setup.rb:31`).
 
 ## `call_type` matrix
@@ -153,7 +153,24 @@ This is the authoritative cheat-sheet for filling out the `workflow.*` envelope.
 
 ### Trigger-flag combinations and their additional requirements
 
-Set EXACTLY ONE of the four trigger flags to `true` (multiple is allowed but discouraged). `[lint E130]`
+Set at least one of the four trigger flags to `true`. Multiple trigger flags are valid when the same workflow task graph should be launched in multiple ways; Rails runs each enabled trigger's validation independently. Do not create duplicate workflows with identical tasks just to support both scheduled and on-demand execution. `[lint E005]`
+
+When combining triggers, satisfy every enabled trigger's prerequisites. In particular, scheduled runs cannot prompt a user, so every required `parameters.fields[]` input needs a non-blank `default` when `scheduled_trigger == true`.
+
+#### Common combined shape: Ondemand + Scheduled
+
+```json
+{
+  "ondemand_trigger": true,
+  "callout_trigger": false,
+  "scheduled_trigger": true,
+  "event_trigger": false,
+  "interval": "0 30 09 /1 * *",
+  "timezone": "Pacific Time (US & Canada)"
+}
+```
+
+Use this when the user wants the same workflow to run manually and on a schedule. The task graph should be shared; use defaults or a small normalizer step if scheduled runs need values that an on-demand user would normally enter.
 
 #### A. Ondemand only (the default)
 
@@ -181,7 +198,7 @@ No additional fields required. The `parameters.fields[]` array can optionally de
 
 Required additional fields:
 
-- `parameters.fields[]`: optional but recommended. Defines the inbound JSON body schema. Each field is `{object_name, field_name, default, required, datatype, index}` where `datatype` is one of `JSON | Boolean | Text | Integer | Decimal | Date | DateTime-Local | File-Field`.
+- `parameters.fields[]`: optional but recommended. Defines the inbound JSON body schema. Each field is `{object_name, field_name, default, required, datatype, index}` where `datatype` is one of `JSON | Boolean | Text | Integer | Decimal | Date | DateTime-Local | File-Field`. Use `object_name: "Workflow"` for ordinary workflow inputs, `object_name: "Files"` for file uploads, or a real supported Zuora object from the run-prompt dropdown; do not invent grouping objects such as `BillRunConfig`.
 - `parameters.callout_response`: usually `"workflow instance"` (default).
 
 External system POSTs to `/workflows/:id/callout`. Use this for "trigger workflow from a Zuora notification" patterns (configure a standard Notification to hit the callout URL).

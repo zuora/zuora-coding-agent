@@ -244,7 +244,12 @@ Complete metadata field reference for each operator. All metadata goes in the `m
 
 ---
 
-## SUBSCRIPTION_LOOKUP Processor
+## SUBSCRIPTION_LOOKUP Processor (UI: "Enrichment")
+
+Enriches events with Zuora Billing subscription and account data. Three UI groups:
+- **Basic** (AccountAndChargeName, SubscriptionId): Standard resolution, fixed output fields, no prefetch needed.
+- **ZSO** (Account, Product): Prefetch-based enrichment via `mapFields`/`appendFields`.
+- **Query** (Advanced): Custom SQL JOIN query, prefetch-based.
 
 ### AccountAndChargeName (Most Common)
 
@@ -258,35 +263,167 @@ Complete metadata field reference for each operator. All metadata goes in the `m
     "lookupType": "AccountAndChargeName",
     "accountNumberField": "CustomerId",
     "chargeNameField": "ProductName",
-    "eventTimeField": "UsageDate",
-    "eventTimeFormat": "yyyy-MM-dd'T'HH:mm:ssZ",
-    "includeSegmentsActiveOnDateOnly": true,
     "continueWhenNoDataFound": false,
-    "appendFields": [
-      {"eventField": "subscriptionNumber", "referenceField": "Subscription.Name"},
-      {"eventField": "chargeNumber", "referenceField": "RatePlanCharge.ChargeNumber"},
-      {"eventField": "uom", "referenceField": "RatePlanCharge.UOM"}
-    ]
+    "includeActiveAndCancelledSubsOnly": true,
+    "includeSegmentsActiveOnDateOnly": false
   },
   "predecessors": [{"id": "101"}]
 }
 ```
 
-**Required**: `lookupType`, `accountNumberField`, `chargeNameField`, `appendFields`
+**Required**: `lookupType`, `accountNumberField`, `chargeNameField`
+**Fixed output fields**: `accountNumber`, `subscriptionNumber`, `chargeNumber`, `uom`
 **`continueWhenNoDataFound`**: false=drop events with no match (default); true=emit events with null enrichment fields
-**Available reference fields**: `Subscription.Name`, `Subscription.Status`, `Subscription.AccountNumber`, `RatePlanCharge.ChargeNumber`, `RatePlanCharge.Name`, `RatePlanCharge.UOM`, `RatePlanCharge.ChargeType`, `Account.AccountNumber`, `Account.Name`, `Account.Currency`
+**`includeSegmentsActiveOnDateOnly`**: Set to true and provide `eventTimeField` + `eventTimeFormat` to filter by rate plan charge segment active date.
 
 ### SubscriptionId Lookup
 
 ```json
 {
-  "lookupType": "SubscriptionId",
-  "subscriptionIdField": "SubscriptionID",
-  "appendFields": [
-    {"eventField": "accountNumber", "referenceField": "Subscription.AccountNumber"}
-  ]
+  "id": "201",
+  "name": "Subscription ID Lookup",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SUBSCRIPTION_LOOKUP",
+  "metadata": {
+    "lookupType": "SubscriptionId",
+    "subscriptionIdField": "subscriptionId",
+    "continueWhenNoDataFound": false
+  },
+  "predecessors": [{"id": "101"}]
 }
 ```
+
+**Required**: `lookupType`, `subscriptionIdField`
+**Fixed output fields**: `accountNumber`, `subscriptionNumber`, `chargeNumber`, `uom`
+
+### Account Lookup (ZSO Prefetch)
+
+Prefetch-based enrichment from Account, Subscription, RatePlan, RatePlanCharge, ProductRatePlanCharge, or RatePlanChargeTier. `mapFields` is the join key; `appendFields` defines output fields.
+
+```json
+{
+  "id": "201",
+  "name": "Account Enrichment",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SUBSCRIPTION_LOOKUP",
+  "metadata": {
+    "lookupType": "Account",
+    "needPrefetch": true,
+    "mapFields": [
+      {"eventField": "accountId", "referenceField": "Account.AccountNumber"}
+    ],
+    "appendFields": [
+      {"eventField": "subscriptionNumber", "referenceField": "Subscription.Name"},
+      {"eventField": "chargeNumber", "referenceField": "RatePlanCharge.ChargeNumber"},
+      {"eventField": "uom", "referenceField": "RatePlanCharge.UOM"}
+    ],
+    "continueWhenNoDataFound": false
+  },
+  "predecessors": [{"id": "101"}]
+}
+```
+
+**Required**: `lookupType`, `needPrefetch: true`, `mapFields`, `appendFields`
+**`referenceField` syntax**: `Object.FieldName` — allowed objects: `Account`, `Subscription`, `RatePlan`, `RatePlanCharge`, `ProductRatePlanCharge`, `RatePlanChargeTier`
+
+### Product Lookup (ZSO Prefetch)
+
+Prefetch-based enrichment from Product, ProductRatePlan, ProductRatePlanCharge, or ProductRatePlanChargeTier.
+
+```json
+{
+  "id": "201",
+  "name": "Product Enrichment",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SUBSCRIPTION_LOOKUP",
+  "metadata": {
+    "lookupType": "Product",
+    "needPrefetch": true,
+    "mapFields": [
+      {"eventField": "productName", "referenceField": "Product.Name"}
+    ],
+    "appendFields": [
+      {"eventField": "prpcId", "referenceField": "ProductRatePlanCharge.Id"},
+      {"eventField": "uom", "referenceField": "ProductRatePlanCharge.UOM"}
+    ],
+    "continueWhenNoDataFound": false
+  },
+  "predecessors": [{"id": "101"}]
+}
+```
+
+**Required**: `lookupType`, `needPrefetch: true`, `mapFields`, `appendFields`
+**`referenceField` syntax**: `Object.FieldName` — allowed objects: `Product`, `ProductRatePlan`, `ProductRatePlanCharge`, `ProductRatePlanChargeTier`
+
+### Advanced Lookup (Data Query Enrichment)
+
+Use when you need to enrich events via a custom SQL JOIN query against Zuora Billing data. The `sql` field is a **broad dataset query with no per-event WHERE conditions** — the backend executes it as:
+
+```
+SELECT * FROM (<your sql>) temp WHERE <mapFields join condition> = <event value>
+```
+
+`mapFields` is **required** — it defines the join key (event field → SQL SELECT alias). `appendFields` defines which SQL columns to copy onto the event.
+
+```json
+{
+  "id": "201",
+  "name": "Data Query Enrichment",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SUBSCRIPTION_LOOKUP",
+  "metadata": {
+    "lookupType": "Advanced",
+    "needPrefetch": true,
+    "sql": "SELECT a.AccountNumber, s.Name AS SubscriptionNumber, rpc.ChargeNumber, rpc.UOM FROM Account a JOIN Subscription s ON s.AccountId = a.Id JOIN RatePlan rp ON rp.SubscriptionId = s.Id JOIN RatePlanCharge rpc ON rpc.RatePlanId = rp.Id",
+    "mapFields": [
+      {"eventField": "subscriptionNumber", "referenceField": "SubscriptionNumber"}
+    ],
+    "appendFields": [
+      {"eventField": "accountNumber", "referenceField": "AccountNumber"},
+      {"eventField": "chargeNumber", "referenceField": "ChargeNumber"},
+      {"eventField": "uom", "referenceField": "UOM"}
+    ],
+    "continueWhenNoDataFound": false
+  },
+  "predecessors": [{"id": "101"}]
+}
+```
+
+**Required**: `lookupType: "Advanced"`, `needPrefetch: true`, `sql`, `mapFields`, `appendFields`
+**`sql`**: Write a broad JOIN query — **do NOT put per-event WHERE conditions** in this field. The backend adds the per-event filter automatically from `mapFields`.
+**`mapFields`**: Required join key — `eventField` is the event field name, `referenceField` is the SQL SELECT alias. The backend appends `WHERE <alias> = <event value>` at runtime.
+**`appendFields[].referenceField`**: Must match the SQL SELECT alias **exactly** (bare alias, not `table.column` — e.g. `"AccountNumber"` not `"a.AccountNumber"`).
+**`appendFields[].type`**: Optional. Set to `"number"` for numeric columns to drive output schema type. Omit for string (default).
+**`continueWhenNoDataFound`**: false=drop events with no match (default); true=emit events with null enrichment fields.
+
+### CustomObject Lookup
+
+Prefetch-based enrichment from a tenant Custom Object. Requires prefetch v4 enabled on the tenant.
+
+```json
+{
+  "id": "201",
+  "name": "Custom Object Enrichment",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SUBSCRIPTION_LOOKUP",
+  "metadata": {
+    "lookupType": "CustomObject",
+    "needPrefetch": true,
+    "mapFields": [
+      {"eventField": "accountNumber", "referenceField": "default__myobject.AccountNumber__c"}
+    ],
+    "appendFields": [
+      {"eventField": "birthday", "referenceField": "default__myobject.Birthday__c"},
+      {"eventField": "salary", "referenceField": "default__myobject.Salary__c", "type": "number"}
+    ],
+    "continueWhenNoDataFound": false
+  },
+  "predecessors": [{"id": "101"}]
+}
+```
+
+**Required**: `lookupType`, `needPrefetch: true`, `mapFields`, `appendFields`
+**`referenceField` syntax**: `namespace__objectname.fieldname__c` — e.g. `default__myobject.AccountNumber__c`
 
 ---
 
@@ -583,14 +720,71 @@ Real-time in-flight charging with configurable price model. Computes a charge am
   "operatorType": "SCRIPT_MAP",
   "metadata": {
     "language": "JS",
-    "source": "exports.step = function(event, context) { return { accountNumber: event.CustomerId, quantity: event.Qty * event.PricePerUnit }; }"
+    "source": "exports.step = function(payload, context) { return { accountNumber: payload.CustomerId, quantity: payload.Qty * payload.PricePerUnit }; }"
   },
   "predecessors": [{"id": "101"}]
 }
 ```
 
 **Required**: `language` (JS or PYTHON), `source`
-**Script**: `exports.step = function(event, context)` — can return single object, array (expand stream), or null (filter)
+**Script signature**: `exports.step = function(payload, context)` — return single object, array (expand stream), or null (drop event)
+**State**: `context.state.get/set/remove` — persistent keyed state scoped to partition key
+**Source generation**: When the user describes a transformation in natural language, generate the `source` script from the description. See `references/meter-operator-codegen.md` for patterns, state API, error handling, and Python equivalents.
+
+---
+
+---
+
+## SCRIPT_AGGREGATOR Processor
+
+```json
+{
+  "id": "202",
+  "name": "Custom Aggregator",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SCRIPT_AGGREGATOR",
+  "metadata": {
+    "triggerType": "Timeout",
+    "timeoutType": "EventTime",
+    "timeoutDuration": "1 day",
+    "eventTimeField": "timestamp",
+    "eventTimeFormat": "yyyy-MM-dd'T'HH:mm:ssZ",
+    "groupFields": ["accountNumber"],
+    "language": "JS",
+    "source": "exports.step = function(payload, context) { const k = 'agg'; let s = context.state.get(k) || {total: 0, count: 0}; s.total += payload.quantity; s.count += 1; context.state.set(k, s); return {accountNumber: payload.accountNumber, totalQuantity: s.total, eventCount: s.count}; }"
+  },
+  "predecessors": [{"id": "101"}]
+}
+```
+
+**Required**: `triggerType`, `groupFields`, `language`, `source`
+**Script signature**: `exports.step = function(payload, context)` — called on every incoming event; the last returned value when the time window closes is emitted as output
+**State**: use `context.state` to accumulate values across events within the window
+**Source generation**: Generate from user's description. See `references/meter-operator-codegen.md`.
+
+---
+
+## SCRIPT_ACCUMULATOR Processor
+
+```json
+{
+  "id": "202",
+  "name": "Custom Accumulator",
+  "nodeType": "PROCESSOR",
+  "operatorType": "SCRIPT_ACCUMULATOR",
+  "metadata": {
+    "groupFields": ["accountNumber"],
+    "language": "JS",
+    "source": "exports.step = function(events, context) { const k = 'acc_' + (context.groupKey || 'default'); let s = context.state.get(k) || {total: 0, count: 0, createdAtMs: Date.now()}; for (const e of events) { s.total += e.quantity; s.count += 1; } if (s.count < 100 && (Date.now() - s.createdAtMs) < 300000) { context.state.set(k, s); return null; } context.state.remove(k); return {accountNumber: events[0].accountNumber, totalQuantity: s.total, eventCount: s.count}; }"
+  },
+  "predecessors": [{"id": "101"}]
+}
+```
+
+**Required**: `groupFields`, `language`, `source`
+**Script signature**: `exports.step = function(events, context)` — receives a batch of events; return `null` to keep accumulating, return a result object to release and clear state
+**State**: use `context.state` to hold accumulated values; call `context.state.remove(key)` on release
+**Source generation**: Generate from user's description. See `references/meter-operator-codegen.md`.
 
 ---
 

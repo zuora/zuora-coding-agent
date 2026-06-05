@@ -16,14 +16,13 @@
       "confidence": 0.85
     }
   ],
+  "generatable_fields": {
+    "source": "Generate this from the user's business logic description. See references/meter-operator-codegen.md for the SCRIPT_MAP signature and examples. Ask the user: what transformation should the script perform, and what are the input/output field names?"
+  },
   "blockers": [
     {
       "path": "language",
-      "message": "SCRIPT_MAP language is required. Which scripting language? ('JS' or 'PYTHON')"
-    },
-    {
-      "path": "source",
-      "message": "SCRIPT_MAP source code is required. Provide the script that transforms the event (receives 'event' object, must return transformed event)."
+      "message": "SCRIPT_MAP language: 'JS' or 'PYTHON'? Default: JS."
     },
     {
       "path": "schemaId",

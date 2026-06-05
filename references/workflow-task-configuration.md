@@ -68,6 +68,7 @@ The `data_contract` blocks in `workflow-task-templates.json` (covered separately
 
 **Common gotchas.**
 
+- Use `Query`, not `Export`, if the next task needs direct `Data.<Object>.<Field>` variables such as `Data.RatePlan.SubscriptionId`. `Export` does not populate `Data.<Object>` directly; it writes file/reference metadata, and row fields are available only after an `Iterate` task consumes the export file holder.
 - The downstream `Iterate.object` should be the *file* (e.g. `Invoice__1.csv.zip`), not the bare object name. Picking the bare object name iterates `Data.Export.<object>` which is the file-reference object, not the row Array.
 - `parameters.fields` keys must use the canonical SOAP object name (case-sensitive). A typo silently filters down to an empty selection.
 
@@ -102,6 +103,7 @@ The `data_contract` blocks in `workflow-task-templates.json` (covered separately
 
 - If you set `placement`, every downstream `{{Data.<object>...}}` reference must be rewritten to `{{Data.<placement>...}}`. The linter cross-checks this.
 - `Query` returns the same field shape as `Export`, but the upstream `data_contract.predictability` differs (`deterministic` vs `semi-deterministic`).
+- `parameters.where_clause` fields must exist on the described Query object. If the business requirement needs a field that Object Query does not expose, such as filtering `Subscription` directly by `InvoiceScheduleId`, do not build a `Query` task with that unsupported predicate; use a supported API/Data::Link path or ask for the supported relationship. The linter reports this as `W177`.
 
 ### Iterate
 
@@ -282,6 +284,7 @@ The `data_contract` blocks in `workflow-task-templates.json` (covered separately
 
 - `object_id` with `[*]` triggers fan-out. The portion before `[*]` is treated as a Liquid path into `Data` (e.g. `Data.Subscription[*].Id`), and the model derives the `iterated_object` (`Subscription`) from the substring before `[*]`. If that scope is not bound, `task_process` raises `Object '...' not found in data payload.`
 - `fieldsToNull` is the only allowed nested array under `parameters.fields[<object>]`; other arrays will be SOAP-encoded as a single concatenated string.
+- Do not emit one `Update` task per field for the same record. A single `Update` task sends every key under `parameters.fields[<object>]` in one SOAP update, so changes to the same object record should be consolidated into one object update unless independent retry/failure behavior or an intermediate validation step is required. ProductRatePlanCharge (PRPC) changes such as `Name`, `AccountingCode`, and `TaxCode` are one common example. The linter flags adjacent same-record per-field updates as `W183`.
 - **`Subscription.PaymentTerm` and Flexible Billing:** On tenants where Flexible Billing is enabled, updating `PaymentTerm` at the subscription level via the SOAP `Update` task may not work as expected. Before using a SOAP `Update` task to change `PaymentTerm` on a `Subscription` object, confirm with the user whether Flexible Billing is enabled on their tenant. If it is, use `mcp__zuora-mcp__ask_zuora` to determine the correct API path for updating `PaymentTerm` in that configuration.
 
 ### Callout
@@ -311,7 +314,7 @@ The `data_contract` blocks in `workflow-task-templates.json` (covered separately
 | `form_datas_attributes` | `form-array` | -- | when `body_type == 'form-data'` | `[]` | -- |
 | `parameters.file_binary` | `dropdown-from-parent-task` | `data_structure['Files']` (`_callout.html.erb` L267-275) | when `body_type == 'binary'` | -- | -- |
 | `parameters.files` | `form-array` | `data_structure['Files']` | when `body_type == 'form-data'` | `[]` | Controller hash->array coerces. |
-| `parameters.authorization.type` | `dropdown-static` | `['none', 'zuora', 'basic_auth', 'oauth1', 'oauth2', 'hmac', 'cert', 'netsuite_tba']` | optional | `none` | Selecting a type unlocks the matching nested credentials block. |
+| `parameters.authorization.type` | `dropdown-static` | `['none', 'zuora', 'basic_auth', 'oauth1', 'oauth2', 'hmac', 'cert', 'netsuite_tba']` | optional | `none` | Selecting a type unlocks the matching nested credentials block. For Zuora API endpoints, set this to `zuora`; do not hand-roll Zuora credential headers. |
 | `parameters.basic_auth / oauth1 / oauth2 / hmac / cert / netsuite_tba` | nested-hash | per-block | when `authorization.type` matches | -- | Only the block matching `authorization.type` should be populated. |
 | `parameters.retry_rules` | nested-hash | `{retry_count, retry_window, current_retry_count, on_timeout}` | optional | `{retry_count: 0, retry_window: 30, on_timeout: false}` | `retry_count` 0..10; `retry_window` 0..60. |
 | `parameters.validation.status_codes` | `multi-select-with-tags` | `f.object.http_codes` union existing list | optional | `["200"]` | Array of integer-strings (NOT integers). |
@@ -328,7 +331,11 @@ The `data_contract` blocks in `workflow-task-templates.json` (covered separately
 
 - `validation.status_codes` must be **strings** (`"200"`), not integers. JSON booleans / integers will fail the W178/E109 lint rules once they land.
 - The full permit list is at `tasks_controller.rb` L596-653 -- any key outside that list is silently dropped on save.
-- For Zuora REST endpoints, prefer `authorization.type = 'zuora'` over hand-rolling Bearer headers; the model handles entity-id propagation.
+- For Zuora REST endpoints, use `authorization.type = 'zuora'`, not `authorization.type = 'none'` plus `apiAccessKeyId`, `apiSecretAccessKey`, `Authorization`, or bearer-token headers. The model handles tenant credentials and entity-id propagation; add `authorization.entity_id` only when a multi-entity tenant requires it.
+- For Zuora API callouts, emit `validation.replace = "true"` and `validation.zuora_call = "true"` so Workflow replaces the response payload scope and applies Zuora-aware retry/error handling.
+- `include_response_code` defaults to `"true"`; downstream tasks must read parsed response fields under `Data.<payload_location | 'Callout'>.ResponseBody.*` unless the producing callout explicitly sets `include_response_code = "false"`.
+- For Create a bill run, use the modern REST resource path `{{ Credentials.zuora.rest_endpoint }}bill-runs`; do not call the legacy object CRUD endpoint `/object/bill-run`.
+- `Credentials.zuora.rest_endpoint` already includes the Zuora REST v1 base path. For v1 APIs, emit `{{ Credentials.zuora.rest_endpoint }}orders`, not `{{ Credentials.zuora.rest_endpoint }}/v1/orders` and not `{{ Credentials.zuora.rest_endpoint | replace: "/v1/", "" }}/v1/orders`; the linter flags the duplicate-v1 risk as `E182`.
 
 ### AsynchronousCallout
 
@@ -357,6 +364,7 @@ The `data_contract` blocks in `workflow-task-templates.json` (covered separately
 **Common gotchas.**
 
 - Misspell `polling_xyz` as `pollingXyz` and the controller silently drops the key; the polling leg then fails because its required field is missing.
+- The same `E182` Zuora REST v1 URL rule applies to both `parameters.url` and `parameters.polling_url`.
 - Two distinct `Data` scopes are written -- one for the initial response and one for the polling response. Both are opaque; both deserve `_opaque_trusted` or `_expected_response_schema` hints if you need downstream Liquid against them.
 
 ### Email
@@ -488,6 +496,7 @@ These five tasks are the building blocks of every non-trivial workflow: pick a b
 - Forgetting to `{% assign %}` is the #1 cause of "I see the value in preview but downstream tasks can't read it." Bare `{{ ... }}` interpolations are not retained.
 - Liquid syntax errors are caught only at RUN time -- the linter (W170) does a best-effort static parse, but invalid templates still pass save.
 - Two sibling `Logic::Liquid` tasks with the same (or empty) `placement` will overwrite each other in `Data.Liquid`. Use distinct `placement` values when fan-out scopes need to coexist.
+- Do not use Liquid only to copy `Data.LinkRun.first.*` / `Data.Link.first.*` values from one `Data::Link` into variables for another `Data::Link`. If the first query is a scalar lookup for the second query, fold it into the second query with a CTE / `CROSS JOIN` and project the scalar fields onto each row. Linter rule `W180` flags the avoidable chain.
 
 ### Logic::Lambda
 

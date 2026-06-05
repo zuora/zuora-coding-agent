@@ -126,7 +126,7 @@ Every task in a CUSTOM meter uses an `operatorType` that determines its behavior
 
 ## Common Pipeline Patterns
 
-### Pattern 1: Simple Zuora Pass-Through (use DIRECT type instead when no processors needed)
+### Pattern 1: Simple Zuora Pass-Through (prefer CUSTOM type — only use DIRECT if user explicitly requests it)
 ```
 ZUORA_BULK_API → ZUORA_USAGE
 ```
@@ -165,7 +165,7 @@ KAFKA → DEDUPLICATE → REALTIME_EVENT_AGGREGATOR → ZUORA_USAGE + KAFKA
 
 ### Pattern 8: Rating Pipeline
 ```
-KAFKA → CORRELATOR → AGGREGATOR → RATING_RULE_ENGINE → ZUORA_RATING
+KAFKA → CORRELATOR → AGGREGATOR → BILLING_RATING → ZUORA_RATING
 ```
 
 ### Pattern 9: File Backfill
@@ -191,7 +191,7 @@ S3 → DEDUPLICATE → MAP → SUBSCRIPTION_LOOKUP → AGGREGATOR → ZUORA_USAG
 | Session-based billing (start/stop) | `CORRELATOR` |
 | Add subscription/charge IDs | `SUBSCRIPTION_LOOKUP` |
 | Multi-currency billing | `CURRENCY_LOOKUP` |
-| Calculate charge from usage | `RATING` |
+| Calculate charge from usage | `BILLING_RATING` |
 | Post usage to Zuora billing | `ZUORA_USAGE` |
 | Post already-priced usage | `ZUORA_RATING` |
 | Archive data | `S3` sink |

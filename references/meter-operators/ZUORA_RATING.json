@@ -69,5 +69,11 @@
       "path": "eventTimeColumn",
       "message": "ZUORA_RATING eventTimeColumn is required. Which event field contains the event timestamp used for partitioning?"
     }
-  ]
+  ],
+  "hints": {
+    "fieldMappings[].field": "event field name from schema properties mapped to this Zuora rating field",
+    "fieldMappings[].dateFormat": "timeFormat from schema's eventTime field for datetime mappings",
+    "eventTimeColumn": "event field name where eventTime=true in schema",
+    "partitionKeys": "event field names from schema properties used for partitioning (e.g. [\"accountNumber\"])"
+  }
 }

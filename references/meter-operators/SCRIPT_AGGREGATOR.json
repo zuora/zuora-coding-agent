@@ -40,14 +40,13 @@
       "confidence": 0.85
     }
   ],
+  "generatable_fields": {
+    "source": "Generate this from the user's business logic description. See references/meter-operator-codegen.md for the SCRIPT_AGGREGATOR signature and examples. Ask the user: what aggregation logic should run (SUM/COUNT/custom), what are the input fields, and what should the output event look like?"
+  },
   "blockers": [
     {
       "path": "language",
-      "message": "SCRIPT_AGGREGATOR language is required. Which scripting language? ('JS' or 'PYTHON')"
-    },
-    {
-      "path": "source",
-      "message": "SCRIPT_AGGREGATOR source code is required. Provide the script that accumulates state and emits aggregated output."
+      "message": "SCRIPT_AGGREGATOR language: 'JS' or 'PYTHON'? Default: JS."
     },
     {
       "path": "groupFields",
