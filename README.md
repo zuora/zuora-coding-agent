@@ -12,8 +12,9 @@ A plugin can contribute many skills, but a skill is what your AI client or tool 
 ## What's Included
 
 - **Skills**: task playbooks for API design, code generation, Workflow design, Order API migration, Invoice Settlement migration, meter design, dynamic pricing setup, validation, and review.
-- **Local Auora MCP Server**: Provides Zuora API and product helpers for API specs, SDK patterns, object queries, reports, workflows, billing documents, and tenant-aware validation.
-- **Reference material**: Zuora-specific migration mappings, workflow patterns, meter templates, and integration best practices.
+- **Local Zuora MCP Server**: Provides Zuora API and product helpers for API specs, SDK patterns, object queries, reports, workflows, billing documents, and tenant-aware validation.
+- **Reference material**: Zuora-specific migration mappings, workflow patterns, meter operator schemas, Liquid filter reference, and integration best practices.
+- **Local linter scripts**: `scripts/lint-workflow-json.js` and `scripts/lint-meter-json.js` for pre-import structural and semantic validation of generated artifacts.
 
 ## What You Can Use ZCA For
 
@@ -123,8 +124,8 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 | `/zuora-is-migration-build` | Generate IS migration implementation artifacts |
 | `/zuora-order-migration-design` | Produce order migration design, sequencing, and edge-case analysis |
 | `/zuora-order-migration-build` | Generate order migration implementation artifacts |
-| `/zuora-meter-design` | Design a Zuora meter — pick type, define topology, and collect per-operator field values |
-| `/zuora-meter-build` | Compose an importable Zuora meter JSON from a design |
+| `/zuora-meter-design` | Design a Zuora meter, or ask any Mediation question — operator config, SQL, transformer scripts, troubleshooting |
+| `/zuora-meter-build` | Compose an importable Zuora meter JSON from a design, or generate operator script code |
 | `/zuora-dynamic-pricing-design` | Design a Commerce Catalog setup with dynamic pricing |
 | `/zuora-dynamic-pricing-build` | Execute the dynamic pricing setup on the tenant |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
