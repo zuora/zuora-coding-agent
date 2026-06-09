@@ -6,6 +6,7 @@
       "ZUORA_BASE_URL": "${ZUORA_BASE_URL}",
       "ZUORA_CLIENT_ID": "${ZUORA_CLIENT_ID}",
       "ZUORA_CLIENT_SECRET": "${ZUORA_CLIENT_SECRET}",
+      "AGENT_NAME": "zuora-coding-agent",
       "APPROVAL_ENABLED": "false"
     }
   }

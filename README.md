@@ -11,7 +11,7 @@ A plugin can contribute many skills, but a skill is what your AI client or tool 
 
 ## What's Included
 
-- **Skills**: task playbooks for API design, code generation, Workflow design, Order API migration, Invoice Settlement migration, meter design, dynamic pricing setup, validation, and review.
+- **Skills**: task playbooks for API design, code generation, Workflow design, Order API migration, Invoice Settlement migration, meter design, dynamic pricing setup, CPQ Apex/Quote Studio customization and migration, validation, and review.
 - **Local Zuora MCP Server**: Provides Zuora API and product helpers for API specs, SDK patterns, object queries, reports, workflows, billing documents, and tenant-aware validation.
 - **Reference material**: Zuora-specific migration mappings, workflow patterns, meter operator schemas, Liquid filter reference, and integration best practices.
 - **Local linter scripts**: `scripts/lint-workflow-json.js` and `scripts/lint-meter-json.js` for pre-import structural and semantic validation of generated artifacts.
@@ -26,6 +26,7 @@ You can our ZCA for work such as:
 - Designing or generating Zuora Workflow JSONs (Workflow uses JSON to export/import Workflows).
 - Designing usage-based billing meters.
 - Designing or executing Commerce Catalog dynamic pricing setups.
+- Designing, generating, or migrating Zuora CPQ legacy Apex/Visualforce customizations to Quote Studio JavaScript hooks and LWC components.
 - Validating payloads, reviewing code, or checking Zuora-specific edge cases.
 
 The ZCA is self documenting, you can simply ask your client for more examples or if a particular use case of interest to you would be helped by using ZCA.
@@ -128,6 +129,13 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 | `/zuora-meter-build` | Compose an importable Zuora meter JSON from a design, or generate operator script code |
 | `/zuora-dynamic-pricing-design` | Design a Commerce Catalog setup with dynamic pricing |
 | `/zuora-dynamic-pricing-build` | Execute the dynamic pricing setup on the tenant |
+| `/zuora-cpq-apex-design` | Design legacy CPQ Apex, Visualforce, Component Library, zQuoteUtil, or plugin-interface customizations |
+| `/zuora-cpq-apex-build` | Generate CPQ Apex, Visualforce, zQuoteUtil, or plugin-interface artifacts into a Salesforce DX repo |
+| `/zuora-cpq-js-design` | Design Quote Studio or CPQ X JavaScript hooks, events, quote state, and ZQFClient patterns |
+| `/zuora-cpq-js-build` | Generate Quote Studio or CPQ X LWC headless/sidebar components and registration notes into a Salesforce DX repo |
+| `/zuora-cpq-migration-design` | Map or modernize legacy CPQ Apex, Visualforce, zQuoteUtil, or plugin-interface customizations to Quote Studio |
+| `/zuora-cpq-validate` | Validate CPQ Apex, Visualforce, LWC hooks/events, quote-state usage, ZQFClient usage, and global Apex methods |
+| `/zuora-cpq-review` | Review CPQ Apex, Visualforce, Quote Studio LWC, hook/event usage, registration, tests, and best-practice risks |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
 | `/zuora-review` | Review work for Zuora best practices |
 
@@ -273,7 +281,8 @@ For significant changes, open an issue first to discuss the proposed change.
 | Amy | Invoice Settlement Migration |
 | Richard | Order Migration |
 | Jianfeng | MCP Tool |
-| Gautam | Mediation |
+| Gautam | Meter |
+| Raja | CPQ |
 
 ## License
 

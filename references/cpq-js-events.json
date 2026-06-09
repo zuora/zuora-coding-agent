@@ -1,0 +1,174 @@
+{
+  "sourceDocs": [
+    "https://docs.zuora.com/en/zuora-cpq/manage-subscriptions/customize-cpq-x/customize-quote-studio-with-extensibility-framework/headless-and-sidebar-component---events"
+  ],
+  "events": [
+    {
+      "name": "updateQuote",
+      "aliases": [
+        "updatequote"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": "quote",
+      "requiredDetailKeys": [
+        "quote"
+      ],
+      "registrationRequired": true,
+      "description": "Overrides quote state and recalculates ramp intervals and terms if needed."
+    },
+    {
+      "name": "upsertQuoteLineItems",
+      "aliases": [
+        "upsertquotelineitems"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": "quoteLineItems",
+      "requiredDetailKeys": [
+        "quoteLineItems"
+      ],
+      "registrationRequired": true,
+      "description": "Overrides quote line items."
+    },
+    {
+      "name": "addQuoteLinesItems",
+      "aliases": [
+        "addquotelinesitems"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": null,
+      "requiredDetailKeys": [
+        "prodIds",
+        "effectiveDate"
+      ],
+      "registrationRequired": true,
+      "description": "Adds one-time flat-fee quote line items."
+    },
+    {
+      "name": "addProducts",
+      "aliases": [
+        "addproducts"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": null,
+      "requiredDetailKeys": [
+        "prodIds",
+        "effectiveDate"
+      ],
+      "registrationRequired": true,
+      "description": "Adds product rate plans to quote subscription."
+    },
+    {
+      "name": "updateProducts",
+      "aliases": [
+        "updateproducts"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": "productTimelines",
+      "requiredDetailKeys": [
+        "productTimelines"
+      ],
+      "registrationRequired": true,
+      "description": "Overrides product timelines. Custom code must recalculate dependent fields when manually changed."
+    },
+    {
+      "name": "previewQuoteState",
+      "aliases": [
+        "previewquotestate"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": null,
+      "requiredDetailKeys": [],
+      "registrationRequired": true,
+      "description": "Initiates Preview an order call."
+    },
+    {
+      "name": "saveQuote",
+      "aliases": [
+        "savequote"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": null,
+      "requiredDetailKeys": [],
+      "registrationRequired": true,
+      "description": "Saves quote and triggers preview."
+    },
+    {
+      "name": "toastMessageDisplay",
+      "aliases": [
+        "toastmessagedisplay"
+      ],
+      "introducedIn": "10.4",
+      "detailPath": null,
+      "requiredDetailKeys": [
+        "message",
+        "theme"
+      ],
+      "registrationRequired": false,
+      "description": "Shows or removes a toast message. theme is warning, error, or success."
+    },
+    {
+      "name": "objectFieldConfig",
+      "aliases": [
+        "objectfieldconfig"
+      ],
+      "introducedIn": "10.35.1",
+      "detailPath": "configs",
+      "requiredDetailKeys": [
+        "configs"
+      ],
+      "registrationRequired": true,
+      "description": "Overrides Quote Studio object field rendering config: backgroundColor, readOnly, helptext. Use raw new CustomEvent('objectfieldconfig'). No ZQF helper exists.",
+      "example": "new CustomEvent('objectfieldconfig', { detail: { configs: [{ field: 'zqu__Discount__c', object: 'QuoteRatePlanCharge', chargeIndex: 0, timelineId, effectiveDate, backgroundColor: '#FFA500', readOnly: true }] } })"
+    },
+    {
+      "name": "changesidebarwidth",
+      "aliases": [
+        "changeSidebarWidth"
+      ],
+      "introducedIn": "10.36",
+      "detailPath": "width",
+      "requiredDetailKeys": [
+        "width"
+      ],
+      "registrationRequired": false,
+      "description": "Changes Quote Studio sidebar width."
+    },
+    {
+      "name": "opensidebarcomponent",
+      "aliases": [
+        "openSidebarComponent"
+      ],
+      "introducedIn": "10.36",
+      "detailPath": "componentName",
+      "requiredDetailKeys": [
+        "componentName"
+      ],
+      "registrationRequired": false,
+      "description": "Opens a registered sidebar component."
+    },
+    {
+      "name": "closesidebar",
+      "aliases": [
+        "closeSidebar"
+      ],
+      "introducedIn": "10.36",
+      "detailPath": null,
+      "requiredDetailKeys": [],
+      "registrationRequired": false,
+      "description": "Closes the sidebar."
+    },
+    {
+      "name": "collapseProduct",
+      "aliases": [
+        "collapseproduct"
+      ],
+      "introducedIn": "10.50",
+      "detailPath": "timelineUpdates",
+      "requiredDetailKeys": [
+        "timelineUpdates"
+      ],
+      "registrationRequired": true,
+      "description": "Collapses product timelines in Quote Studio."
+    }
+  ]
+}

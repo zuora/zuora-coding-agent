@@ -1,0 +1,5 @@
+<apex:page controller="__CONTROLLER_NAME__">
+    <apex:form>
+        <apex:pageMessages />
+    </apex:form>
+</apex:page>

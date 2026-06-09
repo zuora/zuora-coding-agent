@@ -1,0 +1,175 @@
+{
+  "sourceDocs": [
+    "https://docs.zuora.com/en/zuora-cpq/manage-subscriptions/customize-cpq-x/customize-quote-studio-with-extensibility-framework/headless-component---hooks"
+  ],
+  "notes": [
+    "Starter catalog from public docs. Extend with internal CPQ docs for exact payload details.",
+    "Common incorrect names to avoid: onQuoteLoad (use afterQuoteStudioLoad), onChargeChange (use beforeProductUpdate/afterProductUpdate).",
+    "Hook signatures are exact. Do not add resolver/reject callback parameters or host payload parameters such as { record, connectedQuote }; beforeSave, beforeSubmit, and beforePreviewCall take no parameters and return optional Boolean values."
+  ],
+  "hooks": [
+    {
+      "name": "beforeSave",
+      "introducedIn": "10.21",
+      "componentType": "headless",
+      "params": [],
+      "returnType": "Boolean optional",
+      "returnRequiredKeys": [],
+      "description": "Runs before Save. Return false to stop save."
+    },
+    {
+      "name": "beforeSubmit",
+      "introducedIn": "10.21",
+      "componentType": "headless",
+      "params": [],
+      "returnType": "Boolean optional",
+      "returnRequiredKeys": [],
+      "description": "Runs before Submit, Back, or Save changes and Leave."
+    },
+    {
+      "name": "beforePreviewCall",
+      "introducedIn": "10.21",
+      "componentType": "headless",
+      "params": [],
+      "returnType": "Boolean optional",
+      "returnRequiredKeys": [],
+      "description": "Runs before preview call."
+    },
+    {
+      "name": "beforeProductAdd",
+      "introducedIn": "10.34",
+      "componentType": "headless",
+      "params": [
+        "addedProducts"
+      ],
+      "returnType": "Object",
+      "returnRequiredKeys": [
+        "proceed"
+      ],
+      "description": "Runs before product add."
+    },
+    {
+      "name": "afterProductAdd",
+      "introducedIn": "10.34",
+      "componentType": "headless",
+      "params": [
+        "addedProducts"
+      ],
+      "returnType": "void",
+      "returnRequiredKeys": [],
+      "description": "Runs after product add."
+    },
+    {
+      "name": "beforeProductUpdate",
+      "introducedIn": "10.34",
+      "componentType": "headless",
+      "params": [
+        "updatedCharges",
+        "updatedAmendment",
+        "updatedRatePlan",
+        "isRevert"
+      ],
+      "returnType": "Object",
+      "returnRequiredKeys": [
+        "proceed"
+      ],
+      "description": "Runs after UI product edit and before product update logic."
+    },
+    {
+      "name": "afterProductUpdate",
+      "introducedIn": "10.34",
+      "componentType": "headless",
+      "params": [
+        "updatedCharges",
+        "updatedAmendment",
+        "updatedRatePlan",
+        "isRevert"
+      ],
+      "returnType": "void",
+      "returnRequiredKeys": [],
+      "description": "Runs after product update."
+    },
+    {
+      "name": "beforeRulesExecution",
+      "introducedIn": "10.34",
+      "componentType": "headless",
+      "params": [],
+      "returnType": "Boolean optional",
+      "returnRequiredKeys": [],
+      "description": "Runs before rules execution."
+    },
+    {
+      "name": "afterRulesExecution",
+      "introducedIn": "10.34",
+      "componentType": "headless",
+      "params": [],
+      "returnType": "void",
+      "returnRequiredKeys": [],
+      "description": "Runs after rules execution."
+    },
+    {
+      "name": "beforeSubmitNavigation",
+      "introducedIn": "10.37",
+      "componentType": "headless",
+      "params": [],
+      "returnType": "Boolean optional",
+      "returnRequiredKeys": [],
+      "description": "Runs before submit navigation."
+    },
+    {
+      "name": "afterQuoteUpdate",
+      "introducedIn": "10.37",
+      "componentType": "headless",
+      "params": [
+        "quote"
+      ],
+      "returnType": "void",
+      "returnRequiredKeys": [],
+      "description": "Runs after quote update."
+    },
+    {
+      "name": "beforeMSQChildSave",
+      "introducedIn": "10.42",
+      "componentType": "headless",
+      "params": [
+        "childQuote"
+      ],
+      "returnType": "Boolean or Object optional",
+      "returnRequiredKeys": [],
+      "description": "Runs before MSQ child save."
+    },
+    {
+      "name": "beforeProductRemove",
+      "introducedIn": "10.45",
+      "componentType": "headless",
+      "params": [
+        "removedQplan",
+        "deletedTimeline",
+        "timelineId"
+      ],
+      "returnType": "Object",
+      "returnRequiredKeys": [
+        "proceed"
+      ],
+      "description": "Runs before product remove."
+    },
+    {
+      "name": "afterQuoteStudioLoad",
+      "introducedIn": "10.50",
+      "componentType": "headless",
+      "params": [
+        "index"
+      ],
+      "returnType": "void",
+      "returnRequiredKeys": [],
+      "description": "Runs after Quote Studio loads."
+    }
+  ],
+  "publicProperties": [
+    "quoteState",
+    "pageState",
+    "metricState",
+    "masterQuoteState",
+    "parentQuoteState"
+  ]
+}

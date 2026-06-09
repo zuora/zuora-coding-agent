@@ -21,6 +21,13 @@ When working on Zuora-related tasks, use the zuora-mcp server for authoritative 
 - `/zuora-dynamic-pricing-build` — Execute the dynamic pricing setup on the tenant
 - `/zuora-validate` — Validate code/payloads against Zuora patterns
 - `/zuora-review` — Review work for Zuora best practices
+- `/zuora-cpq-apex-design` — Design legacy CPQ Apex, Visualforce, Component Library, zQuoteUtil, controller extension, or plugin-interface customizations
+- `/zuora-cpq-apex-build` — Generate CPQ Apex, Visualforce, Component Library, zQuoteUtil, controller extension, or plugin-interface artifacts into a Salesforce DX repo
+- `/zuora-cpq-js-design` — Design Quote Studio or CPQ X JavaScript extensibility using supported hooks, events, quote state, and ZQFClient patterns
+- `/zuora-cpq-js-build` — Generate Quote Studio or CPQ X LWC headless/sidebar components and registration notes into a Salesforce DX repo
+- `/zuora-cpq-migration-design` — Map or modernize legacy CPQ customizations to Quote Studio hooks/events
+- `/zuora-cpq-validate` — Validate CPQ Apex, Visualforce, LWC hooks/events, quote-state usage, ZQFClient usage, and global Apex methods
+- `/zuora-cpq-review` — Review CPQ Apex, Visualforce, Quote Studio LWC, hook/event usage, registration, tests, and maintainability
 
 ## MCP tools vs customer code
 

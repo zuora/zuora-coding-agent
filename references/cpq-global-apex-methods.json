@@ -1,0 +1,76 @@
+{
+  "sourceDocs": [
+    "https://docs.zuora.com/en/zuora-cpq/development-resources/overview-of-zuora-cpq-development-resources",
+    "https://docs.zuora.com/en/zuora-cpq/development-resources/zuora-cpq-component-library"
+  ],
+  "notes": [
+    "Starter catalog. Replace or extend with internal CPQ global Apex docs before production use.",
+    "The validator supports aliases and can be made stricter as internal method metadata is added."
+  ],
+  "classes": [
+    {
+      "name": "zQuoteUtil",
+      "namespace": "zqu",
+      "methods": [
+        {
+          "name": "previewQuote",
+          "aliases": [
+            "preview"
+          ],
+          "category": "quote lifecycle",
+          "description": "Preview a quote before sending to Zuora.",
+          "bulkPreferred": false
+        },
+        {
+          "name": "sendQuoteToZuora",
+          "aliases": [
+            "sendToZuora"
+          ],
+          "category": "quote lifecycle",
+          "description": "Send a quote to Zuora.",
+          "bulkPreferred": false
+        },
+        {
+          "name": "submitQuote",
+          "aliases": [],
+          "category": "quote lifecycle",
+          "description": "Submit a quote through CPQ flow.",
+          "bulkPreferred": false
+        },
+        {
+          "name": "calculateCharges",
+          "aliases": [
+            "calculateCharge"
+          ],
+          "category": "pricing",
+          "description": "Calculate quote charge values.",
+          "bulkPreferred": true
+        },
+        {
+          "name": "getQuoteInfo",
+          "aliases": [
+            "getQuote"
+          ],
+          "category": "read",
+          "description": "Read quote information.",
+          "bulkPreferred": false
+        },
+        {
+          "name": "getProductRatePlans",
+          "aliases": [
+            "getRatePlans"
+          ],
+          "category": "catalog",
+          "description": "Read product rate plans for quote customization.",
+          "bulkPreferred": true
+        }
+      ]
+    }
+  ],
+  "objectNamespaces": [
+    "zqu__Quote__c",
+    "zqu__QuoteRatePlan__c",
+    "zqu__QuoteRatePlanCharge__c",
+    "zqu__QuoteAmendment__c"
+  ]
+}
