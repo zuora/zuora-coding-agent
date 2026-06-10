@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0] - 2026-06-10
+
+### Added
+- New CPQ skill set: `zuora-cpq-apex-design`, `zuora-cpq-apex-build`, `zuora-cpq-js-design`, `zuora-cpq-js-build`, `zuora-cpq-migration-design`, `zuora-cpq-validate`, and `zuora-cpq-review`
+- CPQ reference library covering hooks, events, quote state model, ZQFClient, Component Library, global Apex methods, registration, and patterns
+- Local linter scripts `lint-cpq-apex.js` and `lint-cpq-hooks-events.js` for pre-submit validation of CPQ artifacts
+- LWC headless/sidebar and Visualforce/Apex starter templates
+
 ## [1.3.5] - 2026-06-05
 
 ### Added
