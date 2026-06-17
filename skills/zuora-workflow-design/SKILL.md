@@ -226,7 +226,7 @@ Deliver a structured workflow design:
 - **Error handling**: `Failure` branches, retry rules, fallback actions, notification on failure.
 - **External integrations**: Callout endpoints, auth mode, payload shape, validation status codes. For Zuora REST v1 endpoints, note that `Credentials.zuora.rest_endpoint` already includes the v1 base; designs should append only the resource path (`orders`, not `/v1/orders`).
 - **Expected outcomes**: what changes in Zuora after successful execution.
-- **Testing approach**: how to validate the workflow in sandbox (lint, dry-run `import_workflow activate=false` + `delete_workflow`, `run_workflows waitForCompletion=true`).
+- **Testing approach**: how to validate the workflow in sandbox (lint, dry-run `import_workflow activate=false` + `delete_workflow`, `manage_workflow_runs` `run_workflow` + `get_run_status` polling).
 - **Next step**: Suggest `zuora-workflow-build` in Codex (or `/zuora-workflow-build` in Claude/Cursor) to compose the complete importable JSON artifact.
 
 Do NOT implement the workflow in this skill. Focus on design and decision-making.

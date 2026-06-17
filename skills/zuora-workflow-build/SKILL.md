@@ -2,7 +2,7 @@
 name: zuora-workflow-build
 description: Compose an importable Zuora Workflow JSON from a design or requirement
 argument-hint: <workflow design or requirement>
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_workflows, mcp__zuora-mcp__run_workflows, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__query_objects]
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_workflows, mcp__zuora-mcp__manage_workflow_runs, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__query_objects]
 ---
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
@@ -473,13 +473,13 @@ Note: `activate: false` still **persists** the workflow. It is not a free-form "
 In addition to the workflow JSON, generate as appropriate:
 
 - Callout handler code — use `mcp__zuora-mcp__zuora_codegen` for endpoints that receive / respond to the workflow's callout tasks. Follow the codegen flow: `code_guidance` → `get_api_details` → `get_model_details` → `code_rules`.
-- Test scripts — for `run_workflows waitForCompletion=true` + `get_run_status` assertions.
+- Test scripts — for `manage_workflow_runs` `run_workflow` + `get_run_status` assertions.
 - Monitoring / operational notes.
 
 ### Step 8: Suggest next steps
 
 - Sandbox import (for real): `import_workflow activate=true` in sandbox.
-- Functional test: `run_workflows waitForCompletion=true` and inspect task-level results via `get_run_status`.
+- Functional test: `manage_workflow_runs` `run_workflow`, then poll `get_run_status` and inspect task-level results.
 - Production promotion: re-export the sandbox workflow and re-import into production.
 - Run `/zuora-validate` on any generated callout handler code.
 

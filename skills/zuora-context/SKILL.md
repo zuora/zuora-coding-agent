@@ -30,7 +30,7 @@ When generating code for the customer's repository, output Zuora REST API or SDK
 - **`mcp__zuora-mcp__get_account_summary`** — Get comprehensive account view including recent memos.
 
 **Operational tools** (for testing/validating generated artifacts against the tenant, or other available MCP tools):
-- **`mcp__zuora-mcp__manage_workflows`** / **`run_workflows`** — Import, export, list, and execute workflows in the tenant.
+- **`mcp__zuora-mcp__manage_workflows`** / **`mcp__zuora-mcp__manage_workflow_runs`** — Import, export, list workflows, and execute or monitor workflow runs in the tenant.
 - **`mcp__zuora-mcp__create_subscriptions`** / **`manage_subscriptions`** — Create or manage subscriptions for validation.
 - **`mcp__zuora-mcp__manage_billing_documents`** — Verify billing document generation.
 - Other `manage_*` tools as needed for their specific domains.
@@ -59,6 +59,7 @@ If the user's intent clearly maps to a dedicated skill, **do not answer generica
 | Setting up dynamic pricing on tenant | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-dynamic-pricing-build/SKILL.md` |
 | Validating code or payloads | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-validate/SKILL.md` |
 | Reviewing implementation | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-review/SKILL.md` |
+| UAT/E2E test lifecycle (SDD → TR matrix → generate → run) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-uat-context/SKILL.md` |
 
 If the intent is ambiguous, briefly clarify with the user before invoking a skill. For general Zuora questions that don't map to a skill, answer using the MCP tools and reference materials below.
 
