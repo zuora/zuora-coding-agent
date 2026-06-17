@@ -45,6 +45,12 @@ Read:
 
 Use supported global Apex methods and explicit `zqu__` namespace object names. Class names, interface names, method names, method parameters, return types, Visualforce component names, and Visualforce attributes must strictly match the official Zuora source docs and examples bundled in this codebase. Do not invent overloads, plugin-interface methods, controller signatures, or component attributes. If the required signature is not in the references, ask for the exact source or call out the assumption instead of guessing. Avoid internal managed package classes unless the internal catalog explicitly allows them.
 
+**Data access rule:** Always prefer fetching Zuora data from local Salesforce objects (e.g., `zqu__Quote__c`, `zqu__Product__c`, `zqu__QuoteRatePlan__c`) using SOQL over making Zuora REST API callouts. Use `@future`, `Queueable`, or `Batchable` Apex for async operations when governor limits may be exceeded.
+
+**Test class rule:** Every Apex class design must include a corresponding test class design with `@isTest` annotation. Specify test data factory needs, assert expectations, and coverage targets.
+
+**Documentation reference:** For ambiguous Salesforce behavior, defer to https://developer.salesforce.com/docs/ rather than inferring or hallucinating behavior.
+
 ### Step 4: Produce design
 
 Return:
