@@ -1,0 +1,19 @@
+# Optional UAT tenant configuration.
+# API-only runs use environment=mcp (zuora-mcp credentials) without this file.
+#
+# default_environment: staging
+# test_environments:
+#   staging:
+#     api_base_url: https://rest-staging.zuora.com
+#     ui_base_url: https://staging.zuora.com/apps
+#     authentication:
+#       type: oauth
+#       client_id: ${ZUORA_CLIENT_ID}
+#       client_secret: ${ZUORA_CLIENT_SECRET}
+#       token_endpoint: /oauth/token
+#       grant_type: client_credentials
+#     ui_authentication:
+#       username: your-ui-user@example.com
+#       password: ${UI_PASSWORD}
+#     test_data:
+#       gateway_id: "optional-pre-seeded-id"

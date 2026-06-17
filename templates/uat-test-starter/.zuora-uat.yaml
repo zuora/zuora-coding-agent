@@ -1,0 +1,4 @@
+# UAT workspace location relative to this git repository root.
+# Default for mixed repos: uat/
+# Dedicated test repos (zuora-ai-test style): root: .
+root: uat
