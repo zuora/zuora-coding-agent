@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.1] - 2026-06-17
+
+### Added
+- New UAT skill set: `zuora-uat-design`, `zuora-uat-build`, and `zuora-uat-run` for designing, generating, and executing UAT test suites
+- UAT reference docs, execution scripts, test utilities, and a starter template with pytest scaffolding
+
 ## [1.4.0] - 2026-06-10
 
 ### Added

@@ -136,6 +136,9 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 | `/zuora-cpq-migration-design` | Map or modernize legacy CPQ Apex, Visualforce, zQuoteUtil, or plugin-interface customizations to Quote Studio |
 | `/zuora-cpq-validate` | Validate CPQ Apex, Visualforce, LWC hooks/events, quote-state usage, ZQFClient usage, and global Apex methods |
 | `/zuora-cpq-review` | Review CPQ Apex, Visualforce, Quote Studio LWC, hook/event usage, registration, tests, and best-practice risks |
+| `/zuora-uat-design` | Design a UAT test plan and test matrix for a Zuora implementation |
+| `/zuora-uat-build` | Generate UAT test artifacts — feature files, API/UI test scripts, and configuration |
+| `/zuora-uat-run` | Execute UAT tests and report results |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
 | `/zuora-review` | Review work for Zuora best practices |
 
@@ -283,6 +286,7 @@ For significant changes, open an issue first to discuss the proposed change.
 | Jianfeng | MCP Tool |
 | Gautam | Meter |
 | Raja | CPQ |
+| Zhaowei | UAT |
 
 ## License
 
