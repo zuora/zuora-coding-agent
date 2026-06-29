@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.2] - 2026-06-29
+
+### Added
+- IS migration now assesses your Data Warehouse layer and generates IS-compatible SQL rewrites for legacy settlement objects (`InvoicePayment`, `RefundInvoicePayment`, `CreditBalanceAdjustment`), adapting to dbt, Fivetran, or raw SQL pipelines
+
 ## [1.4.1] - 2026-06-17
 
 ### Added

@@ -9,7 +9,7 @@
     {
       "name": "zuora-coding-agent",
       "description": "Zuora development assistant for API integrations, workflow automation, migrations, CPQ customizations, Quote Studio hooks/events, and best-practice validation. Powered by zuora-mcp.",
-      "version": "1.4.1",
+      "version": "1.4.2",
       "source": {
         "source": "url",
         "url": "https://github.com/zuora/zuora-coding-agent.git"

@@ -94,9 +94,35 @@ Ask the user about:
 - Dunning and collections processes
 - Revenue recognition workflows
 
+### Step 3b: Data Warehouse Assessment
+
+Use `AskUserQuestion` to ask the following two questions **in a single call**:
+
+**Question 1:** "Does your system include a Data Warehouse or BI reporting layer that reads Zuora data? (e.g., dbt models, Fivetran/HVR pipelines, Looker, raw SQL reports, Snowflake/BigQuery views)"
+- Options: "Yes — we have DW/BI queries that read Zuora tables" / "No — no DW layer to update"
+
+**STOP. Wait for the answer before continuing.**
+
+If the user answers **No**, skip the rest of Step 3b and proceed to Step 4.
+
+If the user answers **Yes**, ask:
+
+**Question 2:** "How does your DW pipeline sync Zuora data — incremental (only new/changed records each run) or full historical sync (full rebuild from scratch each run)?"
+- Options: "Incremental sync — we only process new/changed records" / "Full historical sync — we rebuild history on every run" / "Mixed — some models incremental, some full sync"
+
+Record the DW sync mode. Then ask the user to share their existing SQL queries or model files that read from the following legacy Zuora objects (one or more may apply):
+- `InvoicePayment` / `invoice_payment`
+- `RefundInvoicePayment` / `refund_invoice_payment`
+- `CreditBalanceAdjustment` / `credit_balance_adjustment`
+- `InvoiceAdjustment` / `invoice_adjustment` or `InvoiceItemAdjustment`
+
+Tell the user: "You can paste the SQL directly, provide file paths, or describe which tables your models use. I will produce IS-compatible rewrites in the build phase."
+
+Document everything collected here in the plan's DW section (see Step 7).
+
 ### Step 4: Read reference materials
 
-First, list all files under `${CLAUDE_PLUGIN_ROOT}/references/` to understand what is available. Then read every file that is relevant to Credit Memos, Debit Memos, Invoice Settlement, or the APIs being migrated. Do not hardcode file names — the contents of the references folder may change across versions.
+First, list all files under `${CLAUDE_PLUGIN_ROOT}/references/` to understand what is available. Then read every file that is relevant to Credit Memos, Debit Memos, Invoice Settlement, or the APIs being migrated — **including `is-migration-dw-patterns.md` when DW requirements were identified in Step 3b**. Do not hardcode file names — the contents of the references folder may change across versions.
 
 ### Step 5: Check API requirements
 
@@ -135,6 +161,17 @@ Deliver a structured document with the codebase path prominently noted:
 **Validation checklist**: Code review points, integration test scenarios, edge cases
 
 **Dependencies and prerequisites**: API version, Zuora SDK version, team skill with REST APIs
+
+**Data Warehouse section** *(include only when DW requirements were identified in Step 3b)*:
+- Sync mode: [incremental / full historical / mixed]
+- DW tooling: [dbt / Fivetran / raw SQL / other]
+- Affected models / queries:
+  - [model name]: reads [InvoicePayment / RefundInvoicePayment / CreditBalanceAdjustment / etc.] → IS equivalent: [PaymentApplication / RefundApplication / retain as-is / etc.]
+- Net-new models required (no legacy equivalent):
+  - `dim_transactions_creditmemo` — reads `CreditMemo` + `CreditMemoItem`
+  - `dim_transactions_debitmemo` — reads `DebitMemo` + `DebitMemoItem`
+- Pipeline readiness: confirm DW sync includes `payment_application`, `credit_memo`, `debit_memo`, `refund_application` tables
+- IS-compatible SQL rewrites will be generated in the build phase (reference: `is-migration-dw-patterns.md`)
 
 ---
 

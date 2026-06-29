@@ -113,12 +113,95 @@ Write to files:
 - Runbook with step-by-step execution instructions
 - Code review checklist for API changes
 
+### Step 6: Data Warehouse SQL Rewrite
+
+**Run this step only when the migration plan (or the user) indicates DW requirements exist.**
+
+Read `${CLAUDE_PLUGIN_ROOT}/references/is-migration-dw-patterns.md` before generating any SQL.
+
+#### 6a — Collect customer SQL
+
+If the user has not already provided their DW SQL/models, ask:
+
+"Please share the SQL queries or model files that reference legacy Zuora settlement objects (`InvoicePayment`, `RefundInvoicePayment`, `CreditBalanceAdjustment`, `InvoiceAdjustment`, `InvoiceItemAdjustment`). You can paste the SQL directly, provide file paths, or point to your dbt project directory."
+
+Also ask or confirm:
+- "What DW tooling do you use? (e.g., dbt, Fivetran, raw SQL, Snowflake views, Looker PDT)"
+- "Confirmed sync mode: incremental or full historical?" (should already be in the plan; re-confirm if unclear)
+
+**STOP. Wait for the answers before producing SQL.**
+
+#### 6b — Analyze the customer SQL
+
+For each SQL file or query provided:
+1. Identify every legacy settlement object referenced: `InvoicePayment`, `RefundInvoicePayment`, `CreditBalanceAdjustment`, `InvoiceAdjustment`, `InvoiceItemAdjustment`
+2. Note table/view naming style (dbt `{{ ref() }}`, schema.table, view names, etc.)
+3. Note field names used — they may differ from dbt staging model convention
+4. Determine which IS object(s) replace each legacy reference (use the mapping table in `is-migration-dw-patterns.md`)
+
+#### 6c — Generate IS-compatible rewrites
+
+Apply the correct pattern from `is-migration-dw-patterns.md` based on sync mode:
+
+**Incremental sync:**
+- Replace `InvoicePayment` CTEs with `PaymentApplication` (Pattern 1)
+- Replace `RefundInvoicePayment` CTEs with `RefundApplication` (Pattern 2)
+- Retain `CreditBalanceAdjustment`, `InvoiceAdjustment`, `InvoiceItemAdjustment` unchanged (historical pre-IS records)
+- Add net-new queries for `CreditMemo`/`CreditMemoItem` (Pattern 4) and `DebitMemo`/`DebitMemoItem` (Pattern 5)
+- Adapt table name style to match the customer's tooling (replace `stg_zuora__*` refs with their actual table names if not using dbt)
+
+**Full historical sync:**
+- Apply the UNION ALL + anti-join deduplication pattern for payments (Pattern 6) and refunds (Pattern 7)
+- Retain `CreditBalanceAdjustment` as-is — no IS equivalent (Pattern 8)
+- Add net-new queries for `CreditMemo` and `DebitMemo` (Patterns 4 and 5)
+
+**Mixed sync mode:**
+- Ask which models are incremental and which are full sync, then apply the appropriate pattern per model
+
+**Adapt to the customer's DW tooling:**
+- dbt: use `{{ ref('stg_zuora__<object>') }}` syntax, preserve model structure and CTE style
+- Fivetran / raw SQL: use `<schema>.<table>` notation matching their warehouse; omit dbt macros
+- If the customer uses a custom staging layer, substitute their actual table/view names wherever the patterns use `stg_zuora__*`
+- Preserve the customer's existing field aliases, column order, and SQL style — minimize diff size
+
+#### 6d — Handle net-new documents (CreditMemo / DebitMemo)
+
+CreditMemo and DebitMemo have no pre-IS equivalent — these are entirely additive. For each:
+1. Produce a new model/query based on Pattern 4 (CreditMemo) or Pattern 5 (DebitMemo)
+2. Adapt field names to match the customer's schema
+3. Confirm sign convention with the customer: CreditMemo items default to negative `transaction_amount`; DebitMemo items default to positive
+
+#### 6e — Output
+
+Write each rewritten query to a file named `<original_filename>_is_rewrite.sql` (or update in-place if the user prefers). Include inline comments marking every IS change (use the `-- IS:` comment prefix convention from `is-migration-dw-patterns.md`).
+
+At the end of this step, produce a summary table:
+
+| Original model | Legacy objects replaced | IS objects used | Sync pattern applied | New file |
+|---|---|---|---|---|
+| [model name] | InvoicePayment | PaymentApplication | Incremental | [filename] |
+| ... | | | | |
+
+Also list any net-new models created for CreditMemo / DebitMemo.
+
+#### 6f — DW validation checklist
+
+Output a checklist the customer can use before deploying:
+- [ ] Confirm DW pipeline syncs `payment_application`, `credit_memo`, `debit_memo`, `refund_application` tables
+- [ ] Validate staging model field names match customer's DW schema
+- [ ] Run IS-rewritten models against sandbox data
+- [ ] Compare output row counts and amounts against legacy models for overlapping historical period
+- [ ] Confirm no records are double-counted (run anti-join check: `COUNT(*)` on the union result vs each side separately)
+- [ ] Validate sign conventions on CreditMemo / DebitMemo amounts with AR/finance team
+- [ ] Enable new `CreditMemo` / `DebitMemo` objects in DW sync tool if not already present
+
 ### Step 7: Read reference materials
 
 Read these references to ensure generated code follows established patterns:
 - `${CLAUDE_PLUGIN_ROOT}/references/is-migration-patterns.md` — phases, object mappings, API operations for Credit Memos / Debit Memos
 - `${CLAUDE_PLUGIN_ROOT}/references/is-migration-api-reference.md` — field-level mappings for legacy adjustments → Credit Memo objects
 - `${CLAUDE_PLUGIN_ROOT}/references/best-practices.md` — API integration standards
+- `${CLAUDE_PLUGIN_ROOT}/references/is-migration-dw-patterns.md` — DW object mapping, sync mode patterns, SQL examples, and pitfalls (read when DW requirements exist)
 
 ### Step 8: Suggest validation
 
