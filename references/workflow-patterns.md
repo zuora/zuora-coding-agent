@@ -164,7 +164,7 @@ For new-stack subscription cancellation, use a Zuora `Callout` to `{{ Credential
 
 - Every task publishes a `Failure` hook — wire it to an error handler (notification, callout, dedicated error branch).
 - `retry_rules.retry_count` 0..10; `retry_rules.retry_window` 0..60 seconds (Callout-class validation).
-- For batch operations, route `For Each` → body → `Complete` and handle failed rows with a downstream `If` on `Data.<object>.success`.
+- For batch operations, route `For Each` → body → `Complete` and handle failed rows with a downstream `If` on `Data.<object>.success`. For workflow error summaries, query `workflow_task` via `Data::Link` scoped to `workflow_instance_id = '{{ WorkflowInstance.id }}'` and summarize those rows.
 
 ### What is available on the Failure branch
 
@@ -193,6 +193,6 @@ Use `mcp__zuora-mcp__manage_workflows`:
 - Keep workflows focused — one business process per workflow.
 - Name tasks descriptively (the UI and logs show `task.name`).
 - Parameterize with `workflow.parameters.fields` for runtime inputs rather than hard-coding.
-- Version with `workflow.version` (default `"0.0.1"`).
-- Sandbox-first: import, activate, run, validate, then promote.
+- Do not introduce `CustomObject::*` unless the user explicitly asks for custom objects or a durable custom-object audit/state store; the linter flags unmarked Custom Object tasks as `W194`.
+- Version with `workflow.version` (default `"0.0.1"`). Sandbox-first: import, activate, run, validate, then promote.
 - Lint on every change; the linter is the front line of defense because `Task.import` skips `task_setup_validation`.

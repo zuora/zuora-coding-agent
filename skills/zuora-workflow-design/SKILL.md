@@ -98,18 +98,22 @@ Translate the business process into a linear / branching / iterating sequence of
 - Branching: `If` (`True` / `False`), `Logic::Case` (`Case_1` … `Case_N` / `Case_Else`).
 - External integration: `Callout`, `AsynchronousCallout`.
 - Notifications: `Email`, `Notifications::SMS`.
-- CRUD: `Create`, `Update`, `Delete`, `CustomObject::*`.
+- CRUD: `Create`, `Update`, `Delete`; `CustomObject::*` only when the user explicitly asks for custom objects.
 - Amendments: `NewProduct`, `RemoveProduct`, `Suspend`, `Resume`, `Cancel` (legacy SOAP amendment tasks).
 
 For subscription cancellation on the new API stack, design an Orders API `Callout` instead of the SOAP `Cancel` amendment task. The callout should target `{{ Credentials.zuora.rest_endpoint }}orders`, use `authorization.type = "zuora"`, and include an `orderActions[]` item with `type: "CancelSubscription"`. Use `Cancel` only when the user explicitly asks for a legacy SOAP amendment workflow.
 
 Before adding multiple CRUD `Update` tasks, run a consolidation check: if the tasks target the same object and same `object_id` and only set different fields, design one `Update` task with all field values under `parameters.fields[<object>]`. Do not model any same-record object update as one CRUD task per field unless the user explicitly needs independent failure/retry handling, intermediate validation, or ordered side effects. ProductRatePlanCharge (PRPC) is the motivating example, but the rule is general.
 
+Do not propose a solution with `CustomObject::*` tasks unless the customer explicitly asks to use a custom object, an existing custom-object schema, or a durable custom-object audit/state store. For ordinary workflow state, summaries, and reports, prefer standard Zuora objects, Workflow runtime data, direct queries, generated files, email, or callouts.
+
 **Subscription `PaymentTerm` with Flexible Billing:** When the requirement involves updating `PaymentTerm` on a subscription, always confirm with the user whether Flexible Billing is enabled on their tenant. On tenants with Flexible Billing enabled, updating `PaymentTerm` via a SOAP `Update` task on the `Subscription` object may not work as expected. If Flexible Billing is enabled, consult `mcp__zuora-mcp__ask_zuora` to determine the correct API path before choosing an implementation approach.
 - Billing/Payment: `Billing::BillRun`, `InvoiceGenerate`, `WriteOff`, `Payment::PaymentRun`.
 - Approval: `Approval` (`Approve` / `Reject` / `Failure`).
 
 Before choosing `Billing::BillRun`, verify the bill-run filters fit the OOTB task. Use it for standard bill-run fields and v1 single-account/subscription filters (`AccountId` / `SubscriptionIds`). If the user asks for account-number filters, batch-number filters, APM/ProductRatePlanCharge ID filters, or any bill-run filter not supported by the OOTB task, design a custom Zuora `Callout` to the modern bill run API (`{{ Credentials.zuora.rest_endpoint }}bill-runs`) instead. Do not use the legacy object CRUD endpoint `/object/bill-run` for Create a bill run.
+
+For Zuora APIs that create async operations such as bill runs, payment runs, journal runs, or another job-style API, treat the create callout's `Success` edge as job-submitted only. Design either an `AsynchronousCallout` with `polling_url`, `response_path`, and `finish_status`, or an explicit `Callout -> status Callout -> If/Logic::Case` pattern: poll the returned job/run id, branch on successful/completed status, loop or wait while pending, and let only the completed branch continue to the next async operation or dependent work.
 
 When a `Callout` / `AsynchronousCallout` targets a Zuora API, design it with `authorization.type = "zuora"` and only ordinary headers such as `Content-Type`. Do not design Zuora API callouts with `authorization.type = "none"`, `apiAccessKeyId` / `apiSecretAccessKey`, `Authorization`, or bearer-token headers; Workflow owns Zuora tenant credentials and entity context.
 
@@ -120,6 +124,8 @@ Before adding multiple Data Query / `Data::Link` tasks, run a consolidation chec
 - If one query only resolves scalar context for the next query (for example looking up `ProductRatePlanId` from a run-prompt `ProductRatePlanChargeId`), fold that lookup into the main query with a CTE and `CROSS JOIN`, then project the scalar columns on each output row.
 - Do not insert `Data::Link -> Logic::Liquid(assign only) -> Data::Link` just to copy `Data.LinkRun.first.*` into `Data.Liquid.*`; downstream iterator/callout tasks should read the projected values as `row.<field>`.
 - Keep separate queries only when the first result is reused by multiple branches, must stop/fail the workflow independently, produces a non-scalar collection, or cannot be expressed in the same SQL.
+
+When the user asks for a workflow error summary, final error report, or workflow execution error log, design a `Data::Link` / Data Query task over the `workflow_task` table scoped to the current run (`workflow_instance_id = '{{ WorkflowInstance.id }}'`) and filtered to failed/error rows or non-empty error fields. Use those query rows to generate the summary email, file, or upload; do not design a custom-object accumulator unless the user explicitly asks for durable custom-object audit storage.
 
 Before adding a `Logic::Liquid` task that loops over arrays, review `workflow-liquid.md` -> Filters and `workflow-liquid-filters.md` for exact signatures. If the step is simple row selection or grouping, design it with Workflow's built-in filters (`where`, `where_exp`, `group_by`, `group_by_exp`) instead of a manual `for` + `if` + `push` loop. Keep manual loops only for real row transformation or custom shape building.
 

@@ -1432,8 +1432,108 @@ function unsupportedBillRunFilterParams(task) {
   });
 }
 
+function isCalloutTask(task) {
+  return isPlainObject(task) && ["Callout", "AsynchronousCallout"].includes(task.action_type);
+}
+
+function calloutMethod(task, prefix) {
+  const params = isPlainObject(task) ? task.parameters : null;
+  if (!params) return "";
+  const key = prefix ? `${prefix}_method` : "method";
+  const method = params[key];
+  return typeof method === "string" ? method.trim().toUpperCase() : "";
+}
+
+function compactUrl(value) {
+  return typeof value === "string" ? value.replace(/\s+/g, "").toLowerCase() : "";
+}
+
+const ASYNC_ZUORA_OPERATION_BY_RESOURCE = {
+  "bill-runs": { resource: "bill-runs", label: "bill run" },
+  "payment-runs": { resource: "payment-runs", label: "payment run" },
+  "journal-runs": { resource: "journal-runs", label: "journal run" },
+};
+
+function asyncZuoraOperationFromResource(resource) {
+  return ASYNC_ZUORA_OPERATION_BY_RESOURCE[resource] || null;
+}
+
+function asyncZuoraOperationCreateFromUrl(url) {
+  const compact = compactUrl(url);
+  if (!compact) return null;
+  if (looksLikeLegacyBillRunObjectCrudUrl(url)) return asyncZuoraOperationFromResource("bill-runs");
+  const match = compact.match(/(?:^|[\/}])(bill-runs|payment-runs|journal-runs)\/?(?:$|[?#'"}`])/);
+  return match ? asyncZuoraOperationFromResource(match[1]) : null;
+}
+
+function asyncZuoraOperationStatusFromUrl(url) {
+  const compact = compactUrl(url);
+  if (!compact) return null;
+  const match = compact.match(/(?:^|[\/}])(bill-runs|payment-runs|journal-runs)\/[^?#'"}`]+/);
+  if (!match) return null;
+  if (/(?:^|[\/}])(?:bill-runs|payment-runs|journal-runs)\/.*\/post(?:$|[?#'"}`])/.test(compact)) {
+    return null;
+  }
+  return asyncZuoraOperationFromResource(match[1]);
+}
+
+function asyncZuoraOperationCreateForTask(task) {
+  if (!isCalloutTask(task) || !isPlainObject(task.parameters)) return null;
+  if (calloutMethod(task, "") !== "POST") return null;
+  return asyncZuoraOperationCreateFromUrl(task.parameters.url);
+}
+
+function asyncZuoraOperationStatusForTask(task) {
+  if (!isCalloutTask(task) || !isPlainObject(task.parameters)) return null;
+  if (calloutMethod(task, "") !== "GET") return null;
+  return asyncZuoraOperationStatusFromUrl(task.parameters.url);
+}
+
+function hasNonEmptyFinishStatus(params) {
+  if (!isPlainObject(params)) return false;
+  if (Array.isArray(params.finish_status)) {
+    return params.finish_status.some((status) => typeof status === "string" && status.trim().length > 0);
+  }
+  return typeof params.finish_status === "string" && params.finish_status.trim().length > 0;
+}
+
+function asyncZuoraOperationCreateHasBuiltInPolling(task, operation) {
+  if (!operation || task.action_type !== "AsynchronousCallout" || !isPlainObject(task.parameters)) return false;
+  const pollingMethod = calloutMethod(task, "polling");
+  const pollingOperation = asyncZuoraOperationStatusFromUrl(task.parameters.polling_url);
+  const hasResponsePath =
+    typeof task.parameters.response_path === "string" && task.parameters.response_path.trim().length > 0;
+  return (
+    (pollingMethod === "" || pollingMethod === "GET") &&
+    pollingOperation &&
+    pollingOperation.resource === operation.resource &&
+    hasResponsePath &&
+    hasNonEmptyFinishStatus(task.parameters)
+  );
+}
+
+function isCompletionDecisionTask(task) {
+  return isPlainObject(task) && ["If", "Logic::Case"].includes(task.action_type);
+}
+
 function isLegacySubscriptionCancelTask(task) {
   return isPlainObject(task) && task.action_type === "Cancel";
+}
+
+function isCustomObjectTask(task) {
+  return isPlainObject(task) && typeof task.action_type === "string" && task.action_type.startsWith("CustomObject::");
+}
+
+function customObjectUseExplicitlyRequested(task) {
+  const params = isPlainObject(task) ? task.parameters : null;
+  if (isPlainObject(params)) {
+    const marker = params._custom_object_user_requested;
+    if (marker === true || (typeof marker === "string" && marker.toLowerCase() === "true")) return true;
+  }
+  if (Array.isArray(task.tags)) {
+    return task.tags.some((tag) => typeof tag === "string" && tag.toLowerCase() === "custom-object-user-requested");
+  }
+  return false;
 }
 
 function checkCompositionQuality(doc, out) {
@@ -1510,12 +1610,65 @@ function checkCompositionQuality(doc, out) {
     );
   }
 
+  const warnedAsyncOperationPairs = new Set();
+  for (const [taskId, task] of taskById.entries()) {
+    const operation = asyncZuoraOperationCreateForTask(task);
+    if (!operation) continue;
+    if (asyncZuoraOperationCreateHasBuiltInPolling(task, operation)) continue;
+
+    const visited = new Set([`${taskId}:false`]);
+    const stack = [{ taskId, sawStatus: false }];
+    while (stack.length > 0) {
+      const state = stack.pop();
+      const currentId = state.taskId;
+      const downstreamEdges = (outgoingBySource.get(currentId) || []).filter((edge) => edge.linkage_type !== "Failure");
+
+      for (const edge of downstreamEdges) {
+        const downstreamTask = taskById.get(edge.target_task_id);
+        if (!downstreamTask) continue;
+        if (state.sawStatus && isCompletionDecisionTask(downstreamTask)) continue;
+
+        const downstreamOperation = asyncZuoraOperationCreateForTask(downstreamTask);
+        if (downstreamOperation) {
+          const pairKey = `${taskId}->${downstreamTask.id}`;
+          if (warnedAsyncOperationPairs.has(pairKey)) continue;
+          warnedAsyncOperationPairs.add(pairKey);
+          const downstreamIndex = taskIndexById.get(downstreamTask.id);
+          out.warn(
+            "W195",
+            `Async Zuora ${operation.label} create Callout task ${taskId} reaches ${downstreamOperation.label} create Callout task ${downstreamTask.id} before a status poll and completion decision. Zuora async operations such as bill runs, payment runs, and journal runs only acknowledge job submission on the create callout's Success edge. Use AsynchronousCallout with polling_url, response_path, and finish_status, or model Callout -> status Callout -> If/Logic::Case so pending statuses poll again and dependent work continues only after a successful/completed status.`,
+            Number.isInteger(downstreamIndex) ? `$.tasks[${downstreamIndex}]` : `$.tasks[id=${downstreamTask.id}]`
+          );
+          continue;
+        }
+
+        const statusOperation = asyncZuoraOperationStatusForTask(downstreamTask);
+        const nextSawStatus =
+          state.sawStatus || Boolean(statusOperation && statusOperation.resource === operation.resource);
+        const visitKey = `${downstreamTask.id}:${nextSawStatus}`;
+        if (visited.has(visitKey)) continue;
+        visited.add(visitKey);
+        stack.push({ taskId: downstreamTask.id, sawStatus: nextSawStatus });
+      }
+    }
+  }
+
   for (const [taskId, task] of taskById.entries()) {
     if (!isLegacySubscriptionCancelTask(task)) continue;
     const taskIndex = taskIndexById.get(taskId);
     out.warn(
       "W189",
       `Cancel task ${taskId} uses the legacy SOAP subscription-cancel amendment task. For the new API stack, model subscription cancellation with a Zuora Callout to the Orders API (resource path "orders") containing an orderActions entry with type "CancelSubscription", and set authorization.type = "zuora". Keep the SOAP Cancel task only when the user explicitly asks for a legacy amendment workflow.`,
+      Number.isInteger(taskIndex) ? `$.tasks[${taskIndex}]` : `$.tasks[id=${taskId}]`
+    );
+  }
+
+  for (const [taskId, task] of taskById.entries()) {
+    if (!isCustomObjectTask(task) || customObjectUseExplicitlyRequested(task)) continue;
+    const taskIndex = taskIndexById.get(taskId);
+    out.warn(
+      "W194",
+      `Custom Object task ${taskId} (${task.action_type}) is present without an explicit user-request marker. Do not propose or emit CustomObject::* tasks unless the customer explicitly asks to use a custom object or a durable custom-object audit/state store. Prefer standard Zuora objects, Workflow runtime data, direct queries, files, email, or callouts for ordinary workflow state and reporting. If the customer did explicitly ask for this custom object, set parameters._custom_object_user_requested = "true" on the task to document that intent.`,
       Number.isInteger(taskIndex) ? `$.tasks[${taskIndex}]` : `$.tasks[id=${taskId}]`
     );
   }
@@ -3152,6 +3305,7 @@ function checkIterateAndDescribe(doc, out, templates, enums, standardFields) {
         "disable_regex",
         "_opaque_trusted",
         "_expected_response_schema",
+        "_custom_object_user_requested",
       ]);
       for (const fieldDef of tmpl.configuration_contract.fields) {
         if (!isPlainObject(fieldDef) || typeof fieldDef.$field !== "string") continue;
