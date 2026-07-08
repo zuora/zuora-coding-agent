@@ -1,0 +1,1326 @@
+{
+  "z_billing.billing_rules": {
+    "api_endpoint": "/billing-rules",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "available_to_credit_validation_for_credit_memos": {
+        "api_field": "availableToCreditValidationLevel",
+        "type": "enum",
+        "value_map": {
+          "Header-level only": "HeaderLevel",
+          "Line-level": "HeaderAndItemLevel",
+          "Header and Item Level": "HeaderAndItemLevel",
+          "None": "None"
+        },
+        "default": "None"
+      },
+      "create_credit_memos_mirroring_invoice_items": {
+        "api_field": "creditMemoMirroringInvoiceItemsRule",
+        "type": "enum",
+        "value_map": {
+          "but do not create for zero": "YesExceptForZeroItems",
+          "except": "YesExceptForZeroItems",
+          "non-zero": "YesExceptForZeroItems",
+          "nonzero": "YesExceptForZeroItems",
+          "yes": "Yes",
+          "mirror all": "Yes",
+          "no": "No",
+          "do not": "No"
+        },
+        "default": "No"
+      },
+      "invoice_credit_memo_generation_rule": {
+        "api_field": "creditMemoMirroringInvoiceItemsRule",
+        "type": "enum",
+        "value_map": {
+          "but do not create for zero": "YesExceptForZeroItems",
+          "except": "YesExceptForZeroItems",
+          "non-zero": "YesExceptForZeroItems",
+          "nonzero": "YesExceptForZeroItems",
+          "yes": "Yes",
+          "mirror all": "Yes",
+          "no": "No",
+          "do not": "No"
+        },
+        "default": "No"
+      },
+      "default_bill_run_to_auto_post": {
+        "api_field": "autoPostBillRunDefaultValue",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_catch_up_bill_run": {
+        "api_field": "catchUpBillRun",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_customer_hierarchy": {
+        "api_field": "customerHierarchy",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "ignore_invoice_past_end_of_term_when_charge_s_end_date_is_on_or_before_than_term_end": {
+        "api_field": "invoicePastTermEndWhenChargeEndDateOnOrBeforeTermEndDate",
+        "type": "enum",
+        "value_map": {
+          "No": "BillPartialWhenChargeEndDateOnOrBeforeTermEndDate",
+          "False": "BillPartialWhenChargeEndDateOnOrBeforeTermEndDate"
+        },
+        "default": "BillFullWhenChargeEndDateOnOrBeforeTermEndDate"
+      },
+      "invoice_past_end_of_term_when_auto_renew_is_off": {
+        "api_field": "invoicePastEndOfTerm",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "invoice_past_end_of_term_when_auto_renew_is_on": {
+        "api_field": "billToTermEndWhenAutoRenew",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "support_bill_run_auto_post": {
+        "api_field": "allowAutoPostBillRun",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "zuora_tax_rounding_rule_for_inclusive_tax_calculation": {
+        "api_field": "taxInclusiveRoundingRule",
+        "type": "enum",
+        "value_map": {
+          "net": "RoundingNetAmount",
+          "tax": "RoundingTaxAmount"
+        },
+        "default": "RoundingNetAmount"
+      },
+      "allow_invoice_splitting": {
+        "api_field": "invoiceSplit",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_sequential_billing_document_number": {
+        "api_field": "sequentialInvoiceNumber",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_tax_preview_with_external_tax_engines_during_generation_of_invoice_and_credit_memo": {
+        "api_field": "taxPreview",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "preserve_snapshot_of_bill_to_and_sold_to_contacts_when_billing_documents_are_posted": {
+        "api_field": "takeContactSnapshot",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "allow_to_consolidate_subscriptions_order_line_items_and_standalone_invoice_items_into_a_single_invoice": {
+        "api_field": "consolidateInvoices",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "copy_billing_attributes_from_accounts_to_standalone_invoices_when_no_attributes_are_specified_on_standalone_invoices": {
+        "api_field": "copyBillingAttributesFromAccountForStandaloneInvoice",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "format_numeric_merge_fields_based_on_communication_profile_locales": {
+        "api_field": "zuoraNumberFormatForMergeField",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "copy_billing_attributes_from_accounts_to_billing_documents_when_no_attributes_are_specified_on_subscriptions": {
+        "api_field": "copyBillingAttributesFromAccount",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "calculate_taxes_using_information_from_customer_account_of": {
+        "api_field": "taxAddressOwner",
+        "type": "enum",
+        "value_map": {
+          "Subscription Owner": "SubscriptionOwner",
+          "Invoice Owner": "InvoiceOwner"
+        },
+        "default": "SubscriptionOwner"
+      },
+      "should_the_stacked_percentage_discount_ignore_or_follow_discount_class_": {
+        "api_field": "stackedDiscountClassApplyRule",
+        "type": "enum",
+        "value_map": {
+          "ignore": "IgnoreDiscountClass",
+          "follow": "FollowDiscountClass"
+        },
+        "default": "IgnoreDiscountClass"
+      },
+      "allow_indistinct_mapping_from_memo_invoice_item_adjustment_tax_item_to_invoice_item_tax": {
+        "api_field": "allowIndistinctMapping",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "when_prorating_a_month_assume_30_days_in_a_month_or_use_actual_days": {
+        "api_field": "daysInMonth",
+        "type": "enum",
+        "value_map": {
+          "actual": "UseActualDays",
+          "30": "Assume30Days",
+          "strict": "Assume30DaysStrict",
+          "30/360": "Assume30DaysStrict"
+        },
+        "default": "UseActualDays"
+      },
+      "when_bill_credit_for_recurring_charges_based_on_billed_period_or_credit_period": {
+        "api_field": "recurringCreditProrationOption",
+        "type": "enum",
+        "value_map": {
+          "credit period": "BasedOnCreditPeriod",
+          "effective end date": "BasedOnCreditPeriod",
+          "charge": "BasedOnChargePeriod",
+          "billed": "BasedOnChargePeriod",
+          "billing period": "BasedOnChargePeriod"
+        },
+        "default": "BasedOnCreditPeriod"
+      },
+      "enable_credit_back_for_removing_or_canceling_one_time_charges": {
+        "api_field": "oneTimeCreditBack",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "include_usage_from_child_accounts_when_billing": {
+        "api_field": "includeChildUsage",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "include_invoices_with_negative_totals_in_the_account_balance_included_associated_debit_memos_": {
+        "api_field": "includeNegativeInvoice",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "default_bill_run_to_automatically_renew_auto_renew_subscriptions_that_are_up_for_renewal": {
+        "api_field": "autoRenewalBillRun",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "bill_usage_charges_for_partial_month_with_monthly_based_billing_periods_": {
+        "api_field": "prorateUsageMonthlyCharges",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "bill_recurring_charges_for_partial_month_with_monthly_based_billing_periods_": {
+        "api_field": "prorateRecurringMonthlyCharges",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "redistribute_zuora_tax_rounding_differences": {
+        "api_field": "zuoraTaxRoundingDiffDispersion",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "setting_determines_when_the_document_will_be_assigned_a_number_from_the_official_document_sequence": {
+        "api_field": "numberAssignmentTiming",
+        "type": "enum",
+        "value_map": {
+          "generat": "Generating",
+          "post": "Posting"
+        },
+        "default": "Posting"
+      },
+      "when_service_period_of_an_invoice_item_crosses_multiple_tax_rate_periods_it_will_generate": {
+        "api_field": "taxRateChangeOption",
+        "type": "enum",
+        "value_map": {
+          "multiple": "MultipleTaxItems",
+          "one": "OneTaxItem"
+        },
+        "default": "OneTaxItem"
+      },
+      "include_billing_engine_credits_in_total_available_credit": {
+        "api_field": "availableToCreditIncludingRbeCreditMemo",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "rating_detail_generation_timing": {
+        "api_field": "ratingDetailGenerationTiming",
+        "type": "enum",
+        "value_map": {
+          "after": "AfterInvoice",
+          "with": "WithInvoice"
+        },
+        "default": "AfterInvoice"
+      },
+      "use_system_default_suffix_for_credit_items": {
+        "api_field": "useSystemDefaultSuffixForCreditItems",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "credit_for_prorated_discounts_fixed_amount_discount_charge_only_": {
+        "api_field": "discountCreditProration",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "bill_recurring_charges_for_partial_week_with_weekly_based_billing_periods_": {
+        "api_field": "prorateRecurringWeeklyCharges",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "bill_usage_charges_for_partial_week_with_weekly_based_billing_periods_": {
+        "api_field": "prorateUsageWeeklyCharges",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "when_prorating_periods_greater_than_a_month_prorate_by_month_first_or_by_day": {
+        "api_field": "prorationUnit",
+        "type": "enum",
+        "value_map": {
+          "day": "ProrateByDay",
+          "month": "ProrateByMonthFirst"
+        },
+        "default": "ProrateByDay"
+      },
+      "apply_new_tax_rate_for_additional_units_purchased_and_old_tax_rate_for_returns": {
+        "api_field": "debookRebookSupportable",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "do_not_send_0_items_to_external_tax_engines": {
+        "api_field": "notSendZeroItemsForTax",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "how_should_errors_be_handled_when_generating_multiple_invoices_for_a_single_account_via_bill_run_": {
+        "api_field": "transactionOnSubscription",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "invoice_recurring_charges_in_advance_or_arrears_": {
+        "api_field": "recurringChargeStyle",
+        "type": "enum",
+        "value_map": {
+          "arrears": "Arrears",
+          "depends": "DependsOnRatePlan",
+          "rate plan": "DependsOnRatePlan"
+        },
+        "default": "Advanced"
+      },
+      "prorate_recurring_charges_for_partial_period_": {
+        "api_field": "proratePeriodOfRecurringCharge",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "use_avalara_to_calculate_taxes_for_invoice_item_adjustments_": {
+        "api_field": "useAvalaraTaxCalculationForIIA",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "round_and_determine_a_price_for_usage_records_individually_when_rating_usage_charges_": {
+        "api_field": "rateUsageIndividually",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "proactively_generate_invoice_pdf_files_": {
+        "api_field": "preGenerateInvoicePdf",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "approximate_time_of_day_to_generate_daily_invoices": {
+        "api_field": "timeOfDailyInvoice",
+        "type": "integer"
+      },
+      "send_external_engine_consolidated_discount_and_regular_charge": {
+        "api_field": "discountConsolidated",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      }
+    }
+  },
+  "z_billing.manage_billing_document_configuration": {
+    "api_endpoint": "/document-filename-patterns, /document-generation-setting",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "notes": "Two separate API calls: filename patterns and document generation toggle",
+    "fields": {
+      "document_filename_pattern_document_type": {
+        "api_field": "documentType",
+        "type": "string",
+        "endpoint": "/document-filename-patterns"
+      },
+      "filename_pattern": {
+        "api_field": "pattern",
+        "type": "string",
+        "endpoint": "/document-filename-patterns"
+      },
+      "enable_the_billing_document_generation": {
+        "api_field": "enabled",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false},
+        "endpoint": "/document-generation-setting"
+      }
+    }
+  },
+  "z_billing.customize_batch_names": {
+    "api_endpoint": "/batch-aliases",
+    "http_method": "PUT",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "index maps to Batch{index+1}; sends { aliases: [{batch, displayName}] }",
+    "fields": {
+      "batch_name": {
+        "api_field": "displayName",
+        "type": "string"
+      }
+    }
+  },
+  "z_billing.define_billing_periods": {
+    "api_endpoint": "/billing-periods, /billing-cycle-types, /billing-period-starts, /billing-list-price-bases",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "notes": "Four separate API calls. Each UI field is a boolean toggle. If True the value is added to the respective array.",
+    "fields": {
+      "month": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Month"},
+      "quarter": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Quarter"},
+      "semi_annual": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Semi_Annual"},
+      "annual": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Annual"},
+      "eighteen_months": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Eighteen_Months"},
+      "two_years": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Two_Years"},
+      "three_years": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Three_Years"},
+      "five_years": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Five_Years"},
+      "specific_months": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Specific_Months"},
+      "subscription_term": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Subscription_Term"},
+      "week": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Week"},
+      "specific_weeks": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Specific_Weeks"},
+      "specific_days": {"api_field": "billingPeriods[]", "type": "boolean", "api_value_if_true": "Specific_Days"},
+      "default_from_customer_account": {"api_field": "billingCycleTypes[]", "type": "boolean", "api_value_if_true": "DefaultFromCustomer"},
+      "specific_day_of_month": {"api_field": "billingCycleTypes[]", "type": "boolean", "api_value_if_true": "SpecificDayofMonth"},
+      "subscription_start_day": {"api_field": "billingCycleTypes[]", "type": "boolean", "api_value_if_true": "SubscriptionStartDay"},
+      "charge_trigger_day": {"api_field": "billingCycleTypes[]", "type": "boolean", "api_value_if_true": "ChargeTriggerDay"},
+      "specific_day_of_week": {"api_field": "billingCycleTypes[]", "type": "boolean", "api_value_if_true": "SpecificDayofWeek"},
+      "term_start_day": {"api_field": "billingCycleTypes[]", "type": "boolean", "api_value_if_true": "TermStartDay"},
+      "term_end_day": {"api_field": "billingCycleTypes[]", "type": "boolean", "api_value_if_true": "TermEndDay"},
+      "billing_period_start_days_1st_30th_": {"api_field": "billingPeriodStartDays[]", "type": "boolean", "api_value_if_true": "1st..30th (all days)"},
+      "end_of_month_eom_": {"api_field": "billingPeriodStartDays[]", "type": "boolean", "api_value_if_true": "EndOfMonth"},
+      "autoset": {"api_field": "billingPeriodStartDays[]", "type": "boolean", "api_value_if_true": "AutoSet"},
+      "list_price_base_billing_period": {"api_field": "listPriceBase[]", "type": "boolean", "api_value_if_true": "Per_Billing_Period"},
+      "list_price_base_month": {"api_field": "listPriceBase[]", "type": "boolean", "api_value_if_true": "Per_Month"},
+      "list_price_base_week": {"api_field": "listPriceBase[]", "type": "boolean", "api_value_if_true": "Per_Week"},
+      "list_price_base_year": {"api_field": "listPriceBase[]", "type": "boolean", "api_value_if_true": "Per_Year"},
+      "list_price_base_specific_months": {"api_field": "listPriceBase[]", "type": "boolean", "api_value_if_true": "Per_Specific_Months"}
+    }
+  },
+  "z_billing.enable_charge_types_models": {
+    "api_endpoint": "/charge-types, /charge-models",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "notes": "Two separate API calls. Each UI field is a boolean toggle. If True the value is added to the respective array. OneTime and Recurring are always included in chargeTypes.",
+    "fields": {
+      "usage_based_pricing": {"api_field": "chargeTypes[]", "type": "boolean", "api_value_if_true": "Usage"},
+      "flat_fee_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "FlatFee"},
+      "per_unit_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "PerUnit"},
+      "overage_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "Overage"},
+      "volume_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "Volume"},
+      "tiered_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "Tiered"},
+      "tiered_with_overage_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "TieredWithOverage"},
+      "discount_fixed_amount": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "DiscountFixedAmount"},
+      "discount_percentage": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "DiscountPercentage"},
+      "multi_attribute_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "MultiAttributePricing"},
+      "delivery_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "Delivery"},
+      "minimum_commitment": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "MinimumCommitment"},
+      "high_water_mark_tiered_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "HighWaterMarkTieredPricing"},
+      "high_water_mark_volume_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "HighWaterMarkVolumePricing"},
+      "pre_rated_per_unit": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "PreratedPerUnit"},
+      "pre_rated_pricing": {"api_field": "chargeModels[]", "type": "boolean", "api_value_if_true": "PreratedPricing"}
+    }
+  },
+  "z_billing.customize_currencies": {
+    "api_endpoint": "/currencies",
+    "http_method": "PUT",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "Sends { currencies: [{...}] }. currency and decimal_places fields are not syncable.",
+    "fields": {
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      },
+      "alphabetic_code": {
+        "api_field": "currencyCode",
+        "type": "string",
+        "notes": "Uppercased before sending"
+      },
+      "rounding_mode": {
+        "api_field": "roundingMode",
+        "type": "enum",
+        "value_map": {
+          "Up": "Up",
+          "Down": "Down",
+          "Half Up": "HalfUp"
+        }
+      },
+      "rounding_increment": {
+        "api_field": "roundingIncrement",
+        "type": "number"
+      },
+      "rate": {
+        "api_field": "rate",
+        "type": "number"
+      },
+      "default": {
+        "api_field": "default",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      }
+    }
+  },
+  "z_billing.define_discount_settings": {
+    "api_endpoint": "/discount-settings, /discount-settings/{id}",
+    "http_method": "PUT/POST",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by name, then PUT to update or POST to create",
+    "fields": {
+      "discount_class": {
+        "api_field": "name",
+        "type": "string"
+      },
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      }
+    }
+  },
+  "z_billing.define_document_sequence_sets": {
+    "api_endpoint": "/doc-prefixes",
+    "http_method": "PUT",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "Only index [0] is synced. Sends nested objects: invoice, paymentPrefix, refundPrefix, creditMemo, debitMemo each with {prefix, startNum}",
+    "fields": {
+      "invoice_prefix": {"api_field": "invoice.prefix", "type": "string"},
+      "invoice_starting_document_number": {"api_field": "invoice.startNum", "type": "integer"},
+      "payment_prefix": {"api_field": "paymentPrefix.prefix", "type": "string"},
+      "payment_starting_document_number": {"api_field": "paymentPrefix.startNum", "type": "integer"},
+      "refund_prefix": {"api_field": "refundPrefix.prefix", "type": "string"},
+      "refund_starting_document_number": {"api_field": "refundPrefix.startNum", "type": "integer"},
+      "credit_memo_prefix": {"api_field": "creditMemo.prefix", "type": "string"},
+      "credit_memo_starting_document_number": {"api_field": "creditMemo.startNum", "type": "integer"},
+      "debit_memo_prefix": {"api_field": "debitMemo.prefix", "type": "string"},
+      "debit_memo_starting_document_number": {"api_field": "debitMemo.startNum", "type": "integer"}
+    }
+  },
+  "z_billing.define_numbering_and_sku_formats": {
+    "api_endpoint": "/numbers-and-skus",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "account_number_prefix": {
+        "api_field": "billingAccountprefix",
+        "type": "string",
+        "notes": "API field has lowercase 'p' in prefix (API typo)"
+      },
+      "sku_prefix": {"api_field": "skuPrefix", "type": "string"},
+      "subscription_number_prefix": {"api_field": "subscriptionNumberPrefix", "type": "string"},
+      "charge_number_prefix": {"api_field": "chargeNumberPrefix", "type": "string"},
+      "amendment_number_prefix": {"api_field": "amendmentNumberPrefix", "type": "string"},
+      "subscription_rate_plan_number_prefix": {"api_field": "subscriptionRatePlanNumberPrefix", "type": "string"},
+      "product_number_prefix": {"api_field": "productNumberPrefix", "type": "string"},
+      "product_rate_plan_number_prefix": {"api_field": "productRatePlanNumberPrefix", "type": "string"},
+      "product_rate_plan_charge_number_prefix": {"api_field": "productRatePlanChargeNumberPrefix", "type": "string"},
+      "sequence_set_number_prefix": {"api_field": "sequenceSetNumberPrefix", "type": "string"},
+      "invoice_template_number_prefix": {"api_field": "invoiceTemplateNumberPrefix", "type": "string"}
+    }
+  },
+  "z_billing.customize_payment_terms": {
+    "api_endpoint": "/payment-terms, /payment-terms/{id}",
+    "http_method": "PUT/POST",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by name, then PUT to update or POST to create. intervalUnit is read-only and skipped. details has no API equivalent.",
+    "fields": {
+      "name": {"api_field": "name", "type": "string"},
+      "default": {
+        "api_field": "isDefault",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      },
+      "active": {
+        "api_field": "isActive",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      },
+      "interval_number": {"api_field": "intervalNumber", "type": "integer"},
+      "payment_due_day": {"api_field": "paymentDueDay", "type": "integer"},
+      "invoice_cutoff_day": {"api_field": "invoiceCutoffDay", "type": "integer"},
+      "type": {
+        "api_field": "type",
+        "type": "enum",
+        "value_map": {
+          "NetPaymentTerm": "NetPaymentTerm",
+          "ProxPaymentTerm": "ProxPaymentTerm"
+        }
+      }
+    }
+  },
+  "z_billing.manage_revenue_recognition_codes": {
+    "api_endpoint": "/revenue-recognition-codes, /revenue-recognition-codes/{id}",
+    "http_method": "PUT/POST",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by code name, then PUT to update or POST to create. enable_revenue_recognition_fields is not syncable.",
+    "fields": {
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      },
+      "revenue_recognition_code_name": {"api_field": "code", "type": "string"}
+    }
+  },
+  "z_billing.define_default_subscription_and_order_settings": {
+    "api_endpoint": "/subscription-settings",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "default_term_type": {
+        "api_field": "termType",
+        "type": "enum",
+        "value_map": {
+          "evergreen": "EVERGREEN",
+          "termed": "TERMED"
+        }
+      },
+      "default_initial_term_months_": {
+        "api_field": "initialTerm",
+        "type": "integer",
+        "notes": "Clamped to 0-999"
+      },
+      "default_renewal_term_months_": {
+        "api_field": "renewalTerm",
+        "type": "integer",
+        "notes": "Clamped to 0-999"
+      },
+      "default_subscriptions_to_auto_renew_": {
+        "api_field": "contractRenewal",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "require_customer_acceptance_of_orders_": {
+        "api_field": "acceptanceOfOrders",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_subscriptions_to_be_invoiced_separately_": {
+        "api_field": "subscriptionsInvoicedSeparately",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_automatic_price_change_when_subscriptions_are_renewed_": {
+        "api_field": "increasePriceRenewSubscription",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "subscription_auto_renew_job_type": {
+        "api_field": "autoRenewJobRunTimeType",
+        "type": "enum",
+        "value_map": {
+          "System Default": "SystemDefault",
+          "SystemDefault": "SystemDefault",
+          "Tenant": "TenantSpecified",
+          "Specified": "TenantSpecified"
+        },
+        "default": "SystemDefault"
+      },
+      "calculate_tax_for_tcb_and_elp_metrics_": {
+        "api_field": "orderMetricsTaxationOption",
+        "type": "enum",
+        "value_map": {
+          "Yes": "YES",
+          "YES": "YES",
+          "No": "NO",
+          "NO": "NO",
+          "only": "ONLY_FOR_TAX_INCLUSIVE_CHARGES",
+          "inclusive": "ONLY_FOR_TAX_INCLUSIVE_CHARGES"
+        },
+        "default": "NO"
+      },
+      "update_rate_plan_charge_trigger_condition_": {
+        "api_field": "updateChargeTriggerCondition",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "allow_update_subscription_trigger_dates_": {
+        "api_field": "updateSubscriptionActivationDate",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_force_deletion_for_account_": {
+        "api_field": "skipOwnerTransferValidationForDeletionAccount",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_subscription_auto_renew_when_there_s_no_product_in_subscription_": {
+        "api_field": "renewNoChargeSubscription",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_account_level_discount_": {
+        "api_field": "enableAccountLevelDiscount",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "default_price_change_for_product_charges": {
+        "api_field": "priceChangeOption",
+        "type": "enum",
+        "value_map": {
+          "specific": "SpecificPercentageValue",
+          "percentage": "SpecificPercentageValue",
+          "latest": "UseLatestProductCatalogPricing",
+          "catalog": "UseLatestProductCatalogPricing"
+        },
+        "default": "NoChange"
+      },
+      "enable_feature_specification_in_products_and_subscriptions_": {
+        "api_field": "productFeatureOfSubscription",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "skip_amendment_generation_by_subscribe_": {
+        "api_field": "skipAmendmentGenerationBySubscribe",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_order_ui_": {
+        "api_field": "enableOrderUI",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "auto_renew_by_order_": {
+        "api_field": "autoRenewByOrder",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "turn_off_amendments_in_the_ui_": {
+        "api_field": "turnOffAmendmentsInTheUI",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "enable_order_for_cpq_": {
+        "api_field": "enableOrderCpq",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      }
+    }
+  },
+  "z_billing.set_up_taxation_codes": {
+    "api_endpoint": "/tax-codes, /tax-codes/{id}",
+    "http_method": "PUT",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by name, then PUT to update. POST not supported by API for new tax codes.",
+    "fields": {
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      },
+      "tax_code_name": {"api_field": "name", "type": "string"},
+      "decimal_places": {"api_field": "decimalPlaces", "type": "integer", "notes": "Range 0-999"}
+    }
+  },
+  "z_billing.set_up_tax_engine_and_tax_date": {
+    "api_endpoint": "/tax-engines",
+    "http_method": "POST",
+    "type": "SINGLETON",
+    "fields": {
+      "tax_engine_name": {"api_field": "name", "type": "string"},
+      "tax_engine": {"api_field": "taxEngine", "type": "string"},
+      "tax_date_country_region": {"api_field": "taxDateCountryRegion", "type": "string"},
+      "tax_date": {"api_field": "taxDate", "type": "string"}
+    }
+  },
+  "z_billing.customize_units_of_measure": {
+    "api_endpoint": "/units-of-measure, /units-of-measure/{id}",
+    "http_method": "PUT/POST",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by name, then PUT to update or POST to create. Defaults applied if precision/roundingMode/displayAs missing.",
+    "fields": {
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"True": true, "False": false}
+      },
+      "name": {"api_field": "name", "type": "string"},
+      "displayed_as": {"api_field": "displayAs", "type": "string"},
+      "decimal_places": {
+        "api_field": "precision",
+        "type": "integer",
+        "notes": "Range 0-9"
+      },
+      "rounding_mode": {
+        "api_field": "roundingMode",
+        "type": "enum",
+        "value_map": {
+          "Up": "Up",
+          "Down": "Down",
+          "Ceiling": "Ceiling",
+          "Floor": "Floor",
+          "Half Up": "HalfUp",
+          "Half Down": "HalfDown",
+          "Half Even": "HalfEven"
+        }
+      },
+      "usage_log_file_label": {"api_field": "usageLogFileLabel", "type": "string"}
+    }
+  },
+  "z_payments.application_rule": {
+    "api_endpoint": "/application-rules",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "default_application_rule_for_apply": {
+        "api_field": "applyItemAllocationRule",
+        "type": "enum",
+        "value_map": {
+          "Proration": "ApplyProrationRule",
+          "First In First Out": "ApplyFirstInFirstOut"
+        }
+      },
+      "default_application_rule_for_unapply": {
+        "api_field": "unapplyItemAllocationRule",
+        "type": "enum",
+        "value_map": {
+          "First In First Out": "UnapplyFirstInFirstOut",
+          "Proration": "UnapplyProrationRule"
+        }
+      }
+    }
+  },
+  "z_payments.hosted_payment_pages": {
+    "api_endpoint": "/hosted-payment-method-pages, /hosted-payment-method-pages/{id}",
+    "http_method": "PUT/POST",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by pageName, then PUT to update or POST to create.",
+    "fields": {
+      "page_name": {"api_field": "pageName", "type": "string"},
+      "payment_gateway": {"api_field": "paymentGateway", "type": "string"},
+      "payment_method_type": {
+        "api_field": "type",
+        "type": "enum",
+        "value_map": {
+          "Credit Card": "HostedPaymentMethod_CreditCard",
+          "Bank Transfer-ACH": "HostedPaymentMethod_ACH",
+          "ACH": "HostedPaymentMethod_ACH",
+          "GCash": "HostedPaymentMethod_GCash",
+          "PayPal": "HostedPaymentMethod_PayPal",
+          "Debit Card": "HostedPaymentMethod_DebitCard",
+          "SEPA": "HostedPaymentMethod_SEPA",
+          "SEPA Direct Debit": "HostedPaymentMethod_SEPA",
+          "Bank Transfer": "HostedPaymentMethod_BankTransfer",
+          "Pix": "HostedPaymentMethod_Pix",
+          "Ideal": "HostedPaymentMethod_Ideal",
+          "iDEAL": "HostedPaymentMethod_Ideal",
+          "PAD": "HostedPaymentMethod_PAD",
+          "Autogiro": "HostedPaymentMethod_Autogiro",
+          "Betalingsservice": "HostedPaymentMethod_Betalingsservice",
+          "Direct Debit NZ": "HostedPaymentMethod_DirectDebitNZ",
+          "Direct Entry AU": "HostedPaymentMethod_DirectEntryAU",
+          "Credit Card Reference": "HostedPaymentMethod_CreditCardReference",
+          "UPI": "HostedPaymentMethod_UPI",
+          "OVO": "HostedPaymentMethod_OVO",
+          "MomoPay": "HostedPaymentMethod_MomoPay",
+          "KakaoPay": "HostedPaymentMethod_KaKaoPay"
+        }
+      }
+    }
+  },
+  "z_payments.payment_gateway": {
+    "api_endpoint": "/payment-gateways, /payment-gateways/{id}",
+    "http_method": "PUT",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by gatewayName, PUT to update. POST not supported - gateways cannot be created via API.",
+    "fields": {
+      "gateway_type": {"api_field": "paymentGatewayType", "type": "string"},
+      "name": {"api_field": "gatewayName", "type": "string"},
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"true": true, "false": false}
+      }
+    }
+  },
+  "z_payments.payment_methods": {
+    "api_endpoint": "/payment-methods",
+    "http_method": "PUT",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET current types, merge with inferred (add active, remove inactive), send { paymentMethodTypes: [...] }. accounting_code not syncable.",
+    "fields": {
+      "name": {
+        "api_field": "paymentMethodTypes[]",
+        "type": "enum",
+        "value_map": {
+          "Credit Card": "CreditCard",
+          "ACH": "ACH",
+          "Wire Transfer": "WireTransfer",
+          "Bank Transfer": "BankTransfer",
+          "PayPal": "PayPal",
+          "Check": "Check",
+          "Debit Card": "DebitCard",
+          "Credit Card Reference Transaction": "CreditCardReferenceTransaction",
+          "ACH Debit": "ACHDebit",
+          "Apple Pay": "ApplePay",
+          "Google Pay": "GooglePay",
+          "SEPA Direct Debit": "SEPADirectDebit",
+          "Betalingsservice Direct Debit": "BetalingsserviceDirectDebit",
+          "Autogiro Direct Debit": "AutogiroDirectDebit",
+          "Bacs Direct Debit": "BacsDirectDebit",
+          "Becs Direct Debit": "BecsDirectDebit",
+          "Pad Direct Debit": "PadDirectDebit",
+          "Paypal Express Checkout": "PaypalExpressCheckout",
+          "Paypal Native Express Checkout": "PaypalNativeExpressCheckout",
+          "Paypal Adaptive": "PaypalAdaptive",
+          "Adyen Google Pay": "AdyenGooglePay",
+          "Adyen Apple Pay": "AdyenApplePay"
+        }
+      },
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"true": true, "false": false},
+        "notes": "Controls whether name is added (true) or removed (false) from paymentMethodTypes array"
+      }
+    }
+  },
+  "z_payments.payment_retry_rules": {
+    "api_endpoint": "/payment-retry-rules",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "notes": "GET current values first as defaults, then override with inferred values. All 3 fields required.",
+    "fields": {
+      "enable_payment_run_retry_rules": {
+        "api_field": "isEnabled",
+        "type": "boolean",
+        "value_map": {"true": true, "Yes": true, "false": false, "No": false}
+      },
+      "maximum_number_of_payment_failures_per_payment_method_allowed": {
+        "api_field": "maxConsecutivePaymentFailures",
+        "type": "integer"
+      },
+      "retry_interval_hours_": {
+        "api_field": "paymentRetryWindow",
+        "type": "integer"
+      }
+    }
+  },
+  "z_payments.payment_rules": {
+    "api_endpoint": "/payment-rules",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "validate_credit_card_expiration_date": {
+        "api_field": "enableCreditCardDateValidation",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      }
+    }
+  },
+  "z_payments.reason_codes": {
+    "api_endpoint": "/reason-codes, /reason-codes/{id}",
+    "http_method": "PUT/POST",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by reasonCodeName, then PUT to update (without reasonCodeTransactionType) or POST to create (requires reasonCodeTransactionType).",
+    "fields": {
+      "reason_code_name": {"api_field": "reasonCodeName", "type": "string"},
+      "active": {
+        "api_field": "isActive",
+        "type": "boolean",
+        "value_map": {"true": true, "false": false}
+      },
+      "default": {
+        "api_field": "isDefault",
+        "type": "boolean",
+        "value_map": {"true": true, "false": false}
+      },
+      "category": {
+        "api_field": "reasonCodeTransactionType",
+        "type": "enum",
+        "value_map": {
+          "Payment Refund": "RefundPayment",
+          "Credit Balance Refund": "RefundCreditBalance",
+          "Invoice Item Adjustment": "InvoiceItemAdjustment",
+          "Invoice Adjustment": "InvoiceAdjustment",
+          "Credit Balance Adjustment": "CreditBalanceAdjustment",
+          "Credit Memo": "CreditMemo",
+          "Debit Memo": "DebitMemo",
+          "Credit Memo Refund": "RefundCreditMemo",
+          "Return Order": "ReturnOrder"
+        }
+      }
+    }
+  },
+  "z_payments.account_validations": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint available"
+  },
+  "z_payments.cit_mit_configuration": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint for CIT/MIT configuration"
+  },
+  "z_payments.gateway_reconciliation_configuration": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint for gateway reconciliation configuration"
+  },
+  "z_payments.manage_features": {
+    "syncable": false,
+    "notes": "Not syncable - payment feature toggles not exposed via Settings API"
+  },
+  "z_payments.payment_method_updater": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint for payment method updater configuration"
+  },
+  "z_payments.payment_pages_hpm_2_0_": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint for HPM 2.0 rate limiting"
+  },
+  "z_payments.real_time_reconciliation": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint for real-time reconciliation configuration"
+  },
+  "z_finance.accounting_code_settings": {
+    "api_endpoint": "/default-accounting-codes",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "accounting_code_category": {"api_field": "accountingCodeCategory", "type": "string"},
+      "payment_method_type": {"api_field": "paymentMethodType", "type": "string"},
+      "debit_accounting_code_bank_account": {"api_field": "debitAccountingCodeBankAccount", "type": "string"},
+      "debit_accounting_code_accounts_receivable": {"api_field": "debitAccountingCodeAccountsReceivable", "type": "string"},
+      "debit_accounting_code_unapplied_payment": {"api_field": "debitAccountingCodeUnappliedPayment", "type": "string"},
+      "credit_accounting_code_accounts_receivable": {"api_field": "creditAccountingCodeAccountsReceivable", "type": "string"}
+    }
+  },
+  "z_finance.accounting_rules": {
+    "api_endpoint": "/accounting-rules",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "allow_blank_accounting_codes": {
+        "api_field": "allowBlankAccountingCodes",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "allow_subscription_and_amendments_to_be_created_in_a_closed_accounting_period": {
+        "api_field": "allowCreationInClosedPeriod",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "allow_usage_to_be_created_in_a_closed_accounting_period": {
+        "api_field": "allowUsageInClosedPeriod",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "allow_revenue_schedules_to_have_negative_amounts_in_the_open_ended_accounting_period": {
+        "api_field": "allowRevenueScheduleNegativeAmounts",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      },
+      "aggregate_transactions_with_different_currencies_during_a_journal_run": {
+        "api_field": "differentCurrencies",
+        "type": "boolean",
+        "value_map": {"Yes": true, "True": true, "No": false, "False": false}
+      }
+    }
+  },
+  "z_finance.aging_balance_settings": {
+    "api_endpoint": "/aging-buckets",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "notes": "Flat UI fields are assembled into { includeNegativeInvoice, buckets: [{name, fromDaysPastDue, toDaysPastDue}] }",
+    "fields": {
+      "include_negative_invoices_in_aging_bucket_balances": {
+        "api_field": "includeNegativeInvoice",
+        "type": "boolean",
+        "value_map": {"Yes": true, "No": false}
+      },
+      "bucket_1_name": {"api_field": "buckets[0].name", "type": "string"},
+      "bucket_1_from_days_past_due_": {"api_field": "buckets[0].fromDaysPastDue", "type": "integer"},
+      "bucket_1_to_days_past_due_": {"api_field": "buckets[0].toDaysPastDue", "type": "integer"},
+      "bucket_2_name": {"api_field": "buckets[1].name", "type": "string"},
+      "bucket_2_from_days_past_due_": {"api_field": "buckets[1].fromDaysPastDue", "type": "integer"},
+      "bucket_2_to_days_past_due_": {"api_field": "buckets[1].toDaysPastDue", "type": "integer"},
+      "bucket_3_name": {"api_field": "buckets[2].name", "type": "string"},
+      "bucket_3_from_days_past_due_": {"api_field": "buckets[2].fromDaysPastDue", "type": "integer"},
+      "bucket_3_to_days_past_due_": {"api_field": "buckets[2].toDaysPastDue", "type": "integer"},
+      "bucket_4_name": {"api_field": "buckets[3].name", "type": "string"},
+      "bucket_4_from_days_past_due_": {"api_field": "buckets[3].fromDaysPastDue", "type": "integer"},
+      "bucket_4_to_days_past_due_": {"api_field": "buckets[3].toDaysPastDue", "type": "integer"},
+      "bucket_5_name": {"api_field": "buckets[4].name", "type": "string"},
+      "bucket_5_from_days_past_due_": {"api_field": "buckets[4].fromDaysPastDue", "type": "integer"},
+      "bucket_5_to_days_past_due_": {"api_field": "buckets[4].toDaysPastDue", "type": "integer"},
+      "bucket_6_name": {"api_field": "buckets[5].name", "type": "string"},
+      "bucket_6_from_days_past_due_": {"api_field": "buckets[5].fromDaysPastDue", "type": "integer"},
+      "bucket_6_to_days_past_due_": {"api_field": "buckets[5].toDaysPastDue", "type": "integer"}
+    }
+  },
+  "z_finance.chart_of_accounts": {
+    "api_endpoint": "/chart-of-accounts, /chart-of-accounts/{id}",
+    "http_method": "PUT/POST",
+    "type": "COLLECTION",
+    "collection": true,
+    "notes": "GET existing by name, then PUT to update or POST to create. 'active' field removed from API payload (not accepted by PUT or POST).",
+    "fields": {
+      "accounting_code_name": {"api_field": "name", "type": "string"},
+      "category": {"api_field": "category", "type": "string"},
+      "type": {
+        "api_field": "type",
+        "type": "string",
+        "notes": "Spaces removed: 'Accounts Receivable' -> 'AccountsReceivable'"
+      },
+      "gl_account_name": {"api_field": "glaccountName", "type": "string"},
+      "gl_account_number": {"api_field": "glaccountNumber", "type": "string"},
+      "active": {
+        "api_field": "active",
+        "type": "boolean",
+        "value_map": {"Yes": true, "No": false},
+        "notes": "Tracked internally but not sent to API"
+      }
+    }
+  },
+  "z_finance.currency_conversion": {
+    "api_endpoint": "/fx-currencies",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "fields": {
+      "home_currency": {"api_field": "homeCurrencyCode", "type": "string"},
+      "exchange_rate_provider": {
+        "api_field": "customRateEnabled",
+        "type": "boolean",
+        "value_map": {
+          "Oanda": false,
+          "Use a custom exchange rate provider": true
+        },
+        "notes": "false if Oanda, true for anything else"
+      },
+      "exchange_rate_date": {
+        "api_field": "rateDateType",
+        "type": "enum",
+        "value_map": {
+          "Daily": "Daily",
+          "Day of the Month": "Monthly"
+        }
+      },
+      "provider_exchange_rate_date_offset": {"api_field": "rateOffset", "type": "integer"},
+      "day_of_the_month": {
+        "api_field": "dayOfMonth",
+        "type": "integer",
+        "notes": "'EOM (End of Month)' -> 31, otherwise parse ordinal number"
+      },
+      "use_inverse_rate": {
+        "api_field": "useInverseRate",
+        "type": "boolean",
+        "value_map": {"Yes": true, "No": false}
+      },
+      "rounding_mode": {
+        "api_field": "roundingMode",
+        "type": "enum",
+        "value_map": {
+          "Down": "RoundDown",
+          "Half Up": "RoundHalfUp"
+        }
+      },
+      "automatically_include_additional_currency_conversion_information_in_data_source_exports": {
+        "api_field": "exportEnabled",
+        "type": "boolean",
+        "value_map": {"Yes": true, "No": false}
+      }
+    }
+  },
+  "z_finance.feature_management_finance_": {
+    "syncable": false,
+    "notes": "Not syncable - finance feature management not exposed via Settings API"
+  },
+  "tenant_admin.manage_tenant_profile": {
+    "api_endpoint": "/entity-profile-info",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "notes": "tenant_id, tenant_name, tenant_status, time_zone, storage_limit, available_storage, maximum_number_of_attachments_per_record, csv_injection_policy are not syncable.",
+    "fields": {
+      "email": {"api_field": "email", "type": "string"},
+      "address": {"api_field": "address1", "type": "string"},
+      "city": {"api_field": "city", "type": "string"},
+      "state": {"api_field": "state", "type": "string"},
+      "postal_code": {"api_field": "postalCode", "type": "string"},
+      "country": {"api_field": "country", "type": "string"},
+      "locale": {
+        "api_field": "locale",
+        "type": "enum",
+        "value_map": {
+          "English (United States)": "en_US",
+          "English (United Kingdom)": "en_GB",
+          "French": "fr_FR",
+          "German": "de_DE",
+          "Japanese": "ja_JP",
+          "Chinese": "zh_CN"
+        },
+        "notes": "If already in locale code format (e.g. en_US) passed through as-is"
+      },
+      "banner_color": {
+        "api_field": "bannerColor",
+        "type": "enum",
+        "value_map": {
+          "#E91E63": "Rose",
+          "#e91e63": "Rose",
+          "#009688": "Teal",
+          "#00FFFF": "Aqua",
+          "#00ffff": "Aqua",
+          "#000080": "Navy",
+          "#607D8B": "Blue_Grey",
+          "#607d8b": "Blue_Grey",
+          "Rose": "Rose",
+          "Teal": "Teal",
+          "Aqua": "Aqua",
+          "Navy": "Navy",
+          "Blue_Grey": "Blue_Grey"
+        },
+        "default": "Blue_Grey"
+      },
+      "banner_label": {"api_field": "bannerLabel", "type": "string"},
+      "display_environment_banner": {
+        "api_field": "displayEnvironmentBanner",
+        "type": "boolean",
+        "notes": "Uses Boolean.parseBoolean(valueStr)"
+      }
+    }
+  },
+  "tenant_admin.security_policies": {
+    "api_endpoint": "/security-policies",
+    "http_method": "PUT",
+    "type": "SINGLETON",
+    "notes": "public_key is not syncable (read-only). Some UI values are not directly supported by the API and are rounded to nearest supported value.",
+    "fields": {
+      "password_complexity_requirement": {
+        "api_field": "passwordComplexityRequirement",
+        "type": "enum",
+        "value_map": {
+          "None": "None",
+          "mix upper and lower case": "Characters",
+          "Must Mix 3": "ContainAll",
+          "Must Mix 4": "ContainAll"
+        },
+        "default": "None"
+      },
+      "enforce_password_history": {
+        "api_field": "enforcePasswordHistory",
+        "type": "integer",
+        "value_map": {
+          "None": 0,
+          "0": 0,
+          "1 Password": 0,
+          "3 Passwords": 4,
+          "5 Passwords": 4,
+          "7 Passwords": 7,
+          "10 Passwords": 7,
+          "12 Passwords": 7
+        },
+        "default": 0,
+        "notes": "API enum: [0, 4, 7]. UI values not directly supported are rounded to nearest."
+      },
+      "password_expiration": {
+        "api_field": "passwordExpiration",
+        "type": "integer",
+        "value_map": {
+          "Never": 0,
+          "30 Days": 30,
+          "60 Days": 60,
+          "90 Days": 90,
+          "180 Days": 90,
+          "365 Days": 90
+        },
+        "default": 90,
+        "notes": "API enum: [0, 30, 60, 90]. Values >90 rounded to 90."
+      },
+      "minimum_password_length": {
+        "api_field": "minimumPasswordLength",
+        "type": "integer",
+        "value_map": {
+          "8 Characters": 8,
+          "10 Characters": 10,
+          "12 Characters": 12,
+          "14 Characters": 12,
+          "16 Characters": 12
+        },
+        "default": 8,
+        "notes": "API enum: [7, 8, 10, 12]. Values >12 rounded to 12."
+      },
+      "maximum_invalid_login_attempts": {
+        "api_field": "maximumInvalidLoginAttempts",
+        "type": "integer",
+        "value_map": {
+          "Unlimited": 10
+        },
+        "notes": "API range: [3-10]. Unlimited maps to 10."
+      },
+      "lockout_effective_period": {
+        "api_field": "lockoutEffectivePeriod",
+        "type": "integer",
+        "value_map": {
+          "5 Minutes": 20,
+          "10 Minutes": 20,
+          "15 Minutes": 20,
+          "20 Minutes": 20,
+          "30 Minutes": 30,
+          "60 Minutes": 60,
+          "Until Administrator Unlock": 60
+        },
+        "default": 20,
+        "notes": "API enum: [20, 30, 60]. Values <20 rounded to 20."
+      },
+      "session_timeout": {
+        "api_field": "sessionTimeout",
+        "type": "integer",
+        "value_map": {
+          "15 Minutes": 15,
+          "30 Minutes": 30,
+          "1 Hour": 60,
+          "2 Hours": 120,
+          "4 Hours": 240,
+          "8 Hours": 480
+        },
+        "default": 120,
+        "notes": "API enum: [15, 30, 60, 120, 240, 480]."
+      },
+      "two_factor_authentication": {
+        "api_field": "twoFactor",
+        "type": "boolean",
+        "value_map": {
+          "Required": true,
+          "Optional": false,
+          "Disabled": false
+        },
+        "notes": "API is boolean only - Optional maps to false."
+      }
+    }
+  },
+  "tenant_admin.api_versioning": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint for API versioning configuration"
+  },
+  "tenant_admin.aqua_stateful_time_offset": {
+    "syncable": false,
+    "notes": "Not syncable - no Settings API endpoint for AQuA time offset configuration"
+  },
+  "tenant_admin.manage_oauth_2_0_providers": {
+    "syncable": false,
+    "notes": "Not syncable - OAuth 2.0 providers require dedicated management APIs"
+  },
+  "tenant_admin.manage_user_roles": {
+    "syncable": false,
+    "notes": "Not syncable - user roles require dedicated user management APIs"
+  },
+  "tenant_admin.manage_users": {
+    "syncable": false,
+    "notes": "Not syncable - users require dedicated user management APIs"
+  }
+}
