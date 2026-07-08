@@ -58,7 +58,7 @@ Field mappings appear in: ZUORA_USAGE and ZUORA_RATING sink `metadata.fieldMappi
 
 **Always resolve every entity reference** (event store, schema, connection) through the API — regardless of whether the user provides a name or a numeric ID. The `query` parameter accepts either; the API matches by both name and ID and returns all matches.
 
-Use the appropriate operation on `mcp__zuora-mcp__manage_mediation_meters`:
+Use the appropriate operation on `mcp__zuora-mcp__manage_meters`:
 
 - **Event store** → call with `operation: "list_event_stores"` and `query: "<name or id>"` — use the `id` from the returned result as `storeId`; the response also contains store metadata
 - **Schema** → call with `operation: "list_schemas"` and `query: "<name or id>"` — use the `id` from the returned result as `schemaId`; the response also contains the full field definitions

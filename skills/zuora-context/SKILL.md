@@ -1,6 +1,6 @@
 ---
 name: zuora-context
-description: This skill should be used when the user mentions "Zuora API", "Zuora SDK", "Zuora Billing", "Zuora Revenue", "Zuora CPQ", "Zuora Payments", "subscription billing", "invoice settlement", "zuora-mcp", "rate plan", "product rate plan charge", "order API", or discusses integration with Zuora systems. Do not activate for generic billing or subscription discussions that are not Zuora-specific.
+description: This skill should be used when the user mentions "Zuora API", "Zuora SDK", "Zuora Billing", "Zuora Revenue", "Zuora CPQ", "Zuora Payments", "subscription billing", "invoice settlement", "zuora-mcp", "rate plan", "product rate plan charge", "order API", "tenant settings", "billing configuration", "configure tenant", "billing rules", "payment terms", "Zuora settings", or discusses integration with or configuration of Zuora systems. Do not activate for generic billing or subscription discussions that are not Zuora-specific.
 version: 1.0.0
 ---
 
@@ -31,6 +31,7 @@ When generating code for the customer's repository, output Zuora REST API or SDK
 
 **Operational tools** (for testing/validating generated artifacts against the tenant, or other available MCP tools):
 - **`mcp__zuora-mcp__manage_workflows`** / **`mcp__zuora-mcp__manage_workflow_runs`** — Import, export, list workflows, and execute or monitor workflow runs in the tenant.
+- **`mcp__zuora-mcp__manage_meters`** / **`mcp__zuora-mcp__manage_meters_run`** — Create, validate, import/export meter definitions, and run meters, check run status, run history, audit trail, and prefetch management.
 - **`mcp__zuora-mcp__create_subscriptions`** / **`manage_subscriptions`** — Create or manage subscriptions for validation.
 - **`mcp__zuora-mcp__manage_billing_documents`** — Verify billing document generation.
 - Other `manage_*` tools as needed for their specific domains.
@@ -57,6 +58,8 @@ If the user's intent clearly maps to a dedicated skill, **do not answer generica
 | Building meter JSON | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-meter-build/SKILL.md` |
 | Designing dynamic pricing / Commerce Catalog | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-dynamic-pricing-design/SKILL.md` |
 | Setting up dynamic pricing on tenant | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-dynamic-pricing-build/SKILL.md` |
+| Configuring tenant billing settings / inferring settings from business documents or requirements | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-tenant-config-design/SKILL.md` |
+| Applying tenant configuration changes to a Zuora tenant | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-tenant-config-build/SKILL.md` |
 | Validating code or payloads | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-validate/SKILL.md` |
 | Reviewing implementation | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-review/SKILL.md` |
 | UAT/E2E test lifecycle (SDD → TR matrix → generate → run) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-uat-context/SKILL.md` |

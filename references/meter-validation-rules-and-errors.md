@@ -2,7 +2,7 @@
 
 ## How to Use This Reference
 
-Before importing a meter, call `validate_meter` via `mcp__zuora-mcp__manage_mediation_meters`:
+Before importing a meter, call `validate_meter` via `mcp__zuora-mcp__manage_meters`:
 
 ```json
 { "operation": "validate_meter", "tasks": <the tasks[] array from the composed JSON> }

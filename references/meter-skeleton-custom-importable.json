@@ -1,0 +1,68 @@
+{
+  "_comment": "Importable meter envelope for CUSTOM meters — for file-based import via the Mediation UI. CRITICAL DIFFERENCES from the internal meter JSON (used by create_meter): (1) tasks are nested inside versions[], not at the top level; (2) schemas[] is embedded inline; (3) latestVersion is required and must not be empty; (4) each task requires uniqueName (single letter a/b/c...) and internalName (null); (5) predecessors use [{\"id\": \"uuid\"}] objects — NOT plain strings; (6) schemaId and storeId must be the entity NAME string — NOT the numeric ID.",
+  "name": "<meter name>",
+  "description": "",
+  "type": "CUSTOM",
+  "typeDefinition": null,
+  "latestVersion": "0.0.1",
+  "versions": [
+    {
+      "version": "0.0.1",
+      "versionDetail": "",
+      "metadata": {
+        "flowDirection": "vertical"
+      },
+      "tasks": [
+        {
+          "id": "<uuid>",
+          "name": "<task name>",
+          "uniqueName": "a",
+          "internalName": null,
+          "nodeType": "SOURCE",
+          "operatorType": "<e.g. S3>",
+          "predecessors": [],
+          "metadata": {}
+        },
+        {
+          "id": "<uuid>",
+          "name": "<task name>",
+          "uniqueName": "b",
+          "internalName": null,
+          "nodeType": "PROCESSOR",
+          "operatorType": "<e.g. SCRIPT_FILTER>",
+          "predecessors": [
+            {"id": "<predecessor uuid>"}
+          ],
+          "metadata": {}
+        },
+        {
+          "id": "<uuid>",
+          "name": "<task name>",
+          "uniqueName": "c",
+          "internalName": null,
+          "nodeType": "SINK",
+          "operatorType": "<e.g. EVENT_STORE>",
+          "predecessors": [
+            {"id": "<predecessor uuid>"}
+          ],
+          "metadata": {}
+        }
+      ]
+    }
+  ],
+  "schemas": [
+    {
+      "name": "<schema name — must match schemaId used in tasks>",
+      "type": 1,
+      "schema": {
+        "eventIdFields": ["id"],
+        "type": "object",
+        "required": ["id", "eventTime"],
+        "properties": {
+          "id": {"type": "string", "order": 0, "eventTime": false, "description": "Event unique ID"},
+          "eventTime": {"type": "datetime", "order": 1, "eventTime": true, "timeFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'", "description": "Event timestamp"}
+        }
+      }
+    }
+  ]
+}
