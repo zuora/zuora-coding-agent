@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.5.1] - 2026-07-13
+
+### Improved
+- Tenant config design skill now infers custom fields from business artifacts — identifies fields with no native Zuora representation, maps them to the correct object type, and checks existing tenant custom fields before proposing new ones
+
 ## [1.5.0] - 2026-07-13
 
 ### Added
