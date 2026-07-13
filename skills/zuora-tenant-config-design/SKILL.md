@@ -68,7 +68,13 @@ The user has already specified Zuora fields and values. Accept them as-is. Note 
 
 ### Path B — Inference from business artifacts
 
-Translate the business facts into Zuora settings using `settings-fields.json` as the field catalog.
+Run two parallel inference passes over the collected business facts:
+
+---
+
+#### Pass 1 — Standard settings
+
+Translate the business facts into Zuora settings using `settings-fields.json` as the field catalog. Skip the three custom field groups (`z_billing.custom_fields_billing_objects_`, `z_payments.custom_fields_payment_objects_`, `z_finance.custom_fields_finance_objects_`) — those are handled in Pass 2.
 
 **How to use settings-fields.json for inference:**
 - Each group has `fields[]` with `field_key`, `field_name` (human-readable label), and `options` (the exact UI option strings).
@@ -91,6 +97,48 @@ For each inferred setting record:
 - "Invoice prefix / document numbering" → `z_billing.define_document_sequence_sets`
 - "Revenue recognition" → `z_finance.accounting_rules`
 - "Session timeout / password policy" → `tenant_admin.security_policies`
+
+---
+
+#### Pass 2 — Custom fields discovery
+
+Scan the business artifacts for data points that have **no native Zuora representation**. For each candidate:
+
+**Native check (required before inferring):** Ask — "Does Zuora already support this natively?" Native support includes standard object fields, charge models, Units of Measure, billing rules, payment terms, out-of-the-box subscription/RPC behaviors (expiry, rollover, proration), and any other built-in Zuora feature. If the need is covered natively, **do not** infer a custom field. Only infer when the data has no native Zuora representation. Document this check in the reasoning (e.g., "No native Zuora field stores X on object Y").
+
+**What to look for in the source material:**
+- Additional data fields needed on accounts, subscriptions, invoices, etc.
+- Legacy system fields that need to be migrated or carried over
+- External/CRM IDs and integration reference fields
+- Business-specific tracking requirements ("track customer segment", "store cost centre")
+- Reporting requirements that need additional data points
+
+**How to define each custom field:**
+
+Each custom field is a collection instance with multiple field properties, all sharing the same `instance_name` (e.g., `"CustomerSegment"`). Use the `object_type` options from `settings-fields.json` for the relevant group.
+
+Rules:
+- `api_name` must be PascalCase ending in `__c` (e.g., `CustomerSegment__c`)
+- Default `field_max_length` to `100` for string fields unless a longer value is implied
+- Set `field_filterable` to `true` for ID/reference fields likely used in queries
+- For `picklist` type, list the inferred `field_picklist_values` as comma-separated values from the source material
+- Assign each custom field to the correct group based on the object type:
+  - `z_billing.custom_fields_billing_objects_` — Account, Amendment, Contact, ContactSnapshot, CreditMemo, CreditMemoItem, CreditTaxationItem, DebitMemo, DebitMemoItem, DebitTaxationItem, Feature, Fulfillment, FulfillmentItem, Invoice, InvoiceItem, InvoiceSchedule, InvoiceScheduleItem, TaxationItem, OrderAction, OrderLineItem, Orders, Product, ProductRatePlan, ProductRatePlanCharge, ProductFeature, Subscription, RatePlan, RatePlanCharge, SubscriptionProductFeature, Usage
+  - `z_payments.custom_fields_payment_objects_` — Payment, PaymentMethod, PaymentSchedule, PaymentScheduleItem, Refund
+  - `z_finance.custom_fields_finance_objects_` — AccountingCode, AccountingPeriod, JournalEntry, JournalEntryItem
+
+For each inferred custom field, record all its properties as a group sharing an `instance_name`:
+
+| Business fact | group_key | instance_name | field_key | Inferred value | Confidence | Source |
+|---------------|-----------|---------------|-----------|----------------|------------|--------|
+| "track business unit" | `z_billing.custom_fields_billing_objects_` | `BusinessUnit` | `object_type` | `Account` | High | SOW |
+| "track business unit" | `z_billing.custom_fields_billing_objects_` | `BusinessUnit` | `api_name` | `BusinessUnit__c` | High | SOW |
+| "track business unit" | `z_billing.custom_fields_billing_objects_` | `BusinessUnit` | `field_type` | `picklist` | High | SOW |
+| "track business unit" | `z_billing.custom_fields_billing_objects_` | `BusinessUnit` | `field_picklist_values` | `SAWIN,PRINTREACH,BAYMASTER` | Medium | SOW |
+
+Deduplicate by `object_type + api_name` — if the same field appears more than once, keep only the highest-confidence instance.
+
+---
 
 Mark confidence as:
 - **High** — explicitly stated in the source
@@ -128,10 +176,17 @@ Based on [your pricing page / the document you shared / your description], here'
 - **Session Timeout:** 30 minutes
   → Source: ⚠️ assumed default — let me know if you need a different value
 
+### Custom Fields
+- **Account — BusinessUnit__c** (picklist: SAWIN, PRINTREACH, BAYMASTER)
+  → Source: "track business unit per account" in SOW
+- **Account — LegacyAccountId__c** (string, filterable)
+  → Source: migration doc references legacy CRM IDs
+
 ---
 **Questions before I continue:**
 1. Do you have parent/child account relationships that need to share billing? (affects Customer Hierarchy setting)
 2. Should session timeout be 30 minutes, or a different value?
+3. Are there other business unit values beyond SAWIN, PRINTREACH, BAYMASTER?
 
 Please confirm or correct anything above. Once you approve I'll compare against your current tenant settings and build the change plan.
 ```
@@ -149,7 +204,9 @@ Wait for the user's response and incorporate any corrections before continuing.
 
 ## Step 4: Retrieve current tenant state
 
-Once the user has confirmed the desired settings, retrieve the current values for each in-scope group. For each `group_key` in the plan, look up its `api_paths` array in `settings-fields.json` and call `get_settings` for each path. Run independent calls in parallel.
+Once the user has confirmed the desired settings, retrieve the current values for all in-scope groups. Run independent calls in parallel.
+
+**For standard settings groups** — look up `api_paths` in `settings-fields.json` and call `get_settings` for each path:
 
 ```
 Tool: manage_settings
@@ -160,6 +217,16 @@ settingKey: /billing-rules    ← from api_paths of z_billing.billing_rules
 If a group has multiple `api_paths` (e.g., `z_billing.define_billing_periods` has `/billing-periods`, `/billing-cycle-types`, `/billing-period-starts`, `/billing-list-price-bases`), call `get_settings` for each path.
 
 If a group has an empty `api_paths` array, it cannot be configured via the Settings API — skip it and note it in the plan as not automatable.
+
+**For custom fields groups** (`z_billing.custom_fields_billing_objects_`, `z_payments.custom_fields_payment_objects_`, `z_finance.custom_fields_finance_objects_`) — these have empty `api_paths` and cannot be read via `manage_settings`. Instead, call `manage_custom_fields` for each object type in the plan to check what's already on the tenant:
+
+```
+Tool: manage_custom_fields
+operation: list_custom_fields
+objectType: Account
+```
+
+Run one call per distinct `object_type` across all inferred custom fields. Record existing `api_name` values — any field already present must be excluded from the plan (no re-creation).
 
 Notes:
 - **COLLECTION settings** (e.g., `/payment-terms`, `/currencies`, `/payment-gateways`): response contains the current full list. Record existing IDs — required for updates.
@@ -215,6 +282,14 @@ Desired: USD (default), EUR (active)
 - alphabetic_code=USD, default=True, active=True
 - alphabetic_code=EUR, default=False, active=True
 
+#### Custom Fields
+Create (new — not already on tenant):
+- Account.BusinessUnit__c: picklist [SAWIN, PRINTREACH, BAYMASTER], filterable=false
+- Account.LegacyAccountId__c: string, max_length=100, filterable=true
+
+Already exists (no action):
+- Account.ExternalId__c — already present on tenant
+
 ### Requires manual setup in Zuora UI
 These settings were inferred from your inputs but cannot be applied automatically — please configure them directly in Zuora:
 - **Time Zone:** Pacific Time → Settings > Company Profile > Tenant Profile
@@ -244,7 +319,7 @@ After confirmation, tell the user:
 
 - `WebFetch` — fetch URLs the user provides (pricing pages, terms, website).
 - `Read` — read uploaded or locally referenced documents.
-- `manage_settings` — retrieve current tenant state; never update in this design skill.
-- `manage_custom_fields` — audit existing custom fields if the user wants to add custom fields.
+- `manage_settings` — retrieve current tenant state for standard settings groups; never update in this design skill.
+- `manage_custom_fields` — list existing custom fields per object type (Step 4) to identify what's already on the tenant; used in Pass 2 inference to avoid re-creating existing fields.
 - `query_objects` — look up live tenant data (e.g., existing payment term names, currencies in use).
 - `ask_zuora` — only for an unresolved product-behaviour question after the reference and retrieved values have been checked. Name the exact question and sources already checked.
