@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.0] - 2026-07-13
+
+### Added
+- New skills: `zuora-tenant-config-design` and `zuora-tenant-config-build` — infer Zuora tenant settings from business documents or descriptions and apply them directly to your tenant via the Settings API
+
+### Improved
+- Workflow design and build skills now guide correct async polling patterns, error summaries via workflow task query, and away from unnecessary custom objects
+- Meter skills updated for the renamed `manage_meters` and `manage_meters_run` MCP tools; added a custom importable meter skeleton and expanded validation rules
+
 ## [1.4.2] - 2026-06-29
 
 ### Added

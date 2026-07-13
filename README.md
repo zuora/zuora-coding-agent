@@ -136,6 +136,8 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 | `/zuora-cpq-migration-design` | Map or modernize legacy CPQ Apex, Visualforce, zQuoteUtil, or plugin-interface customizations to Quote Studio |
 | `/zuora-cpq-validate` | Validate CPQ Apex, Visualforce, LWC hooks/events, quote-state usage, ZQFClient usage, and global Apex methods |
 | `/zuora-cpq-review` | Review CPQ Apex, Visualforce, Quote Studio LWC, hook/event usage, registration, tests, and best-practice risks |
+| `/zuora-tenant-config-design` | Infer Zuora tenant settings from business documents, URLs, or descriptions and produce a reviewed configuration change plan |
+| `/zuora-tenant-config-build` | Apply a tenant configuration plan to a Zuora tenant using manage_settings |
 | `/zuora-uat-design` | Design a UAT test plan and test matrix for a Zuora implementation |
 | `/zuora-uat-build` | Generate UAT test artifacts — feature files, API/UI test scripts, and configuration |
 | `/zuora-uat-run` | Execute UAT tests and report results |
