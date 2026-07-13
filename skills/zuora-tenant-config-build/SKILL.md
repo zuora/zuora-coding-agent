@@ -13,7 +13,7 @@ All three operations go through the Zuora Settings batch API (`POST /settings/ba
 
 | Operation | HTTP method | When to use |
 |-----------|-------------|-------------|
-| `list_setting_keys` | — | Discover available paths — fall back to this only if a setting key is absent from both `settings-schema.json` AND is not marked `ui_only` in `settings-fields.json` |
+| `list_setting_keys` | — | Discover available paths — fall back to this only if a path is not found in `settings-schema.json` |
 | `get_settings` | GET | Read current value before any update |
 | `update_settings` | PUT | Update an existing setting or collection item |
 | `create_settings` | POST | Create a new collection item (e.g., new payment term) |

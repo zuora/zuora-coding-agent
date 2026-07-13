@@ -320,7 +320,7 @@ Use `mcp__zuora-mcp__manage_custom_fields` (not `manage_settings`) for adding or
 
 ## Discover all available setting keys
 
-Use `references/settings-schema.json` (bundled in this plugin) to look up available setting paths and their field schemas. If a key is not found there, first check whether the field is marked `ui_only: true` in `settings-fields.json` — if so, it is a UI-only field and should be skipped entirely (not looked up). Only fall back to `list_setting_keys` if the key is absent from both files:
+Use `references/settings-fields.json` `api_paths` to know which setting paths belong to each group, and `references/settings-schema.json` for the field-level schema of each path. If a path is not found in `settings-schema.json`, fall back to `list_setting_keys`:
 
 ```
 Tool: manage_settings

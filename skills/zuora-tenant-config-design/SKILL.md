@@ -45,10 +45,9 @@ Wait for the user's response, then continue with **Step 1**.
 
 Load reference files and all user-provided sources in parallel.
 
-**Always read these three files together:**
-- `${CLAUDE_PLUGIN_ROOT}/references/settings-fields.json` — all configurable fields grouped by `group_key`, with `field_name` (human-readable label), `field_key`, `data_type`, and `options` (the exact UI-facing option strings the inference will produce). This is your source of truth for what the user sees and what valid values look like.
-- `${CLAUDE_PLUGIN_ROOT}/references/settings-schema.json` — the Zuora Settings API schema per path: field names, types, enums, min/max, required. Use this to understand what the API accepts (needed in Step 2 for resolution, not shown to the user).
-- `${CLAUDE_PLUGIN_ROOT}/references/tenant-config-settings.md` — setting keys grouped by section, collection patterns, and which fields are read-only.
+**Always read:**
+- `${CLAUDE_PLUGIN_ROOT}/references/settings-fields.json` — all configurable fields grouped by `group_key`. Each group has `api_paths` (the setting API paths to call for `get_settings`), `field_name` (human-readable label), `field_key`, `data_type`, and `options` (exact UI-facing option strings). This is your source of truth throughout the design skill.
+- `${CLAUDE_PLUGIN_ROOT}/references/tenant-config-settings.md` — collection patterns (SINGLETON / ITEM-BY-ID / FULL ARRAY REPLACE) and read-only field notes.
 
 **For each URL the user provided**, fetch the page content:
 ```
@@ -150,17 +149,21 @@ Wait for the user's response and incorporate any corrections before continuing.
 
 ## Step 4: Retrieve current tenant state
 
-Once the user has confirmed the desired settings, retrieve the current values for each in-scope setting key. Run independent keys in parallel.
+Once the user has confirmed the desired settings, retrieve the current values for each in-scope group. For each `group_key` in the plan, look up its `api_paths` array in `settings-fields.json` and call `get_settings` for each path. Run independent calls in parallel.
 
 ```
 Tool: manage_settings
 operation: get_settings
-settingKey: /billing-rules
+settingKey: /billing-rules    ← from api_paths of z_billing.billing_rules
 ```
 
+If a group has multiple `api_paths` (e.g., `z_billing.define_billing_periods` has `/billing-periods`, `/billing-cycle-types`, `/billing-period-starts`, `/billing-list-price-bases`), call `get_settings` for each path.
+
+If a group has an empty `api_paths` array, it cannot be configured via the Settings API — skip it and note it in the plan as not automatable.
+
 Notes:
-- **COLLECTION settings** (e.g., `/payment-terms`, `/currencies`, `/payment-gateways`): retrieve returns the current full list. Record existing IDs — required for updates.
-- **SINGLETON settings**: retrieve returns current field values. Note any read-only fields that must not be sent in updates.
+- **COLLECTION settings** (e.g., `/payment-terms`, `/currencies`, `/payment-gateways`): response contains the current full list. Record existing IDs — required for updates.
+- **SINGLETON settings**: response contains current field values.
 
 ---
 
