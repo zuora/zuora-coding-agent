@@ -330,8 +330,7 @@ Required reading: `workflow-data-flow.md` (sections 1-3 + 10) and `workflow-enum
 Algorithm:
 
 1. **Seed `available_data`** with the workflow-level inputs:
-   - Always: `{ Workflow: [ExecutionDate, ExecutionDateTime, Name, Id, Tenant, User] }`.
-   - If `call_type` ∈ `{UIACTION, SYNC_UI_ACTION}`: `{ UIAction: [ObjectId, ObjectName, ObjectNumber] }`.
+   - Always: `{ Workflow: [ExecutionDate, ExecutionDateTime, ExecutionDateTimeUTC, WorkflowRunUser] }`.
    - For each `workflow.parameters.fields[]`: union `{ <object_name>: [<field_name>] }`. Ordinary user-entered filters, dates, IDs, and JSON maps belong under `object_name: "Workflow"`; do not use invented object names to group them.
    - For each `workflow.parameters.event_parameters[*].params[*]`: union `{ <param.object>: [<param.key>] }`.
    - For **callout-trigger** workflows: `{ Callout: OPAQUE }` (the inbound POST body — treat as opaque unless the workflow carries `parameters._expected_response_schema` or `parameters._opaque_trusted`).

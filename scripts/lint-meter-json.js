@@ -28,6 +28,24 @@ const OPERATORS_DIR = path.join(PLUGIN_REFS, "meter-operators");
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// ajv is optional — E143 is skipped if not installed
+let Ajv;
+try { Ajv = require("ajv"); } catch (_) { /* not installed */ }
+
+/**
+ * Create Ajv validator instance for JSON schema validation.
+ * Returns { ajv, ajvAvailable: boolean }.
+ * Returns empty result if Ajv is not installed.
+ */
+function initAjv() {
+  if (!Ajv) return { validators: {}, ajvAvailable: false };
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  const validators = {};
+  // We need operator skeletons loaded first, but this runs inside loadRules
+  // so we pass already-loaded operators
+  return { ajvAvailable: true, ajv };
+}
+
 function loadRules() {
   const manifest = JSON.parse(fs.readFileSync(path.join(OPERATORS_DIR, "_manifest.json"), "utf8"));
   const operators = {};
@@ -40,7 +58,25 @@ function loadRules() {
       operatorsByCanonicalType[skeleton.operatorType] = skeleton;
     }
   }
-  return { manifest, operators, operatorsByCanonicalType };
+
+  // Initialize Ajv validator for schema validation
+  const { ajvAvailable, ajv } = initAjv();
+  const validators = {};
+  if (ajvAvailable) {
+    for (const [fname, skeleton] of Object.entries(operators)) {
+      if (skeleton.schema && typeof skeleton.schema === "object") {
+        try {
+          // Key by operatorType so E143 lookup by task.operatorType works
+          const opType = skeleton.operatorType || fname;
+          validators[opType] = ajv.compile(skeleton.schema);
+        } catch (e) {
+          console.error(`Warning: failed to compile schema for ${fname}: ${e.message}`);
+        }
+      }
+    }
+  }
+
+  return { manifest, operators, operatorsByCanonicalType, validators, ajvAvailable };
 }
 
 // Intentionally deferred rules (documented in the spec self-review):
@@ -220,6 +256,41 @@ function lintMeter(meter, rules) {
                 message: `${loc}.metadata.${k}: value ${JSON.stringify(v)} looks like an unresolved name, not an integer ID`,
               });
             }
+          }
+        }
+      }
+    }
+
+    // E143 — per-operator metadata field validation against operator schema (via ajv)
+    if (rules.ajvAvailable) {
+      const SCHEMA_RULE = "E143";
+      for (const [idx, task] of meter.tasks.entries()) {
+        if (!task || typeof task !== "object") continue;
+        const opKey = task.operatorType || task.operator_key;
+        if (!opKey) continue;
+        const validateFn = rules.validators[opKey];
+        if (!validateFn) continue; // no schema for this operator
+        if (!task.metadata || typeof task.metadata !== "object") {
+          issues.push({
+            severity: "error",
+            rule: SCHEMA_RULE,
+            message: `tasks[${idx}].metadata: metadata required for operator ${opKey}`,
+          });
+          continue;
+        }
+        const valid = validateFn(task.metadata);
+        if (!valid) {
+          for (const err of validateFn.errors) {
+            // Map ajv instancePath (e.g. "/appendFields/0") to ".appendFields[0]"
+            const parts = err.instancePath ? err.instancePath.split("/").filter(Boolean) : [];
+            const propPath = parts.length > 0
+              ? "." + parts.join(".").replace(/\.(\d+)(\.|$)/g, (_, n, after) => `[${n}]${after === "." ? "." : ""}`)
+              : "";
+            issues.push({
+              severity: "error",
+              rule: SCHEMA_RULE,
+              message: `tasks[${idx}].metadata${propPath}: ${err.message}`,
+            });
           }
         }
       }

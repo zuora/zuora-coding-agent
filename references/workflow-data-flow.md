@@ -56,10 +56,10 @@ These are the workflow-level seeds — always available even at task #1:
 
 | Key | Source | Trigger types that populate it |
 |---|---|---|
-| `Data.Workflow.ExecutionDate` | `Workflow#data_structure` (workflow.rb:344-349) | **all** |
-| `Data.Workflow.ExecutionDateTime` | same | **all** |
-| `Data.Workflow.Name` / `Data.Workflow.Id` / `Data.Workflow.Tenant` / `Data.Workflow.User` | same | **all** |
-| `Data.UIAction.{ObjectId, ObjectName, ObjectNumber}` | `Workflow#data_structure` when `call_type == 'UIACTION'` | **uiaction** workflows |
+| `Data.Workflow.ExecutionDate` | `Workflow::Instance#set_data` (instance.rb:122) | **all** |
+| `Data.Workflow.ExecutionDateTime` | same (line 123) | **all** |
+| `Data.Workflow.ExecutionDateTimeUTC` | same (line 124) | **all** |
+| `Data.Workflow.WorkflowRunUser` | same (lines 126-138) | **all** |
 | `Data.<Object>.<field>` for every entry in `workflow.parameters.fields[]` | `Workflow#objects` | **ondemand** & **scheduled** & **uiaction** |
 | `Data.<EventObject>.<key>` for every entry in `workflow.parameters.event_parameters[]` | `BusinessEvent.create_workflow_from_event_message` (business_event.rb:123-201), then `Workflow::Instance#set_data` (workflow/instance.rb:114-201) | **event** triggers (Notifications EventTrigger / ScheduledEvent) |
 | `Data.Callout.<...>` (or whatever placement was configured on the inbound trigger) | The HTTP body of the inbound POST | **callout** triggers (Api::V1::WorkflowsController#run, ll. 493-537) |
@@ -225,10 +225,8 @@ Without any sentinel, downstream `Data.<opaque_scope>.<field>` references emit `
 ```
 function compute_available_data(workflow):
   seed = {
-    "Workflow": ["ExecutionDate", "ExecutionDateTime", "Name", "Id", "Tenant", "User"]
+    "Workflow": ["ExecutionDate", "ExecutionDateTime", "ExecutionDateTimeUTC", "WorkflowRunUser"]
   }
-  if workflow.call_type in ("UIACTION", "SYNC_UI_ACTION"):
-    seed["UIAction"] = ["ObjectId", "ObjectName", "ObjectNumber"]
   for f in workflow.parameters.fields[]:
     seed[f.object_name] |= [f.field_name]   # union
     # Ordinary run-prompt/callout inputs should use object_name "Workflow";

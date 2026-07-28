@@ -178,11 +178,10 @@ For each task in your design, list two things:
 Build a small `available_data` table that grows as you walk down the graph. Start with the workflow seeds (see `workflow-data-flow.md` → "What's in Data before any task runs" and `workflow-enums.json` → `default_data_workflow_keys` / `trigger_seeding_rules`):
 
 ```
-Step 0 (workflow seed):    Data.Workflow.{ExecutionDate, ExecutionDateTime, Name, Id, Tenant, User}
+Step 0 (workflow seed):    Data.Workflow.{ExecutionDate, ExecutionDateTime, ExecutionDateTimeUTC, WorkflowRunUser}
                          + Data.<event payload keys>     (event_trigger via parameters.event_parameters[])
                          + Data.<custom fields>          (ondemand/scheduled/callout via parameters.fields[])
                          + Data.Callout.<inbound body>   (callout_trigger only — OPAQUE)
-                         + Data.UIAction.{ObjectId,…}    (UIACTION/SYNC_UI_ACTION call_type)
 Step 1 (Query Invoice):  + Data.Invoice.{Id, InvoiceNumber, Amount, AccountId}        [DETERMINISTIC]
 Step 2 (Iterate):          (no positive writes; rebinds Data.Invoice → single Hash inside For-Each)  [SCOPING]
 Step 3 (Callout):        + Data.{placement | 'Callout'}                                [OPAQUE]

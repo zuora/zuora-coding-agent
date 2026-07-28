@@ -340,14 +340,12 @@
   },
 
   "default_data_workflow_keys": {
-    "$description": "Keys always present under Data.Workflow at task #1 of every workflow, regardless of trigger style. Sourced from Workflow#data_structure (workflow.rb:344-349) and Workflow::Instance#set_data. The seed walker (lint-workflow-json.js -> computeAvailableScopes) starts with these.",
-    "Workflow": ["ExecutionDate", "ExecutionDateTime", "Name", "Id", "Tenant", "User"],
-    "$conditional": {
-      "UIAction": {
-        "$present_when": "workflow.call_type in ('UIACTION', 'SYNC_UI_ACTION')",
-        "fields": ["ObjectId", "ObjectName", "ObjectNumber"]
-      }
-    }
+    "$description": "Keys always present under Data.Workflow at task #1 of every workflow, regardless of trigger style. Sourced exclusively from Workflow::Instance#set_data (instance.rb:115-157). The seed walker (lint-workflow-json.js -> computeAvailableScopes) starts with these.",
+    "Workflow": ["ExecutionDate", "ExecutionDateTime", "ExecutionDateTimeUTC", "WorkflowRunUser"],
+    "$notes": [
+      "LastRunDate / LastRunDateTime / LastRunDateTimeUTC are set conditionally at runtime (only when a previous run exists). They are NOT seeded here to avoid false positives when no prior run exists.",
+      "WorkflowSetup.* (WorkflowSetup.name, WorkflowSetup.description, etc.) is a separate Liquid scope — do not confuse with Data.Workflow.*."
+    ]
   },
 
   "trigger_seeding_rules": {

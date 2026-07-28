@@ -1,5 +1,51 @@
 {
   "key": "SUBSCRIPTION_LOOKUP",
+  "schema": {
+    "type": "object",
+    "required": ["lookupType"],
+    "additionalProperties": false,
+    "properties": {
+      "lookupType": { "type": "string", "enum": ["AccountAndChargeName", "SubscriptionId", "Account", "Product", "Advanced", "CustomObject", "ZDP"] },
+      "accountNumberField": { "type": "string" },
+      "chargeNameField": { "type": "string" },
+      "subscriptionIdField": { "type": "string" },
+      "eventTimeField": { "type": "string" },
+      "eventTimeFormat": { "type": "string" },
+      "needPrefetch": { "type": "boolean" },
+      "continueWhenNoDataFound": { "type": "boolean" },
+      "includeUsageChargesOnly": { "type": "boolean" },
+      "includeActiveAndCancelledSubsOnly": { "type": "boolean" },
+      "includeSegmentsActiveOnDateOnly": { "type": "boolean" },
+      "enrichChargeModel": { "type": "boolean" },
+      "sql": { "type": "string" },
+      "table": { "type": "string" },
+      "zdpSyncName": { "type": "string" },
+      "mapFields": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "eventField": { "type": "string" },
+            "referenceField": { "type": "string" },
+            "type": { "type": "string", "enum": ["string", "number", "integer", "long", "double", "float", "boolean", "datetime", "object", "array", "null"] }
+          }
+        }
+      },
+      "appendFields": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "eventField": { "type": "string" },
+            "referenceField": { "type": "string" },
+            "type": { "type": "string", "enum": ["string", "number", "integer", "long", "double", "float", "boolean", "datetime", "object", "array", "null"] }
+          }
+        }
+      }
+    }
+  },
   "nodeType": "PROCESSOR",
   "operatorType": "SUBSCRIPTION_LOOKUP",
   "ui_display_name": "Enrichment",

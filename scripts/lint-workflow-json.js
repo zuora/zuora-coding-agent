@@ -2146,21 +2146,11 @@ function computeWorkflowSeedScopes(doc, enums) {
 
   const defaultKeys =
     (enums.default_data_workflow_keys && enums.default_data_workflow_keys.Workflow) ||
-    ["ExecutionDate", "ExecutionDateTime", "Name", "Id", "Tenant", "User"];
+    ["ExecutionDate", "ExecutionDateTime", "ExecutionDateTimeUTC", "WorkflowRunUser"];
   scopes.set(
     "Workflow",
     newScopeInfo({ fields: new Set(defaultKeys), predictability: "deterministic" })
   );
-
-  if (["UIACTION", "SYNC_UI_ACTION"].includes(w.call_type)) {
-    scopes.set(
-      "UIAction",
-      newScopeInfo({
-        fields: new Set(["ObjectId", "ObjectName", "ObjectNumber"]),
-        predictability: "deterministic",
-      })
-    );
-  }
 
   // parameters.fields[] entries: { object_name, field_name } seed Data.<object_name>.<field_name>
   const fieldsList = Array.isArray(params.fields) ? params.fields : [];

@@ -432,10 +432,14 @@ Wait for the response. Do NOT invent or guess a name.
 
 ### Step 4b: Load references
 
-Read in parallel:
-- `${CLAUDE_PLUGIN_ROOT}/references/meter-skeleton-custom.json`
-- `${CLAUDE_PLUGIN_ROOT}/references/meter-operators/_manifest.json`
+When the user explicitly requests an importable/exportable meter JSON, also read:
+- `${CLAUDE_PLUGIN_ROOT}/references/meter-skeleton-custom-importable.json`
 
+Treat `meter-skeleton-custom.json` and `meter-skeleton-custom-importable.json` as two different canonical output formats.
+
+- Use `meter-skeleton-custom.json` only for `validate_meter` and `create_meter`.
+- Use `meter-skeleton-custom-importable.json` only when generating an exportable/importable JSON.
+- Never mix fields or structure between the two skeletons. The selected skeleton is the authoritative structure for the requested output.
 Then, for each node in the topology, look up the correct filename from the manifest (operator names differ by nodeType — e.g. `S3_SOURCE.json` for a SOURCE, `S3_SINK.json` for a SINK) and read each matched file in parallel:
 - `${CLAUDE_PLUGIN_ROOT}/references/meter-operators/<filename from manifest>`
 
@@ -557,8 +561,7 @@ Read:
 
 `${CLAUDE_PLUGIN_ROOT}/references/meter-skeleton-custom-importable.json`
 
-Populate that skeleton using the already composed Meter JSON, following these **MANDATORY rules** — violating any of these causes immediate import failure:
-
+Populate `meter-skeleton-custom-importable.json` by transforming the already composed Create Meter JSON. Preserve the structure of the importable skeleton exactly; never copy the Create Meter envelope or mix fields between the two formats.
 #### Importable JSON mandatory rules
 
 1. **`latestVersion` is required and must not be empty.** Set it to the version string (e.g. `"0.0.1"`). Never omit or leave blank.
