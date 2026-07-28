@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2] - 2026-07-28
+
+### Improved
+- Workflow skills and linter updated with accurate built-in data keys (`ExecutionDateTimeUTC`, `WorkflowRunUser`); removed stale `UIAction` scope that is no longer seeded at runtime
+- Meter build skill now clearly separates the create-meter and importable-meter JSON formats — the correct skeleton is selected based on the requested output
+- Meter linter gains operator config schema validation (rule E143) using bundled JSON schemas; `SUBSCRIPTION_LOOKUP` operator schema added to references
+
 ## [1.5.1] - 2026-07-13
 
 ### Improved
