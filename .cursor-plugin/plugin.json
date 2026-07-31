@@ -21,6 +21,27 @@
     "lwc",
     "quote-studio"
   ],
+  "logo": "assets/logo.svg",
   "rules": "rules",
-  "skills": "skills"
+  "skills": "skills",
+  "mcpServers": ".mcp.json",
+  "variables": {
+    "type": "object",
+    "properties": {
+      "ZUORA_BASE_URL": {
+        "type": "string",
+        "title": "Zuora Base URL",
+        "description": "e.g. https://rest.apisandbox.zuora.com"
+      },
+      "ZUORA_CLIENT_ID": {
+        "type": "string",
+        "title": "OAuth Client ID"
+      },
+      "ZUORA_CLIENT_SECRET": {
+        "type": "string",
+        "title": "OAuth Client Secret"
+      }
+    },
+    "required": ["ZUORA_BASE_URL", "ZUORA_CLIENT_ID", "ZUORA_CLIENT_SECRET"]
+  }
 }
