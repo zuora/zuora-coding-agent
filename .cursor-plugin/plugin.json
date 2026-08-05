@@ -1,7 +1,7 @@
 {
   "name": "zuora-coding-agent",
   "displayName": "Zuora Coding Agent",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Zuora development assistant for API integrations, Workflow, Meter, migrations, CPQ customizations, Quote Studio hooks/events, and best-practice validation. Powered by zuora-mcp.",
   "author": {
     "name": "Zuora Engineering",
@@ -42,6 +42,10 @@
         "title": "OAuth Client Secret"
       }
     },
-    "required": ["ZUORA_BASE_URL", "ZUORA_CLIENT_ID", "ZUORA_CLIENT_SECRET"]
+    "required": [
+      "ZUORA_BASE_URL",
+      "ZUORA_CLIENT_ID",
+      "ZUORA_CLIENT_SECRET"
+    ]
   }
 }

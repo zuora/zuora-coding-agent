@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.3] - 2026-08-05
+
+### Improved
+- Workflow linter now catches four new Custom Object anti-patterns: trailing `__c` on object names (E187), flat `parameters.fields` instead of the required nested shape (E188), `parameters.id` instead of top-level `object_id` for Update/Delete (E189), and `parameters.placement` on Query/Create/Update (E190)
+- Workflow build and reference docs updated to document all four Custom Object shape rules with linter codes so generated workflows pass E187–E190 on first import
+- Context skill now shows a setup guide with environment URLs when the zuora-mcp server is not registered, instead of failing silently
+
 ## [1.5.2] - 2026-07-28
 
 ### Improved
