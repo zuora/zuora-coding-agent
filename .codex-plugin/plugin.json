@@ -38,7 +38,7 @@
       "Use Zuora Coding Agent to design a Quote Studio hook."
     ],
     "brandColor": "#0B8F8A",
-    "logo": "../assets/logo-512.png",
-    "composerIcon": "../assets/logo-96.png"
+    "logo": "./logo-512.png",
+    "composerIcon": "./logo-96.png"
   }
 }
