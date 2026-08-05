@@ -1536,6 +1536,140 @@ function customObjectUseExplicitlyRequested(task) {
   return false;
 }
 
+/**
+ * Rails CustomObject::* shape checks (app/models/tasks/custom_object/*).
+ * Source of truth:
+ *   - CustomObjectTask#namespace / #object_name → object.rpartition('__')
+ *   - Query#payload_location → parameters.alternate_location || object
+ *   - Create/Update → parameters.dig("fields", self.object)
+ *   - Update/Delete → validates :object_id (top-level column), not parameters.id
+ *
+ *   E187 — object API name ends with __c (field suffix). rpartition would make
+ *          object_name="c" and hit /objects/records/<ns>/c.
+ *   E188 — Create/Update parameters.fields not nested under the object API name.
+ *   E189 — Update/Delete put the record id in parameters.id instead of
+ *          top-level object_id.
+ *   E190 — Query used parameters.placement (SOAP Query) instead of
+ *          parameters.alternate_location; or Create/Update invented placement.
+ */
+function railsCustomObjectCanonicalName(objectName) {
+  if (typeof objectName !== "string") return "";
+  return /__c$/i.test(objectName) ? objectName.replace(/__c$/i, "") : objectName;
+}
+
+function railsCustomObjectRpartition(objectName) {
+  // Mirrors Ruby String#rpartition('__') used by CustomObjectTask.
+  const idx = String(objectName).lastIndexOf("__");
+  if (idx < 0) return { namespace: "", object_name: String(objectName) };
+  return {
+    namespace: String(objectName).slice(0, idx),
+    object_name: String(objectName).slice(idx + 2),
+  };
+}
+
+function checkCustomObjectTaskShape(doc, out) {
+  if (!Array.isArray(doc.tasks)) return;
+
+  doc.tasks.forEach((task, i) => {
+    if (!isCustomObjectTask(task)) return;
+    const loc = `$.tasks[${i}]`;
+    const taskLabel = `tasks[${i}] (${task.action_type} - "${task.name || ""}")`;
+    const objectName = typeof task.object === "string" ? task.object.trim() : "";
+    const canonicalObject = railsCustomObjectCanonicalName(objectName);
+    const params = isPlainObject(task.parameters) ? task.parameters : {};
+
+    // E187: object must not end with __c
+    if (objectName.length > 0 && /__c$/i.test(objectName)) {
+      const parts = railsCustomObjectRpartition(objectName);
+      out.error(
+        "E187",
+        `${taskLabel} has object="${objectName}". Custom Object API names are \`<namespace>__<object>\` and must NOT end with \`__c\` (that is a field suffix). Rails CustomObjectTask splits with rpartition('__'), so this would call /objects/records/${parts.namespace}/${parts.object_name}. Use "${canonicalObject}" instead.`,
+        `${loc}.object`
+      );
+    }
+
+    // E188: Create/Update fields must be nested under the object API name.
+    // Rails digs parameters.dig("fields", self.object). If object still has a
+    // trailing __c, accept nesting under either the current (wrong) key or the
+    // canonical key so fixing object alone doesn't leave a misleading E188 that
+    // asks to nest under the __c name.
+    if (task.action_type === "CustomObject::Create" || task.action_type === "CustomObject::Update") {
+      const fields = params.fields;
+      if (isPlainObject(fields) && objectName.length > 0) {
+        const nestedExact = fields[objectName];
+        const nestedCanonical = canonicalObject !== objectName ? fields[canonicalObject] : null;
+        const nestedOk =
+          (isPlainObject(nestedExact) && Object.keys(nestedExact).length > 0) ||
+          (isPlainObject(nestedCanonical) && Object.keys(nestedCanonical).length > 0);
+        if (!nestedOk) {
+          const topKeys = Object.keys(fields);
+          const looksFlat = topKeys.some(
+            (k) => /__c$/i.test(k) || k === "fieldsToNull" || typeof fields[k] !== "object"
+          );
+          const nestKey = canonicalObject || objectName;
+          out.error(
+            "E188",
+            `${taskLabel} parameters.fields must be nested under the object API name: parameters.fields["${nestKey}"] = { Field__c: value, ... }. Rails reads parameters.dig("fields", self.object) only${
+              looksFlat
+                ? `; a flat map like { ${topKeys
+                    .slice(0, 3)
+                    .map((k) => JSON.stringify(k))
+                    .join(", ")}${topKeys.length > 3 ? ", ..." : ""}: ... } is treated as empty and fails with "Please select at least 1 field..."`
+                : ""
+            }.`,
+            `${loc}.parameters.fields`
+          );
+        }
+      }
+    }
+
+    // E189: object_id is top-level, not parameters.id
+    if (task.action_type === "CustomObject::Update" || task.action_type === "CustomObject::Delete") {
+      const hasParamsId = Object.prototype.hasOwnProperty.call(params, "id") && isNonEmpty(params.id);
+      if (hasParamsId) {
+        out.error(
+          "E189",
+          `${taskLabel} has parameters.id but Custom Object Update/Delete require the record UUID on the TOP-LEVEL task attribute object_id (Rails validates :object_id, presence: true). Move the value to object_id and remove parameters.id.`,
+          `${loc}.parameters.id`
+        );
+      }
+    }
+
+    // E190: placement vs alternate_location
+    if (task.action_type === "CustomObject::Query") {
+      const hasPlacement = Object.prototype.hasOwnProperty.call(params, "placement") && isNonEmpty(params.placement);
+      const hasAlt =
+        Object.prototype.hasOwnProperty.call(params, "alternate_location") &&
+        isNonEmpty(params.alternate_location);
+      if (hasPlacement && !hasAlt) {
+        out.error(
+          "E190",
+          `${taskLabel} uses parameters.placement="${params.placement}", but CustomObject::Query ignores placement (that is the SOAP Query param). Use parameters.alternate_location instead (query.rb payload_location). Downstream Data.${params.placement}.* references will be empty at runtime.`,
+          `${loc}.parameters.placement`
+        );
+      } else if (hasPlacement && hasAlt) {
+        out.error(
+          "E190",
+          `${taskLabel} has both parameters.placement and parameters.alternate_location. Remove parameters.placement — only alternate_location is read by CustomObject::Query.`,
+          `${loc}.parameters.placement`
+        );
+      }
+    }
+    if (task.action_type === "CustomObject::Create" || task.action_type === "CustomObject::Update") {
+      if (Object.prototype.hasOwnProperty.call(params, "placement") && isNonEmpty(params.placement)) {
+        const dataScope = canonicalObject || objectName || "<object>";
+        out.error(
+          "E190",
+          `${taskLabel} has parameters.placement="${params.placement}", but CustomObject::${
+            task.action_type === "CustomObject::Create" ? "Create" : "Update"
+          } has no placement — write_data always uses self.object (Data.${dataScope}). Remove parameters.placement and reference Data.${dataScope}.Id downstream.`,
+          `${loc}.parameters.placement`
+        );
+      }
+    }
+  });
+}
+
 function checkCompositionQuality(doc, out) {
   if (!Array.isArray(doc.tasks) || !Array.isArray(doc.linkages)) return;
 
@@ -3336,6 +3470,7 @@ function lintWorkflow(doc, rules) {
   checkTasks(doc, out, templates, enums);
   checkLinkages(doc, out, templates, enums);
   checkCompositionQuality(doc, out);
+  checkCustomObjectTaskShape(doc, out);
   checkZuoraRestEndpointUrls(doc, out);
   checkZuoraCalloutAuthorization(doc, out);
   checkLegacyBillRunObjectCrudCallouts(doc, out);
@@ -3444,4 +3579,9 @@ if (require.main === module) {
   main(process.argv);
 }
 
-module.exports = { lintWorkflow, loadRules };
+module.exports = {
+  lintWorkflow,
+  loadRules,
+  railsCustomObjectCanonicalName,
+  railsCustomObjectRpartition,
+};
