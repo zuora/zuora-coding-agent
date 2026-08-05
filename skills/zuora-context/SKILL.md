@@ -9,6 +9,70 @@ Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}
 
 # Zuora Context
 
+## MCP health check
+
+Before doing any work that requires MCP tools, check whether any `mcp__zuora-mcp__*` tool appears in your available tools list. If no `mcp__zuora-mcp__` tools are listed, the MCP server is not registered — immediately stop and show the user this setup guide rather than proceeding silently with degraded capabilities:
+
+---
+
+**zuora-mcp is not configured.** This plugin requires the `zuora-mcp` MCP server to access Zuora tenant data, API specs, and operational tools.
+
+**Add the following to your MCP configuration:**
+
+```json
+{
+  "mcpServers": {
+    "zuora-mcp": {
+      "command": "npx",
+      "args": ["-y", "zuora-mcp@latest"],
+      "env": {
+        "ZUORA_BASE_URL": "<your-base-url>",
+        "ZUORA_CLIENT_ID": "<your-client-id>",
+        "ZUORA_CLIENT_SECRET": "<your-client-secret>"
+      }
+    }
+  }
+}
+```
+
+**Where to add it:**
+- **Claude Code:** `~/.claude/settings.json` under the `"mcpServers"` key
+- **Codex (local zip install):** `~/.codex/plugins/cache/zuora-devex/zuora-coding-agent/<version>/.mcp.json`
+- **Cursor:** Settings → MCP → Add server
+- **Other MCP clients:** your client's MCP server config file
+
+**`ZUORA_BASE_URL` by environment:**
+
+| Environment | URL |
+|---|---|
+| US API Sandbox (Cloud 2) | `https://apisandbox.zuora.com/mcp` |
+| US NA Sandbox | `https://sandbox.na.zuora.com/mcp` |
+| US Central Sandbox | `https://test.zuora.com/mcp` |
+| EU Sandbox | `https://sandbox.eu.zuora.com/mcp` |
+| US Production | `https://zuora.com/mcp` |
+| US NA Production | `https://na.zuora.com/mcp` |
+| EU Production | `https://eu.zuora.com/mcp` |
+| AP Production | `https://ap.zuora.com/mcp` |
+
+The legacy `https://rest.*.zuora.com` URL format is also accepted for backward compatibility.
+
+**Optional environment variables** (add to the `env` block above only if needed):
+
+| Variable | When to use |
+|---|---|
+| `ZUORA_ENTITY_IDS` | Multi-entity tenants — comma-separated entity IDs to scope requests |
+| `ZUORA_ORG_IDS` | Multi-org tenants — comma-separated org IDs to scope requests |
+| `ZUORA_VERSION` | Pin a specific Zuora API version header |
+| `REMOTE_MCP_TIMEOUT_MS` | Increase timeout for slow tenant responses (default: 120000 ms) |
+
+**Prerequisites:** Node.js >= 18 and `npx` must be available on your PATH.
+
+After updating the config, restart your AI client and try again.
+
+---
+
+If the MCP server is available but calls are failing with auth errors, the credentials are likely wrong — check `ZUORA_BASE_URL`, `ZUORA_CLIENT_ID`, and `ZUORA_CLIENT_SECRET` match the target environment.
+
 When the user is discussing Zuora-related topics in general conversation (without invoking a specific `/zuora-` command), you have access to the zuora-mcp server which provides authoritative Zuora capabilities.
 
 ## Available MCP tools
