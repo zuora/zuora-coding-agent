@@ -1996,7 +1996,7 @@
   },
 
   "CustomObject::Create": {
-    "description": "Create a Custom Object record. parameters.fields is a NESTED hash: parameters.fields.<self.object>.<FieldName> = <value>. Field names MUST exist in the Custom Object schema (Workflow loads it via Custom Object describe; the model rechecks at task_process and raises if any key is unknown).",
+    "description": "Create a Custom Object record. parameters.fields is a NESTED hash: parameters.fields.<self.object>.<FieldName> = <value>. Do NOT put fields flat under parameters.fields (Rails digs fields[self.object] only and treats a flat map as empty). object is `<namespace>__<object>` WITHOUT a trailing `__c` (e.g. default__Vendor, never default__Vendor__c — Rails rpartition('__') would parse object_name as 'c'). There is NO placement parameter; output always lands at Data.<self.object>. Field names MUST exist in the Custom Object schema.",
     "hooks": ["Success", "Failure"],
     "template": {
       "id": "<<TASK_ID>>",
@@ -2004,15 +2004,17 @@
       "parameters": {
         "fields": {
           "<<self.object>>": {
-            "<<REQUIRED: FieldName>>": "<<REQUIRED: value (Liquid OK)>>"
+            "<<REQUIRED: FieldName__c>>": "<<REQUIRED: value (Liquid OK)>>"
           }
         },
-        "strict_variables": "true"
+        "strict_variables": "true",
+        "disable_validation": "false",
+        "delete_payload_paths": []
       },
       "action_type": "CustomObject::Create",
-      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor or <namespace>__<object>)>>",
+      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor — NOT default__Vendor__c)>>",
       "object_id": null,
-      "call_type": "REST",
+      "call_type": "SOAP",
       "task_id": "<<UPSTREAM_TASK_ID_OR_NULL>>",
       "css": { "top": "<<TOP>>", "left": "<<LEFT>>" },
       "concurrent_limit": 9999999,
@@ -2025,13 +2027,13 @@
     "required_params": ["fields"],
     "required_at_import": ["object"],
     "param_enums": {},
-    "boolean_string_params": ["strict_variables"],
+    "boolean_string_params": ["strict_variables", "disable_validation"],
     "data_contract": {
       "predictability": "deterministic",
       "default_scope_when_unset": "<self.object>",
       "scope_template": "Data.{self.object}",
       "writes": [
-        { "to_template": "Data.{self.object}", "shape": "Hash", "fields": "from_param:fields.<self.object> + 'Id' + standard CO fields (CreatedDate, UpdatedDate, CreatedById, UpdatedById)", "notes": "Created Custom Object record returned by /objects/records POST. Field set = keys in parameters.fields[<self.object>] plus Id + audit fields." }
+        { "to_template": "Data.{self.object}", "shape": "Hash", "fields": "from_param:fields.<self.object> + 'Id' + standard CO fields (CreatedDate, UpdatedDate, CreatedById, UpdatedById)", "notes": "Created Custom Object record returned by /objects/records POST. Always written under Data.<self.object> — Create has no placement/alternate_location. Downstream Liquid must use Data.<object>.Id (e.g. Data.default__Vendor.Id), not a task-name alias." }
       ],
       "reads": [
         { "from_param": "fields.<self.object>[*]", "shape": "liquid" }
@@ -2044,15 +2046,16 @@
       "$model": "app/models/tasks/custom_object/create.rb (extends CustomObject::CustomObjectTask)",
       "$model_validation": "validates :object, presence: true (L2). task_setup_validation (L5-17): when object present, parameters.fields[<self.object>] must be non-empty AND every required custom field (those ending in __c that the schema marks `required: true`) must appear in the supplied keys; otherwise 'Missing fields: ...'. The schema is fetched via CustomObjectTask#get_schema -> ZuoraAPI describe.",
       "$task_process_use": "task_process (L19-57): for each (k, v) in parameters.fields[self.object], rejects unknown keys with WorkflowError; coerces v via template_parse + properties[k]['type'] (number=>to_f, integer=>to_i, boolean=>to_bool, else=>string). POST {records:[record]} to <base_url>/objects/records/<namespace>/<object_name>; on success write_data(object_name: object, object_data: record_returned) and iterate Success.",
+      "$anti_patterns": "Do NOT use SOAP Create shape (flat parameters.fields). Do NOT append __c to object. Do NOT invent parameters.placement — Create always writes Data.<object>. Do NOT put the record id in parameters.id.",
       "fields": [
-        { "$field": "object", "purpose": "Custom Object API name (`<namespace>__<object>`, e.g. `default__Vendor`).", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id) -> {namespace: {object: schema}}", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (create.rb L2)." },
-        { "$field": "parameters.fields", "purpose": "Nested hash keyed by `<self.object>` whose value is the {FieldName: value} map of fields to set on the new record.", "source": "describe-driven nested form (per-field partial inputs added by clicking the picker)", "options_source": "schema.properties (filtered to origin != 'system')", "required_when": "always", "controller_permit": "parameters: any-hash", "model_validation": "Non-empty AND all required __c fields present (create.rb L7-15).", "notes": "Top-level `parameters.fields[<FieldName>]` IS NOT supported -- the model dereferences `parameters['fields'][self.object][key]` directly. Use the exact `object` API name as the inner key." }
+        { "$field": "object", "purpose": "Custom Object API name (`<namespace>__<object>`, e.g. `default__Vendor`). NEVER end with `__c` — that is a field suffix; Rails CustomObjectTask#object_name uses rpartition('__') so `default__Vendor__c` becomes object_name=`c`.", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id) -> {namespace: {object: schema}}", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (create.rb L2)." },
+        { "$field": "parameters.fields", "purpose": "Nested hash keyed by `<self.object>` whose value is the {FieldName: value} map of fields to set on the new record.", "source": "describe-driven nested form (per-field partial inputs added by clicking the picker)", "options_source": "schema.properties (filtered to origin != 'system')", "required_when": "always", "controller_permit": "parameters: any-hash", "model_validation": "Non-empty AND all required __c fields present (create.rb L7-15).", "notes": "Top-level `parameters.fields[<FieldName>]` IS NOT supported -- the model dereferences `parameters['fields'][self.object][key]` directly. Use the exact `object` API name as the inner key. Linter E188 rejects flat field maps." }
       ]
     }
   },
 
   "CustomObject::Update": {
-    "description": "Update a Custom Object record by UUID. parameters.fields is a NESTED hash: parameters.fields.<self.object>.<FieldName> = <value>. object_id MUST template-parse to a valid UUID. Idempotent.",
+    "description": "Update a Custom Object record by UUID. parameters.fields is a NESTED hash: parameters.fields.<self.object>.<FieldName> = <value>. The record id is the TOP-LEVEL task attribute object_id (Liquid OK), NOT parameters.id. object is `<namespace>__<object>` WITHOUT a trailing `__c`. Idempotent.",
     "hooks": ["Success", "Failure"],
     "template": {
       "id": "<<TASK_ID>>",
@@ -2060,15 +2063,17 @@
       "parameters": {
         "fields": {
           "<<self.object>>": {
-            "<<REQUIRED: FieldName>>": "<<REQUIRED: value (Liquid OK)>>"
+            "<<REQUIRED: FieldName__c>>": "<<REQUIRED: value (Liquid OK)>>"
           }
         },
-        "strict_variables": "true"
+        "strict_variables": "true",
+        "disable_validation": "false",
+        "delete_payload_paths": []
       },
       "action_type": "CustomObject::Update",
-      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor or <namespace>__<object>)>>",
-      "object_id": "<<REQUIRED: Custom Object record UUID (Liquid OK; must resolve to canonical 8-4-4-4-12 UUID)>>",
-      "call_type": "REST",
+      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor — NOT default__Vendor__c)>>",
+      "object_id": "<<REQUIRED: Custom Object record UUID (Liquid OK; must resolve to canonical 8-4-4-4-12 UUID). Use Data.<object>.Id from an upstream CustomObject::Create — e.g. {{ Data.default__Vendor.Id }}>>",
+      "call_type": "SOAP",
       "task_id": "<<UPSTREAM_TASK_ID_OR_NULL>>",
       "css": { "top": "<<TOP>>", "left": "<<LEFT>>" },
       "concurrent_limit": 9999999,
@@ -2081,13 +2086,13 @@
     "required_params": ["fields"],
     "required_at_import": ["object", "object_id"],
     "param_enums": {},
-    "boolean_string_params": ["strict_variables"],
+    "boolean_string_params": ["strict_variables", "disable_validation"],
     "data_contract": {
       "predictability": "deterministic",
       "default_scope_when_unset": "<self.object>",
       "scope_template": "Data.{self.object}",
       "writes": [
-        { "to_template": "Data.{self.object}", "shape": "Hash", "fields": "from_param:fields.<self.object> + 'Id'", "notes": "Updated Custom Object record. Field set = keys in parameters.fields[<self.object>] plus Id (templated from parameters.object_id). Custom Objects do NOT echo back unmodified fields, so downstream tasks can only rely on the keys you actually sent." }
+        { "to_template": "Data.{self.object}", "shape": "Hash", "fields": "from_param:fields.<self.object> + 'Id'", "notes": "Updated Custom Object record. Field set = keys in parameters.fields[<self.object>] plus Id (templated from top-level object_id). Custom Objects do NOT echo back unmodified fields, so downstream tasks can only rely on the keys you actually sent." }
       ],
       "reads": [
         { "from_param": "object_id", "shape": "liquid" },
@@ -2101,25 +2106,26 @@
       "$model": "app/models/tasks/custom_object/update.rb (extends CustomObject::CustomObjectTask)",
       "$model_validation": "validates :object, presence: true (L2). validates :object_id, presence: true (L3). task_setup_validation (L7-13): parameters.fields[<self.object>] must be non-empty (else 'Please select at least 1 field...'). is_idempotent? returns true.",
       "$task_process_use": "task_process (L19-73): rejects when object blank or when any key in parameters.fields[<self.object>] is missing from schema.properties (raises WorkflowError - 'referencing fields which are not part of the Custom Object definition'). Coerces values per properties[k]['type']. template_parses object_id and matches against /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/; PATCH `/objects/records/<namespace>/<object_name>/<uuid>` with `Content-Type: application/merge-patch+json`. On success write_data(object: object, object_data: record.merge('Id'=>object_id)) and iterate Success.",
+      "$anti_patterns": "Do NOT put the record id in parameters.id — it is top-level object_id. Do NOT use a flat parameters.fields map. Do NOT append __c to object.",
       "fields": [
-        { "$field": "object", "purpose": "Custom Object API name.", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id)", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (update.rb L2)." },
-        { "$field": "object_id", "purpose": "UUID of the Custom Object record to update. Liquid expressions are template_parsed at runtime.", "source": "user-input (text, Liquid OK)", "required_when": "always", "controller_permit": "object_id (top-level via common_params)", "model_validation": "Required (update.rb L3) AND must template_parse to a canonical UUID at runtime (raises WorkflowError otherwise)." },
-        { "$field": "parameters.fields", "purpose": "Nested hash keyed by `<self.object>` whose value is the {FieldName: value} map of fields to update.", "source": "describe-driven nested form (per-field partial inputs)", "options_source": "schema.properties (filtered to origin != 'system'). `fieldsToNull` is forced to multi-picklist.", "required_when": "always", "controller_permit": "parameters: any-hash", "model_validation": "Non-empty (update.rb L9-11) AND every key must exist in schema.properties (else WorkflowError at task_process)." }
+        { "$field": "object", "purpose": "Custom Object API name (`<namespace>__<object>`). NEVER end with `__c`.", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id)", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (update.rb L2)." },
+        { "$field": "object_id", "purpose": "UUID of the Custom Object record to update. Liquid expressions are template_parsed at runtime. TOP-LEVEL task attribute — not parameters.id.", "source": "user-input (text, Liquid OK)", "required_when": "always", "controller_permit": "object_id (top-level via common_params)", "model_validation": "Required (update.rb L3) AND must template_parse to a canonical UUID at runtime (raises WorkflowError otherwise)." },
+        { "$field": "parameters.fields", "purpose": "Nested hash keyed by `<self.object>` whose value is the {FieldName: value} map of fields to update.", "source": "describe-driven nested form (per-field partial inputs)", "options_source": "schema.properties (filtered to origin != 'system'). `fieldsToNull` is forced to multi-picklist.", "required_when": "always", "controller_permit": "parameters: any-hash", "model_validation": "Non-empty (update.rb L9-11) AND every key must exist in schema.properties (else WorkflowError at task_process).", "notes": "Linter E188 rejects flat field maps; E189 rejects parameters.id." }
       ]
     }
   },
 
   "CustomObject::Delete": {
-    "description": "Delete a Custom Object record by UUID. If the workflow had previously bound Data.<object> to a single record matching this Id (or an Array containing it), that entry is removed from new_data. No positive Data.* writes; idempotent.",
+    "description": "Delete a Custom Object record by UUID. If the workflow had previously bound Data.<object> to a single record matching this Id (or an Array containing it), that entry is removed from new_data. No positive Data.* writes; idempotent. object is `<namespace>__<object>` WITHOUT a trailing `__c`. Record id is top-level object_id, not parameters.id.",
     "hooks": ["Success", "Failure"],
     "template": {
       "id": "<<TASK_ID>>",
       "name": "CustomObjectDelete",
-      "parameters": { "strict_variables": "true" },
+      "parameters": { "strict_variables": "true", "disable_validation": "false", "delete_payload_paths": [] },
       "action_type": "CustomObject::Delete",
-      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor or <namespace>__<object>)>>",
+      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor — NOT default__Vendor__c)>>",
       "object_id": "<<REQUIRED: Custom Object record UUID (Liquid OK)>>",
-      "call_type": "REST",
+      "call_type": "SOAP",
       "task_id": "<<UPSTREAM_TASK_ID_OR_NULL>>",
       "css": { "top": "<<TOP>>", "left": "<<LEFT>>" },
       "concurrent_limit": 9999999,
@@ -2132,7 +2138,7 @@
     "required_params": [],
     "required_at_import": ["object", "object_id"],
     "param_enums": {},
-    "boolean_string_params": ["strict_variables"],
+    "boolean_string_params": ["strict_variables", "disable_validation"],
     "data_contract": {
       "predictability": "scoping",
       "writes": [
@@ -2151,29 +2157,31 @@
       "$model_validation": "validates :object, presence: true (L2). validates :object_id, presence: true (L3). task_setup_validation is empty (no extra checks). is_idempotent? returns true.",
       "$task_process_use": "task_process (L14-29): template_parse object_id, DELETE `/objects/records/<namespace>/<object_name>/<uuid>`. On non-200, raise WorkflowError. On success, if new_data[<object>] is a Hash whose Id matches, delete the entry; if Array, delete_if {Id == uuid}. Then iterate Success.",
       "fields": [
-        { "$field": "object", "purpose": "Custom Object API name.", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id)", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (delete.rb L2)." },
-        { "$field": "object_id", "purpose": "UUID of the Custom Object record to delete (Liquid OK).", "source": "user-input (text, Liquid OK)", "required_when": "always", "controller_permit": "object_id (top-level via common_params)", "model_validation": "Required (delete.rb L3); template_parsed at runtime." }
+        { "$field": "object", "purpose": "Custom Object API name (`<namespace>__<object>`). NEVER end with `__c`.", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id)", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (delete.rb L2)." },
+        { "$field": "object_id", "purpose": "UUID of the Custom Object record to delete (Liquid OK). TOP-LEVEL task attribute — not parameters.id.", "source": "user-input (text, Liquid OK)", "required_when": "always", "controller_permit": "object_id (top-level via common_params)", "model_validation": "Required (delete.rb L3); template_parsed at runtime." }
       ]
     }
   },
 
   "CustomObject::Query": {
-    "description": "Query Custom Object records via Lucene `parameters.query` and/or an `parameters.ids=...&ids=...` URL fragment. Output is written as an Array<Hash> at `Data.<alternate_location | object>` (write_data with overwrite=true, so it REPLACES any prior binding at that scope). At least one of query or ids must be present. Idempotent.",
+    "description": "Query Custom Object records via Lucene `parameters.query` and/or an `parameters.ids=...&ids=...` URL fragment. Output is written as an Array<Hash> at `Data.<alternate_location | object>` (write_data with overwrite=true, so it REPLACES any prior binding at that scope). Use parameters.alternate_location — NOT parameters.placement (that is the SOAP Query param; CustomObject::Query ignores placement). object is `<namespace>__<object>` WITHOUT a trailing `__c`. At least one of query or ids must be present. Idempotent.",
     "hooks": ["Success", "Failure"],
     "template": {
       "id": "<<TASK_ID>>",
       "name": "CustomObjectQuery",
       "parameters": {
-        "query": "<<OPTIONAL: Lucene filter expression (Liquid OK), e.g. `status:active AND activeDate:<2018`. At least one of query|ids required>>",
-        "ids": "<<OPTIONAL: ids=<uuid>&ids=<uuid> URL fragment (Liquid OK). At least one of query|ids required>>",
-        "alternate_location": "<<OPTIONAL: alternate Data.* placement; defaults to self.object>>",
+        "ids": "",
+        "query": "<<OPTIONAL: Lucene filter expression (Liquid OK), e.g. `Status__c:Submitted`. At least one of query|ids required>>",
+        "alternate_location": "<<OPTIONAL: alternate Data.* placement; defaults to self.object. NOT 'placement'.>>",
         "zero_result_stop": "false",
-        "strict_variables": "true"
+        "strict_variables": "true",
+        "disable_validation": "false",
+        "delete_payload_paths": []
       },
       "action_type": "CustomObject::Query",
-      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor or <namespace>__<object>)>>",
+      "object": "<<REQUIRED: Custom Object API name (e.g. default__Vendor — NOT default__Vendor__c)>>",
       "object_id": null,
-      "call_type": "REST",
+      "call_type": "SOAP",
       "task_id": "<<UPSTREAM_TASK_ID_OR_NULL>>",
       "css": { "top": "<<TOP>>", "left": "<<LEFT>>" },
       "concurrent_limit": 9999999,
@@ -2186,13 +2194,13 @@
     "required_params": [],
     "required_at_import": ["object"],
     "param_enums": {},
-    "boolean_string_params": ["strict_variables", "zero_result_stop"],
+    "boolean_string_params": ["strict_variables", "zero_result_stop", "disable_validation"],
     "data_contract": {
       "predictability": "deterministic",
       "default_scope_when_unset": "<self.object>",
       "scope_template": "Data.{parameters.alternate_location | self.object}",
       "writes": [
-        { "to_template": "Data.{parameters.alternate_location | self.object}", "shape": "Array<Hash>", "fields": "schema.properties keys (origin != 'system') + 'Id'", "notes": "write_data(object_name: payload_location, object_data: records, overwrite: true) - REPLACES any prior Hash/Array at that scope. Inside an Iterate For-Each branch over this scope, the binding rebinds to a single Hash row." }
+        { "to_template": "Data.{parameters.alternate_location | self.object}", "shape": "Array<Hash>", "fields": "schema.properties keys (origin != 'system') + 'Id'", "notes": "write_data(object_name: payload_location, object_data: records, overwrite: true) - REPLACES any prior Hash/Array at that scope. Inside an Iterate For-Each branch over this scope, the binding rebinds to a single Hash row. payload_location = parameters.alternate_location || self.object (query.rb) — parameters.placement is ignored." }
       ],
       "reads": [
         { "from_param": "query", "shape": "liquid" },
@@ -2206,11 +2214,12 @@
       "$model": "app/models/tasks/custom_object/query.rb (extends CustomObject::CustomObjectTask)",
       "$model_validation": "validates :object, presence: true (L3). task_setup_validation (L6-12): object required AND at least one of parameters.query / parameters.ids must be present (else 'Please specify the query or ids...'). is_idempotent? returns true.",
       "$task_process_use": "task_process (L30-59): builds GET <base_url>/objects/records/<namespace>/<object_name>/?q=<query>&<ids>. URL-encodes the query, strips zero-width chars from the ids fragment. Sets `Zuora-Realtime-Read: true`. Streams the response with a remaining_size_limit guard (DataLimitError if > Thread.current[:appinstance].data_size_limit). On 200, write_data(object_name: payload_location, object_data: records, overwrite: true). When count == 0 and parameters.zero_result_stop == 'true', returns without iterating (halts downstream). Otherwise iterate Success.",
+      "$anti_patterns": "Do NOT use parameters.placement (SOAP Query). Use parameters.alternate_location. Do NOT append __c to object.",
       "fields": [
-        { "$field": "object", "purpose": "Custom Object API name.", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id)", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (query.rb L3)." },
+        { "$field": "object", "purpose": "Custom Object API name (`<namespace>__<object>`). NEVER end with `__c`.", "source": "describe-call (Custom Object describe)", "options_source": "Thread.current[:appinstance].get_custom_objects(entity_id: get_entity_id)", "required_when": "always", "controller_permit": "object (top-level via common_params)", "model_validation": "Required (query.rb L3)." },
         { "$field": "parameters.query", "purpose": "Lucene-style filter expression (Liquid OK), e.g. `status:active AND activeDate:<2018`.", "source": "user-input (textarea, Liquid OK)", "required_when": "parameters.ids is blank", "controller_permit": "parameters: any-hash" },
         { "$field": "parameters.ids", "purpose": "URL-fragment of `ids=<uuid>&ids=<uuid>...` repeated query params (Liquid OK; commonly built with `{{ Data.xyz | map: 'id' | join: '&ids=' }}`).", "source": "user-input (textarea, Liquid OK)", "required_when": "parameters.query is blank", "controller_permit": "parameters: any-hash" },
-        { "$field": "parameters.alternate_location", "purpose": "Override the Data.* scope where results are written (default = self.object).", "source": "user-input (text)", "controller_permit": "parameters: any-hash" },
+        { "$field": "parameters.alternate_location", "purpose": "Override the Data.* scope where results are written (default = self.object). NOT parameters.placement — that is ignored by CustomObject::Query.", "source": "user-input (text)", "controller_permit": "parameters: any-hash" },
         { "$field": "parameters.zero_result_stop", "purpose": "When 'true', halt downstream tasks if the query returns 0 records.", "source": "boolean-string", "controller_permit": "parameters: any-hash", "default": "\"false\"" }
       ]
     }

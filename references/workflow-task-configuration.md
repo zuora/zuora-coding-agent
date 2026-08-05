@@ -827,6 +827,8 @@ These five tasks are the building blocks of every non-trivial workflow: pick a b
 **Common gotchas**
 
 - The result write is `overwrite: true`, so any prior binding at `Data.<alternate_location | self.object>` is REPLACED (not merged). If you need to preserve earlier rows, use a different `alternate_location`.
+- Use `parameters.alternate_location`, **not** `parameters.placement`. Placement is the SOAP `Query` parameter; `CustomObject::Query` ignores it (`payload_location` only reads `alternate_location`). The linter flags this as `E190`.
+- `object` is `<namespace>__<object>` (e.g. `default__Vendor`) and must **not** end with `__c`. Rails splits with `rpartition('__')`, so `default__Vendor__c` becomes `object_name = "c"`. The linter flags this as `E187`.
 - `parameters.ids` is a raw URL fragment, NOT a JSON array - use `{{ array | map: 'id' | join: '&ids=' }}` to build it from upstream data.
 - The Custom Object schema is fetched from describe; field names are case-sensitive and the `__c` suffix counts. The linter only knows the static field set (no live describe in CI), so unfamiliar custom fields will surface as W177 warnings until added to `references/zuora-standard-fields.json`.
 - Custom Objects are NOT updated synchronously after writes - the help text in the UI explicitly warns "The query API is not updated synchronously and may not reflect recent changes." Chain a `Delay` task or fall back to ID-based reads after a Create/Update if you need read-after-write consistency.
@@ -853,7 +855,9 @@ These five tasks are the building blocks of every non-trivial workflow: pick a b
 
 **Common gotchas**
 
-- `parameters.fields` MUST be nested under `<self.object>`. Hand-written workflows that put the field map directly under `parameters.fields` will fail validation with "Please select at least 1 field..." even when fields are present.
+- `parameters.fields` MUST be nested under `<self.object>`. Hand-written workflows that put the field map directly under `parameters.fields` will fail validation with "Please select at least 1 field..." even when fields are present. The linter flags flat maps as `E188`.
+- `object` must be `<namespace>__<object>` without a trailing `__c` (`E187`).
+- There is **no** `parameters.placement` — Create always writes `Data.<self.object>` (`E190` if placement is present). Downstream Liquid must use `Data.<object>.Id` (e.g. `{{ Data.default__Vendor.Id }}`), not a task-name alias.
 - All field names are validated against the LIVE schema at task_process - stale workflows that reference removed fields raise `WorkflowError` ("Field '<name>' was not found... Please refresh cache and update the task with the correct field.").
 - Required `__c` fields are auto-injected by the UI as empty strings; explicitly populate them or save will fail with `Missing fields: ...`.
 - Custom Objects are NOT readable synchronously after Create - the help text explicitly warns about eventual consistency. Use the returned `Data.<object>.Id` for follow-up Update/Delete instead of querying back.
@@ -884,8 +888,10 @@ These five tasks are the building blocks of every non-trivial workflow: pick a b
 
 **Common gotchas**
 
-- `parameters.fields` MUST be nested under `<self.object>`; otherwise validation fails with "Please select at least 1 field..." even when fields appear present.
-- `object_id` is template_parsed at runtime - validate any embedded `{{ Data.* }}` references against the upstream task contracts before saving. Anything other than a canonical UUID (with hyphens) raises `Invalid Object ID`.
+- `parameters.fields` MUST be nested under `<self.object>`; otherwise validation fails with "Please select at least 1 field..." even when fields appear present (`E188`).
+- The record UUID is the **top-level** `object_id` attribute, not `parameters.id` (`E189`).
+- `object` must be `<namespace>__<object>` without a trailing `__c` (`E187`).
+- `object_id` is template_parsed at runtime - validate any embedded `{{ Data.* }}` references against the upstream task contracts before saving. Anything other than a canonical UUID (with hyphens) raises `Invalid Object ID`. Prefer `{{ Data.<object>.Id }}` from an upstream CustomObject::Create (Create has no placement alias).
 - Custom Object PATCH uses `application/merge-patch+json`, so omitting a field leaves it unchanged. Use `fieldsToNull` (when supported by the object) to explicitly null fields.
 - Like Query/Create, Custom Object reads are NOT synchronous - downstream Query against an updated record may return stale data for a few seconds.
 

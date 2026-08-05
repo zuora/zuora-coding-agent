@@ -81,7 +81,7 @@ Many tasks accept a `parameters.placement` (or aliased) key that controls where 
 |---|---|---|
 | `Query` | `Data.{self.object}` | `parameters.placement` |
 | `GraphQuery` | `Data.{parameters.baseObject}` | `parameters.placement` |
-| `CustomObject::Query` | `Data.{parameters.object_name}` | `parameters.alternate_location` |
+| `CustomObject::Query` | `Data.{self.object}` | `parameters.alternate_location` |
 | `Callout` | `Data.Callout` | `parameters.validation.payload_location` |
 | `AsynchronousCallout` | `Data.Callout` (initial) **and** `Data.Callout` (polling) | `parameters.validation.payload_location` and `parameters.polling_validation.polling_payload_location` |
 | `Logic::Lambda` | `Data.Lambda` | (none — hard-coded) |
@@ -332,7 +332,7 @@ Mutations and the rules they trigger:
 |---|---|---|
 | `Query` | `Data.{placement \| object}` (Array<Hash>) | DETERMINISTIC |
 | `GraphQuery` | `Data.{placement \| baseObject}` | SEMI-DETERMINISTIC |
-| `CustomObject::Query` | `Data.{alternate_location \| object_name}` | DETERMINISTIC |
+| `CustomObject::Query` | `Data.{alternate_location \| self.object}` | DETERMINISTIC |
 | `Iterate` | rebinds `Data.{object}` to single Hash inside For-Each | SCOPING |
 | `Callout` | `Data.{validation.payload_location \| 'Callout'}` | OPAQUE |
 | `AsynchronousCallout` | initial + polling responses | OPAQUE |
