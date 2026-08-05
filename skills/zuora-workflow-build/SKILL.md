@@ -109,7 +109,7 @@ Use the skeleton + templates composer. Do not hand-write structure.
 
    **Liquid shim minimization check:** before emitting a separate `Logic::Liquid` task, ask whether its assigned/captured values are consumed by only the next task. If yes, inline that Liquid into the consuming task's parameter instead: date calculations belong in Export/Query predicates or task date fields, boolean decisions belong in `If` / `Logic::Case` clauses, and request-body assembly belongs in a Callout `raw_body`. Keep a separate Liquid task when the value is reused by multiple tasks, normalizes a large shared payload, creates a reusable named scope, or intentionally needs independent review/failure behavior. The linter flags avoidable one-consumer Liquid shim tasks as `W187`.
 
-   **Custom Object opt-in check:** do not emit `CustomObject::*` tasks unless the user explicitly asks to use a custom object, an existing custom-object schema, or a durable custom-object audit/state store. Prefer standard Zuora objects, Workflow runtime data, direct queries, files, email, or callouts for ordinary workflow state and reporting. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` on each `CustomObject::*` task to document that intent. The linter flags unmarked Custom Object tasks as `W194`.
+   **Custom Object opt-in check:** do not emit `CustomObject::*` tasks unless the user explicitly asks to use a custom object, an existing custom-object schema, or a durable custom-object audit/state store. Prefer standard Zuora objects, Workflow runtime data, direct queries, files, email, or callouts for ordinary workflow state and reporting. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` on each `CustomObject::*` task to document that intent. The linter flags unmarked Custom Object tasks as `W194`. Shape must match Rails: no trailing `__c` on `object` (`E187`), nested `parameters.fields[<object>]` (`E188`), top-level `object_id` not `parameters.id` (`E189`), Query uses `alternate_location` not `placement` (`E190`).
 
    **CRUD update consolidation check:** before emitting more than one `Update` task against the same object and `object_id`, check whether the tasks are only setting different fields on the same record. If yes, emit one `Update` task with all field values under `parameters.fields[<object>]`; do not create one CRUD task per field unless each update intentionally needs independent failure/retry handling, intermediate validation, or ordered side effects. ProductRatePlanCharge (PRPC) object updates are a common example, not a special-only case. The linter flags adjacent same-record per-field updates as `W183`.
 
@@ -157,9 +157,9 @@ The `configuration_contract.fields[*].source` value `describe-call` (per-task) t
 | `Query` | SOAP describe of `parameters.object` | `parameters.fields[<object>][]` **and** any `parameters.where_clause` field |
 | `Create` | SOAP describe of `parameters.object` (createable fields only) | `parameters.fields[<object>]` map |
 | `Update` | SOAP describe of `parameters.object` (updateable fields only) | `parameters.fields[<object>]` map |
-| `CustomObject::Query` | Custom Object describe of `parameters.object` | implicit (selected via `parameters.query` Lucene refs) |
-| `CustomObject::Create` | Custom Object describe of `parameters.object` (origin != system) | `parameters.fields[<object>]` map |
-| `CustomObject::Update` | Custom Object describe of `parameters.object` (origin != system) | `parameters.fields[<object>]` map |
+| `CustomObject::Query` | Custom Object describe of top-level `object` | implicit (selected via `parameters.query` Lucene refs) |
+| `CustomObject::Create` | Custom Object describe of top-level `object` (origin != system) | `parameters.fields[<object>]` nested map |
+| `CustomObject::Update` | Custom Object describe of top-level `object` (origin != system) | `parameters.fields[<object>]` nested map |
 
 #### 3a-1. Run the describe (Bash recipe, with MCP as the fallback)
 
@@ -209,7 +209,14 @@ The linter rule `W177 undeclared-describe-field` enforces this — any field nam
 
 #### 3a-4. Custom Object specifics
 
-For `CustomObject::*` tasks, `parameters.fields` is **nested**: `parameters.fields.<self.object>.<FieldName>`. The Custom Object describe lives at `GET /objects/definitions/<namespace>/<object>` (origin != system). The fallback catalog never carries Custom Objects (they are tenant-specific) — if both channels fail, ask the user directly for the field map. Required `__c` fields (per the schema) MUST be supplied for Create or save fails with `Missing fields: ...`.
+For `CustomObject::*` tasks, match the Rails models in `workflow/rails/app/models/tasks/custom_object/` — do **not** reuse SOAP `Query` / `Create` / `Update` shapes:
+
+1. **`object`** is `<namespace>__<object>` (e.g. `default__Vendor`). Never append `__c` to the object name — `__c` is a **field** suffix. Rails splits with `rpartition('__')`, so `default__Vendor__c` becomes `object_name = "c"`. Linter: `E187`.
+2. **`parameters.fields` is nested**: `parameters.fields.<self.object>.<Field__c> = <value>`. A flat `parameters.fields.<Field__c>` map is silently empty at runtime. Linter: `E188`.
+3. **Update/Delete id** is top-level `object_id`, never `parameters.id`. Linter: `E189`.
+4. **Query placement** uses `parameters.alternate_location`, not `parameters.placement` (SOAP Query). Create/Update have **no** placement — output is always `Data.<self.object>`. Linter: `E190`.
+
+The Custom Object describe lives at `GET /objects/definitions/<namespace>/<object>` (origin != system). The fallback catalog never carries Custom Objects (they are tenant-specific) — if both channels fail, ask the user directly for the field map. Required `__c` fields (per the schema) MUST be supplied for Create or save fails with `Missing fields: ...`. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` (`W194`).
 
 #### 3a-5. Event merge-field describe (event_parameters values)
 
@@ -444,6 +451,7 @@ Before writing to disk, confirm every item:
 - [ ] **Workflow Liquid filter check ran clean**: simple array filtering/grouping uses `where`, `where_exp`, `group_by`, or `group_by_exp` instead of manual `for` + `if` + `push` loops (`W184`).
 - [ ] **Liquid shim minimization check ran clean**: no single-consumer `Logic::Liquid` task that can be inlined into the next task's Export/Query predicate, Case/If clause, date field, or Callout `raw_body` (`W187`).
 - [ ] **CRUD update consolidation check ran clean**: no adjacent same-record `Update` tasks that each set separate fields. Combine them into one object update; ProductRatePlanCharge / PRPC is one example of this general rule (`W183`).
+- [ ] **Custom Object shape check ran clean**: every `CustomObject::*` task uses `<namespace>__<object>` without trailing `__c` (`E187`), nests Create/Update fields under `parameters.fields[<object>]` (`E188`), puts Update/Delete ids on top-level `object_id` not `parameters.id` (`E189`), and uses Query `alternate_location` not `placement` (`E190`). Unmarked Custom Object tasks still warn as `W194`.
 - [ ] **Zuora REST v1 URL check ran clean**: Callout / AsynchronousCallout URLs that use `Credentials.zuora.rest_endpoint` append resource paths only (`orders`, `subscriptions/...`), never `/v1/...` (`E182`).
 - [ ] **Opaque-task confirmation (Step 3e) completed for every OPAQUE task with downstream consumers**: each `Callout` / `AsynchronousCallout` / `Logic::Lambda` / `Script::JavaScript` / `Logic::JSONTransform` / `Logic::XMLTransform` / `Logic::CSVTranslator` / `Logic::ResponseFormatter` / `Execute::WorkflowTask` / `Mediation::SendEvents` whose output is referenced downstream carries either:
   - `parameters._expected_response_schema = { "<scope>": { ... } }`, OR
