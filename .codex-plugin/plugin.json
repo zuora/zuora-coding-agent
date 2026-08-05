@@ -24,10 +24,10 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Zuora Coding Agent",
-    "shortDescription": "Zuora API, Workflow, migration, and CPQ skills",
+    "shortDescription": "Build Zuora Solutions",
     "longDescription": "Reusable Zuora skills and MCP configuration for API integrations, workflow automation, Invoice Settlement and Order API migrations, CPQ Apex/Visualforce customizations, Quote Studio hooks/events, and best-practice validation.",
     "developerName": "Zuora Engineering",
-    "category": "Productivity",
+    "category": "Developer Tools",
     "capabilities": [
       "Read",
       "Write"
@@ -38,7 +38,7 @@
       "Use Zuora Coding Agent to design a Quote Studio hook."
     ],
     "brandColor": "#0B8F8A",
-    "logo": "./logo-512.png",
-    "composerIcon": "./logo-96.png"
+    "logo": "./assets/logo-512.png",
+    "composerIcon": "./assets/logo-96.png"
   }
 }
