@@ -28,11 +28,17 @@
 - Use `ZQFClient` mutation helpers instead of manually constructing quote-state update events when the target package version is 10.58 or later. Mutation helpers return `CustomEvent` objects; dispatch those returned events explicitly.
 - For multiple CPQ object field updates in one hook, prefer the matching patch or bulk `ZQFClient` helper over repeated field-level helpers. Use `updateQuote(patch)` for quote fields, `updateCharges([...])` for QRPC charges, `updateRatePlans([...])` for QRP changes, `updateTiers([...])` for tiers, `updateAmendments([...])` for amendments, or `updateProducts({ ratePlans, charges, tiers })` for mixed product changes.
 - For ramp interval charge updates, resolve the target interval with `getRampIntervals()`, `getActiveRampInterval()`, or `getRampIntervalByDate(...)` and use interval-scoped helpers such as `updateChargesInInterval(interval, updates)`. For second-ramp-interval QRPC updates, use the canonical `getRampIntervals()` plus `updateChargesInInterval(secondRampInterval, [{ filter, update }])` pattern from `cpq-zqf-client.md`. Use filter/update descriptors; do not select intervals with `getQuoteField(RAMP_INTERVAL_FIELD)`, manually traverse `getProducts()`, `product.ratePlans`, `ratePlan.charges`, `quoteState.quoteRatePlans`, `interval.charges`, or `secondInterval.charges`, and do not invent product/rate-plan-charge helpers.
+- Read quote header fields with `getQuote()` / `getQuoteField(...)`; do not read from `quoteState.quote`.
+- Read charge, rate plan, tier, and amendment fields from wrapper `.record` properties, for example `charge.record.zqu__Quantity__c` and `ratePlan.record.Name`; do not read `charge.zqu__Quantity__c`, `charge.Name`, or `ratePlan.Name` directly.
+- `quoteState.productTimelines` is an object map, not an array. Use `this.zqf.getProductTimelines()` when timeline iteration is required.
+- For ramp quote logic, iterate ramp **intervals** (`getRampIntervals()`), not timeline **versions** (`getVersions(...)`). Versions represent effective-date slices within one product timeline; ramp intervals represent pricing periods across the quote.
+- Prefer documented `ZQFClient` read helpers over manual nested traversal of `product.ratePlans`, `ratePlan.charges`, or `quoteState.quoteRatePlans`.
 - Do not detect ramp quotes by `RecordType.Name` or record type labels. For ramp-specific behavior, check whether ramp intervals exist and, when the real quote boolean field API name is known, whether that field is `true`.
 - For product update hooks, return `{ proceed: true }` plus the updated payload keys required by the hook.
 - For `toastMessageDisplay`, use `theme` values `warning`, `error`, or `success`.
 - For `objectFieldConfig`, provide `field` and `object` and include timeline/charge context for charge-level configuration. Do not query or mutate Quote Studio DOM with `document.querySelector`, `[data-charge-id]`, `[data-field]`, or `.style.*`; use `objectfieldconfig` instead.
 - Do not probe both namespaced and non-namespaced forms of the same field. Managed package fields use the `zqu__` namespace, for example `zqu__TriggerEvent__c`; custom fields outside the package do not use `zqu__`, for example `TriggerEvent__c`.
+- Keep hook and event handler methods thin; extract business logic into a colocated `<componentName>Helper.js` module with plain exported functions, imported via relative path. Skip the helper file for trivial single-line hook bodies.
 
 ## Legacy Apex and Component Library
 

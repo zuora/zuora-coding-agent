@@ -83,6 +83,135 @@ const updatedPlans = this.zqf.getRatePlans({ type: 'UpdateProduct' });
 
 Do not read from `this.quoteState.getQuote()`; use `this.zqf.getQuote()` or `this.zqf.getQuoteField(fieldName)` when ZQFClient is available.
 
+## Navigating nested quote state
+
+Validate the object type and nesting path before reading or updating quote data. Incorrect nested navigation is a common source of silent data access failures in generated CPQ code.
+
+**Read quote header fields from helpers, not raw nested state**
+
+```js
+// CORRECT
+const term = this.zqf.getQuoteField('zqu__InitialTerm__c');
+const quoteName = this.zqf.getQuoteField('Name');
+
+// WRONG — do not read quote header fields from nested quoteState paths
+const term = this.quoteState.quote.zqu__InitialTerm__c;
+const quoteName = this.quoteState.quote.Name;
+```
+
+**Read CPQ object fields from `.record` on wrapper objects**
+
+Objects returned by read helpers such as `getRatePlans(...)`, `getCharges(...)`, and `getTiers(...)` expose Salesforce fields on `.record`:
+
+```js
+// CORRECT
+const plans = this.zqf.getRatePlans() || [];
+const recurringCharges = this.zqf.getCharges(version, {
+  filter: (charge) => charge.record.zqu__ChargeType__c === 'Recurring'
+});
+
+// WRONG — wrapper objects do not expose fields at the top level
+const quantity = charge.zqu__Quantity__c;
+const planName = ratePlan.Name;
+const discount = tier.zqu__Discount__c;
+```
+
+**Object maps vs arrays**
+
+- `quoteState.productTimelines` is an object map keyed by timeline ID, not an array.
+- Use `this.zqf.getProductTimelines(filter?)` when timeline iteration is required.
+- Prefer ZQF read helpers over direct `quoteState.*` collection traversal. Direct reads of nested quote state are easy to get wrong when the underlying shape is an object map rather than an array.
+
+```js
+// WRONG — productTimelines is an object map, not an array
+for (const timeline of this.quoteState.productTimelines) {
+  // ...
+}
+
+// CORRECT
+for (const timeline of this.zqf.getProductTimelines() || []) {
+  const versions = this.zqf.getVersions(timeline.id) || [];
+  // version-scoped reads only — not ramp interval pricing
+}
+```
+
+**Prefer helper reads over manual product-tree traversal**
+
+Do not walk invented product trees such as `product.ratePlans`, `ratePlan.charges`, or `quoteState.quoteRatePlans` when documented read or mutation helpers already cover the requirement:
+
+```js
+// WRONG — manual nested traversal misses the real quote-state shape
+for (const product of products) {
+  for (const ratePlan of product.ratePlans || []) {
+    for (const charge of ratePlan.charges || []) {
+      if (charge.Name === 'Recurring Charge') {
+        // ...
+      }
+    }
+  }
+}
+
+// CORRECT — helper filters receive the parent objects explicitly
+this.dispatchEvent(
+  this.zqf.updateCharges([
+    {
+      filter: (charge, ratePlan) =>
+        charge.record.Name === 'Recurring Charge' &&
+        ratePlan.record.Name === 'Enterprise Plan',
+      update: { zqu__Discount__c: 10 }
+    }
+  ])
+);
+```
+
+## Quote state shape and ramp dimensions
+
+Validate input types before traversing quote state for ramp logic. Ramp pricing uses a different dimension than timeline versions.
+
+**Versions vs ramp intervals**
+
+- **Versions** are effective-date slices within one product timeline. Read them with `getVersions(timelineId, filter?)`, `getLatestVersion(...)`, or `getVersionByEffectiveDate(...)`, then inspect charges with `getCharges(version, filter?)`.
+- **Ramp intervals** are pricing periods across the quote. Read them with `getRampIntervals()`, `getActiveRampInterval(...)`, or `getRampIntervalByDate(...)`.
+- For ramp quote logic — uplifts, interval-scoped charge updates, interval date alignment — iterate **intervals**, not versions. Do not loop over `getVersions(...)`, `timeline.versions`, or version objects when the requirement is ramp-interval behavior.
+
+Correct ramp interval iteration:
+
+```js
+const rampIntervals = this.zqf.getRampIntervals() || [];
+
+for (const rampInterval of rampIntervals) {
+  this.dispatchEvent(
+    this.zqf.updateChargesInInterval(rampInterval, [
+      {
+        filter: (charge) => charge.record.zqu__ChargeType__c === 'Recurring',
+        update: {
+          zqu__Discount__c: computeUpliftForInterval(rampInterval)
+        }
+      }
+    ])
+  );
+}
+```
+
+Avoid this version-loop shape for ramp quote logic:
+
+```js
+// WRONG — versions are not ramp intervals
+const timelines = this.zqf.getProductTimelines() || [];
+
+for (const timeline of timelines) {
+  const versions = this.zqf.getVersions(timeline.id) || [];
+
+  for (const version of versions) {
+    this.dispatchEvent(
+      this.zqf.updateChargesInInterval(version, [
+        { filter: () => true, update: { zqu__Discount__c: 10 } }
+      ])
+    );
+  }
+}
+```
+
 Unsupported invented helpers:
 
 - Do not generate `getProducts(...)`; use documented read helpers such as `getProductTimelines(...)`, `getRatePlans(...)`, `getVersions(...)`, and `getCharges(...)` for reads, and prefer mutation helper filters for updates.

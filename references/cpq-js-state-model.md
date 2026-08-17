@@ -40,6 +40,47 @@ get zqf() {
 }
 ```
 
+## Quote state navigation hierarchy
+
+CPQ quote state is deeply nested. Generated code must resolve the correct path for each object type or use documented `ZQFClient` read helpers instead of guessing nested property names.
+
+**Top-level `@api` properties**
+
+- `quoteState` — quote, product timelines, subscriptions, charges, tiers, and calculated quote data.
+- `pageState` — Quote Studio page and rules data.
+- `metricState` — quote metrics exposed to custom components.
+- `masterQuoteState` / `parentQuoteState` — MSQ child/parent quote context when applicable.
+
+**Wrapper objects and `.record`**
+
+Timeline, rate plan, charge, tier, and amendment objects returned by `ZQFClient` read helpers are wrapper objects. Salesforce field values live on `.record`:
+
+- Quote fields: `this.zqf.getQuote()` or `this.zqf.getQuoteField('zqu__InitialTerm__c')`
+- Rate plan fields: `ratePlan.record.Name`, `ratePlan.record.zqu__ProductRatePlan__c`
+- Charge fields: `charge.record.zqu__Quantity__c`, `charge.record.Name`
+- Tier fields: `tier.record.zqu__Discount__c`, `tier.record.zqu__StartingUnit__c`
+
+Do not read `charge.zqu__Quantity__c`, `charge.Name`, `ratePlan.Name`, or `tier.zqu__Discount__c` directly on wrapper objects.
+
+**Object maps vs arrays**
+
+Several nested collections on `quoteState` are object maps keyed by ID, not JavaScript arrays:
+
+- `quoteState.productTimelines` — keyed by timeline ID. Use `this.zqf.getProductTimelines()` for array iteration.
+- Do not use `for...of`, `.map(...)`, `.forEach(...)`, or spread syntax directly on `quoteState.productTimelines`.
+
+**Prefer helpers over manual traversal**
+
+For package version 10.58 or later, prefer documented `ZQFClient` read helpers before walking nested quote state manually:
+
+- Timelines: `getProductTimelines()`, `getTimeline(timelineId)`
+- Rate plans: `getRatePlans(filter?)`, `getUpdatedRatePlans(filter?)`
+- Charges: `getCharges(version, filter?)`, `getCharge(version, chargeIdOrKey)`
+- Tiers: `getTiers(charge)`, `getTier(charge, tierIndexOrKey)`
+- Quote fields: `getQuote()`, `getQuoteField(fieldName)`
+
+Do not manually traverse `product.ratePlans`, `ratePlan.charges`, `quoteState.quoteRatePlans`, or `quoteState.quote` when a documented helper covers the read. Do not read quote header fields from `this.quoteState.quote`; use `getQuote()` or `getQuoteField(...)`.
+
 ## Rules
 
 - Treat state as CPQ-owned. Do not directly mutate `quoteState`.
@@ -48,6 +89,8 @@ get zqf() {
 - For Zuora managed package version 10.58 or later, use imported `ZQFClient` for quote state read, update, and fire/event operations. Do not generate raw public quote-state event construction in this path.
 - For multiple CPQ object field updates in one hook, build one patch or grouped update and call the matching `ZQFClient` helper once for that object group. Reserve field-level helpers such as `updateQuoteField(...)`, `updateChargeField(...)`, and `updateTierField(...)` for exactly one field on one object.
 - For ramp interval changes, use interval-aware helpers such as `getRampIntervals()` and `updateChargesInInterval(...)` with filter/update descriptors instead of selecting intervals through quote fields or manually traversing QRP/QRPC state.
+- `quoteState.productTimelines` is an object map keyed by timeline ID, not an array. Use `this.zqf.getProductTimelines()` for array traversal.
+- Ramp pricing and interval-scoped mutations iterate **ramp intervals** from `getRampIntervals()`, not **timeline versions** from `getVersions(...)`. Versions are effective-date slices within one timeline; ramp intervals are pricing periods across the quote.
 - Do not use `RecordType.Name` to infer ramp quote behavior. Use ramp interval existence and, if provided, the real quote boolean ramp field being `true`.
 - If the user states that `zqfClient` is available, treat the target as version 10.58 or later and use the `ZQFClient` import pattern.
 - If the target package version is unknown and quote state helper behavior matters, ask the user to confirm whether the installed Zuora managed package version is 10.58 or later.
