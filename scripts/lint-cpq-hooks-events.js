@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { loadFieldCatalog, indexFieldCatalog } = require('./lint-cpq-apex');
 const REF_DIR = [
   path.join(__dirname, '..', 'zuora-coding-agent', 'references'),
   path.join(__dirname, '..', 'references')
@@ -439,6 +440,181 @@ function warnQuoteFieldRampIntervalSelection(text, file, issues) {
   }
 }
 
+function isRampQuoteContext(text) {
+  return /\b(?:getRampIntervals|updateChargesInInterval|updateProductsInInterval|updateRatePlansInInterval|updateAmendmentsInInterval|updateTiersInInterval|rampInterval|isRampQuote|RampDeal|RAMP_)\b/i.test(text);
+}
+
+function warnRampVersionIteration(text, file, issues) {
+  if (!isRampQuoteContext(text)) return;
+
+  const patterns = [
+    {
+      re: /\bfor\s*\(\s*(?:const|let|var)\s+\w+\s+of\s+(?:this\.)?zqf\.getVersions\s*\(/,
+      message: 'ramp quote logic must iterate getRampIntervals(), not getVersions(); timeline versions are effective-date slices, not ramp pricing intervals'
+    },
+    {
+      re: /\bfor\s*\(\s*(?:const|let|var)\s+\w+\s+of\s+\w+\.versions\b/,
+      message: 'do not iterate timeline .versions for ramp quote logic; use getRampIntervals() and interval-scoped helpers such as updateChargesInInterval(...)'
+    },
+    {
+      re: /\b(?:this\.)?zqf\.getVersions\s*\([^)]*\)[\s\S]{0,500}?\bfor\s*\(\s*(?:const|let|var)\s+\w+\s+of\s+\w+\s*\)/,
+      message: 'do not loop over getVersions() for ramp interval pricing; resolve intervals with getRampIntervals() and apply changes with updateChargesInInterval(...) or related *InInterval helpers'
+    }
+  ];
+
+  for (const { re, message } of patterns) {
+    const match = text.match(re);
+    if (match) {
+      issues.push({
+        severity: 'error',
+        rule: 'EJS085',
+        file,
+        line: lineOf(text, match.index || 0),
+        message
+      });
+      return;
+    }
+  }
+}
+
+function warnDirectQuoteStateNestedAccess(text, file, issues) {
+  const patterns = [
+    {
+      re: /\b(?:this\.)?(?:quoteState\??\.)(?:quote|subscription|subscriptions)\b/,
+      message: 'do not read quote header or subscription data from nested quoteState paths; use this.zqf.getQuote(), this.zqf.getQuoteField(...), or this.zqf.getSubscription()'
+    }
+  ];
+
+  for (const { re, message } of patterns) {
+    const match = text.match(re);
+    if (match) {
+      issues.push({
+        severity: 'warn',
+        rule: 'WJS074',
+        file,
+        line: lineOf(text, match.index || 0),
+        message
+      });
+      return;
+    }
+  }
+}
+
+function warnDirectQuoteStateCollectionAccess(text, file, issues) {
+  const patterns = [
+    {
+      re: /\bfor\s*\(\s*(?:const|let|var)\s+\w+\s+of\s+(?:this\.)?(?:quoteState\??\.)?productTimelines\b/,
+      message: 'quoteState.productTimelines is an object map keyed by timeline ID, not an array; use this.zqf.getProductTimelines() which returns an array'
+    },
+    {
+      re: /\b(?:this\.)?(?:quoteState\??\.)?productTimelines\s*\.\s*(?:map|forEach|filter|reduce|find|some|every)\s*\(/,
+      message: 'quoteState.productTimelines is an object map, not an array; use this.zqf.getProductTimelines() which returns an array'
+    },
+    {
+      re: /\[\.\.\.(?:this\.)?(?:quoteState\??\.)?productTimelines\]/,
+      message: 'quoteState.productTimelines is an object map, not an array; use this.zqf.getProductTimelines() which returns an array'
+    },
+    {
+      re: /\bfor\s*\(\s*(?:const|let|var)\s+\w+\s+of\s+(?:this\.)?(?:quoteState\??\.)?quoteRatePlans\b/,
+      message: 'do not iterate quoteState.quoteRatePlans directly; use this.zqf.getRatePlans(...), getUpdatedRatePlans(...), or updateCharges/updateChargesInInterval filter descriptors'
+    },
+    {
+      re: /\b(?:this\.)?(?:quoteState\??\.)?quoteRatePlans\s*\.\s*(?:map|forEach|filter|reduce|find|some|every)\s*\(/,
+      message: 'do not iterate quoteState.quoteRatePlans directly; use this.zqf.getRatePlans(...), getUpdatedRatePlans(...), or updateCharges/updateChargesInInterval filter descriptors'
+    }
+  ];
+
+  for (const { re, message } of patterns) {
+    const match = text.match(re);
+    if (match) {
+      issues.push({
+        severity: 'warn',
+        rule: 'WJS073',
+        file,
+        line: lineOf(text, match.index || 0),
+        message
+      });
+      return;
+    }
+  }
+}
+
+function warnMissingRecordNesting(text, file, issues) {
+  const wrapperFieldRes = [
+    {
+      re: /\bcharge\.(?!record\b|id\b|charges\b|tiers\b|originalQRPC\b)(?:zqu__|[A-Za-z_][\w]*__c|Name|Id)\b/,
+      message: 'charge wrapper fields must be read from charge.record.<FieldApiName>; use charge.record.zqu__Quantity__c instead of charge.zqu__Quantity__c'
+    },
+    {
+      re: /\bratePlan\.(?!record\b|id\b|charges\b|versions\b|productRatePlan\b)(?:zqu__|[A-Za-z_][\w]*__c|Name|Id)\b/,
+      message: 'rate plan wrapper fields must be read from ratePlan.record.<FieldApiName>; use ratePlan.record.Name instead of ratePlan.Name'
+    },
+    {
+      re: /\btier\.(?!record\b|id\b)(?:zqu__|[A-Za-z_][\w]*__c|Name|Id)\b/,
+      message: 'tier wrapper fields must be read from tier.record.<FieldApiName>; use tier.record.zqu__Discount__c instead of tier.zqu__Discount__c'
+    },
+    {
+      re: /\bamendment\.(?!record\b|id\b|type\b)(?:zqu__|[A-Za-z_][\w]*__c|Name|Id)\b/,
+      message: 'amendment wrapper fields must be read from amendment.record.<FieldApiName>'
+    },
+    {
+      re: /\bversion\.(?!record\b|id\b|charges\b|effectiveDate\b)(?:zqu__|[A-Za-z_][\w]*__c|Name|Id)\b/,
+      message: 'version wrapper fields must be read from version.record.<FieldApiName> when present'
+    }
+  ];
+
+  for (const { re, message } of wrapperFieldRes) {
+    const match = text.match(re);
+    if (match) {
+      issues.push({
+        severity: 'error',
+        rule: 'EJS086',
+        file,
+        line: lineOf(text, match.index || 0),
+        message
+      });
+      return;
+    }
+  }
+}
+
+function warnManualProductTreeTraversal(text, file, issues) {
+  if (!/\bZQFClient\b|['"]zqu\/zqfClient['"]/.test(text)) return;
+
+  const patterns = [
+    {
+      re: /\bfor\s*\(\s*(?:const|let|var)\s+\w+\s+of\s+\w+\.ratePlans\b/,
+      message: 'manual product.ratePlans traversal found; use this.zqf.getRatePlans(...), getVersions(...), getCharges(...), or updateCharges filter descriptors instead'
+    },
+    {
+      re: /\bfor\s*\(\s*(?:const|let|var)\s+\w+\s+of\s+\w+\.charges\b/,
+      message: 'manual ratePlan.charges traversal found; use this.zqf.getCharges(...), updateCharges([...]), or updateChargesInInterval(...) filter descriptors instead'
+    },
+    {
+      re: /\b\w+\.ratePlans\s*\.\s*(?:map|forEach|filter|reduce|find|some|every)\s*\(/,
+      message: 'manual product.ratePlans traversal found; use documented ZQFClient read or mutation helpers instead of iterating nested ratePlans arrays'
+    },
+    {
+      re: /\b\w+\.charges\s*\.\s*(?:map|forEach|filter|reduce|find|some|every)\s*\(/,
+      message: 'manual ratePlan.charges traversal found; use documented ZQFClient read or mutation helpers instead of iterating nested charges arrays'
+    }
+  ];
+
+  for (const { re, message } of patterns) {
+    const match = text.match(re);
+    if (match) {
+      issues.push({
+        severity: 'warn',
+        rule: 'WJS075',
+        file,
+        line: lineOf(text, match.index || 0),
+        message
+      });
+      return;
+    }
+  }
+}
+
 function warnQuoteStateClientUsage(text, file, issues, declaredProps, options = {}) {
   const usesZqfClientModule = /\bZQFClient\b|['"]zqu\/zqfClient['"]/.test(text);
   const usesInjectedZqfClient = /@api\s+zqfClient\b|\bthis\.zqfClient\b|\bzqfClient\./.test(text);
@@ -521,10 +697,31 @@ function warnQuoteStateClientUsage(text, file, issues, declaredProps, options = 
     });
   }
 
+  // WJS081: ZQFClient referenced but not imported — will not compile.
+  const referencesZqfClient =
+    /\bZQFClient\s*\.\s*from\s*\(|\bnew\s+ZQFClient\s*\(|\bthis\.zqf\b/.test(text);
+  const hasZqfClientImport =
+    /import\s+(?:ZQFClient|\{[^}]*\bZQFClient\b[^}]*\})\s+from\s+['"]zqu\/zqfClient['"]/.test(text);
+  if (versionStatus === 'supports-zqf-client' && referencesZqfClient && !hasZqfClientImport) {
+    const zqfRefMatch = text.match(/\bZQFClient\s*\.\s*from\s*\(|\bnew\s+ZQFClient\s*\(|\bthis\.zqf\b/);
+    issues.push({
+      severity: 'warn',
+      rule: 'WJS081',
+      file,
+      line: lineOf(text, zqfRefMatch ? zqfRefMatch.index : 0),
+      message: "ZQFClient is referenced but not imported; add `import ZQFClient from 'zqu/zqfClient';` at the top of the file"
+    });
+  }
+
   warnUnknownZqfHelpers(text, file, issues);
   warnManualRampChargeUpdates(text, file, issues);
   warnRampRecordTypeDetection(text, file, issues);
   warnQuoteFieldRampIntervalSelection(text, file, issues);
+  warnRampVersionIteration(text, file, issues);
+  warnDirectQuoteStateNestedAccess(text, file, issues);
+  warnDirectQuoteStateCollectionAccess(text, file, issues);
+  warnMissingRecordNesting(text, file, issues);
+  warnManualProductTreeTraversal(text, file, issues);
   warnInvalidZqfHelpers(text, file, issues);
   warnManualRampIntervalTraversal(text, file, issues);
   warnInvalidFieldConfigShape(text, file, issues);
@@ -690,9 +887,69 @@ function lintText(text, file, catalogs = loadCatalogs(), options = {}) {
     }
   }
 
+  lintJsQuoteFieldReferences(text, file, issues);
   warnDuplicateNamespaceFieldFallbacks(text, file, issues);
   warnQuoteStateClientUsage(text, file, issues, declaredProps, options);
   return issues;
+}
+
+function isKnownQuoteField(indexed, fieldName) {
+  const quoteObject = indexed.byObject.get('zqu__Quote__c');
+  return Boolean(quoteObject && quoteObject.fieldMap.has(fieldName));
+}
+
+function lintJsQuoteFieldReferences(text, file, issues) {
+  const indexed = indexFieldCatalog(loadFieldCatalog());
+  const commonMistakes = indexed.commonMistakes || {};
+
+  for (const [bad, hint] of Object.entries(commonMistakes)) {
+    const re = new RegExp(`['"]${bad.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`, 'g');
+    let m;
+    while ((m = re.exec(text))) {
+      issues.push({
+        severity: 'error',
+        rule: 'EJS090',
+        file,
+        line: lineOf(text, m.index),
+        message: `invalid field "${bad}" — ${hint}`
+      });
+    }
+  }
+
+  const fieldArgRe = /(?:getQuoteField|updateQuoteField|setFieldValue)\s*\(\s*['"]([^'"]+)['"]/g;
+  let m;
+  while ((m = fieldArgRe.exec(text))) {
+    const fieldName = m[1];
+    if (!fieldName.startsWith('zqu__')) continue;
+    if (!isKnownQuoteField(indexed, fieldName)) {
+      issues.push({
+        severity: 'error',
+        rule: 'WJS080',
+        file,
+        line: lineOf(text, m.index),
+        message: `"${fieldName}" is not a known zqu__Quote__c field — confirm against cpq-salesforce-fields.json or live SFDX describe`
+      });
+    }
+  }
+
+  const patchKeyRe = /updateQuote\s*\(\s*\{([\s\S]*?)\}\s*\)/g;
+  while ((m = patchKeyRe.exec(text))) {
+    const body = m[1];
+    const keyRe = /(?:['"](zqu__[^'"]+)['"]|(zqu__[\w]+))\s*:/g;
+    let km;
+    while ((km = keyRe.exec(body))) {
+      const fieldName = km[1] || km[2];
+      if (!isKnownQuoteField(indexed, fieldName)) {
+        issues.push({
+          severity: 'error',
+          rule: 'WJS080',
+          file,
+          line: lineOf(text, m.index + km.index),
+          message: `updateQuote patch key "${fieldName}" is not a known zqu__Quote__c field`
+        });
+      }
+    }
+  }
 }
 
 function lintFiles(files, options = {}) {
