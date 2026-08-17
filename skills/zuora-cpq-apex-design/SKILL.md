@@ -38,12 +38,15 @@ Classify as global Apex method usage, Visualforce page, Visualforce component, c
 Read:
 
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-global-apex-methods.json`
+- `${CLAUDE_PLUGIN_ROOT}/references/cpq-salesforce-fields.json`
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-component-library.md`
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-patterns.md`
 
 ### Step 3: Design solution
 
-Use supported global Apex methods and explicit `zqu__` namespace object names. Class names, interface names, method names, method parameters, return types, Visualforce component names, and Visualforce attributes must strictly match the official Zuora source docs and examples bundled in this codebase. Do not invent overloads, plugin-interface methods, controller signatures, or component attributes. If the required signature is not in the references, ask for the exact source or call out the assumption instead of guessing. Avoid internal managed package classes unless the internal catalog explicitly allows them.
+Use supported global Apex methods and explicit `zqu__` namespace object names. **List every Salesforce field the design touches and confirm each against `cpq-salesforce-fields.json` or live SFDX describe before proposing SOQL, DML, or `quoteParams` maps.** Flag invented fields (e.g. `Zuora_ZuoraId__c`), type mismatches, and missing required fields for quote-creation flows such as `renewQuote`. Do not invent overloads, plugin-interface methods, controller signatures, or component attributes. If the required signature is not in the references, ask for the exact source or call out the assumption instead of guessing. Avoid internal managed package classes unless the internal catalog explicitly allows them.
+
+**Quote creation rule:** Design flows so programmatic quote creation calls `zqu.zQuoteUtil.renewQuote(quote)` with a queried `zqu__Quote__c`, then `new zqu.Quote(quoteId).buildAndSave()` in a Queueable. Never design `previewQuote(quoteId)` — use `zqu.MetricsUtil.getPreviewedInvoiceItems(quoteId)` for preview/metrics. See `cpq-patterns.md` § "Quote Creation and Preview Pattern".
 
 **Data access rule:** Always prefer fetching Zuora data from local Salesforce objects (e.g., `zqu__Quote__c`, `zqu__Product__c`, `zqu__QuoteRatePlan__c`) using SOQL over making Zuora REST API callouts. Use `@future`, `Queueable`, or `Batchable` Apex for async operations when governor limits may be exceeded.
 

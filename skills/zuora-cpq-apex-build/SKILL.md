@@ -43,13 +43,17 @@ Find `sfdx-project.json`. Use:
 Read:
 
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-global-apex-methods.json`
+- `${CLAUDE_PLUGIN_ROOT}/references/cpq-patterns.md` (required for quote creation — see "Quote Creation and Preview Pattern")
+- `${CLAUDE_PLUGIN_ROOT}/references/cpq-salesforce-fields.json`
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-component-library.md`
 - `${CLAUDE_PLUGIN_ROOT}/templates/apex/`
 - `${CLAUDE_PLUGIN_ROOT}/templates/visualforce/`
 
+**Quote creation rule:** After DML insert or `zqu.zQuoteUtil.renewQuote(quote)`, always call `new zqu.Quote(quoteId).buildAndSave()` inside a `Queueable` (never in batch `execute()`). Pass `zqu__Quote__c` to `previewQuote()`, `renewQuote()`, and similar APIs — never bare `Id`. For post-creation preview/metrics, use `zqu.MetricsUtil.getPreviewedInvoiceItems(quoteId)` instead of `previewQuote(quoteId)`.
+
 ### Step 3: Generate scoped artifacts
 
-Create or update Apex/Visualforce files. Use explicit `zqu__` object names and supported global CPQ methods from the catalog. Class names, interface names, method names, method parameters, return types, Visualforce component names, and Visualforce attributes must strictly match the official Zuora source docs and examples bundled in this codebase. Do not invent overloads, plugin-interface methods, controller signatures, or component attributes. If the required signature is not in the references/templates, stop and ask for the exact source or state the assumption before generating code. Bulkify SOQL/DML and avoid hardcoded IDs or credentials.
+Create or update Apex/Visualforce files. Use explicit `zqu__` object names and supported global CPQ methods from the catalog. **Before generating field assignments, SOQL SELECT lists, or `quoteParams.put(...)` maps, resolve every `zqu__*` and `Zuora__*` field against `cpq-salesforce-fields.json` or live SFDX describe (`sf sobject describe -s <Object> --json`).** Only reference catalog-valid fields, use schema-compatible Apex types (e.g. Decimal for `zqu__InitialTerm__c`, not String), and include all fields required for the chosen flow (e.g. `renewQuote` required fields in `cpq-salesforce-fields.json`). Class names, interface names, method names, method parameters, return types, Visualforce component names, and Visualforce attributes must strictly match the official Zuora source docs and examples bundled in this codebase. Do not invent overloads, plugin-interface methods, controller signatures, or component attributes. If the required signature is not in the references/templates, stop and ask for the exact source or state the assumption before generating code. Bulkify SOQL/DML and avoid hardcoded IDs or credentials.
 
 **Data access rule:** Always fetch Zuora data from local Salesforce objects (e.g., `zqu__Quote__c`, `zqu__Product__c`, `zqu__QuoteRatePlan__c`) using SOQL instead of making Zuora REST API callouts. Use `@future`, `Queueable`, or `Batchable` Apex for async operations when governor limits may be exceeded.
 
