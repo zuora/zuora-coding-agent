@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.4] - 2026-08-17
+
+### Added
+- Dynamic pricing rate cards now support **effective dating**: schedule a future price change by adding a new rate card row with a later `EffectiveDate` — the prior price is preserved as bounded history automatically, with no need to delete old rows
+- `cpq-salesforce-fields.json` — new static field catalog for `zqu__Quote__c`, `zqu__QuoteRatePlan__c`, `zqu__QuoteRatePlanCharge__c`, and related objects; powers linter rules EAPEX050/052, WAPEX050/051, and WJS080
+
+### Improved
+- CPQ JS skills now generate a colocated `<componentName>Helper.js` module for non-trivial hook logic, keeping hook methods thin and business logic testable in isolation
+- CPQ JS skills and review now flag incorrect reads from `quoteState.quote` (use `getQuote()`/`getQuoteField(...)`), missing `.record` on wrapper object field access, and direct iteration of `quoteState.productTimelines` (use `getProductTimelines()`)
+- CPQ Apex build and design skills validate every `zqu__*`/`Zuora__*` field against `cpq-salesforce-fields.json` before generating SOQL, DML, or `quoteParams.put(...)` maps — preventing hallucinated field names and type mismatches at generation time
+- CPQ validate skill runs the updated `lint-cpq-apex.js` and `lint-cpq-hooks-events.js` linters against generated artifacts for schema, hook-signature, and ZQFClient correctness
+- Dynamic pricing build skill now requires an approved design artifact before mutating the catalog; build skill recognizes `Account.BillToContact` and `Account.SoldToContact` as valid attribute mapping objects
+
 ## [1.5.3] - 2026-08-05
 
 ### Improved
