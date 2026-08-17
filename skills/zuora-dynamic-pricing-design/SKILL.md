@@ -42,6 +42,7 @@ For new setups, gather:
 - Default pricing (fallback when no rate card matches)
 - Billing cycle preferences
 - Unit of measure (for per_unit, tiered, volume, usage charges)
+- **Effective dating** — does any price need to change on a future date, or does the price history need to be preserved? (e.g., "US price is $10 today, rises to $12 on 2026-04-01"). If yes, capture the effective start date for each price point. See the effective dating section below.
 
 **Product grouping principle:** If the user describes what looks like multiple products that share the same base name but differ by pricing (e.g., "On-Demand" vs "Reserved" vs "Spot"), consolidate them into ONE product with ONE charge that has MULTIPLE rate cards differentiated by attributes. Don't create separate products for pricing variations.
 
@@ -52,6 +53,26 @@ For new setups, gather:
 - **Usage** — varies per event/record (e.g., resource type, cloud region of the API call). Only available on usage charges.
 
 A single charge can combine attributes at different levels (e.g., `CustomerTier` on Account + `ResourceType` on Usage).
+
+**Effective dating (time-varying pricing):**
+
+Dynamic pricing rate cards support effective dating so a price can change on a future date while the prior price is preserved as history. This is driven by a **reserved attribute named `EffectiveDate`** — it is NOT a business dimension, does NOT map to any object field, and does NOT need a custom field created.
+
+How it works in the catalog:
+- `EffectiveDate` is a reserved attribute of type `Datetime`. On each rate card row it takes the `>=` operator only (it marks the row's start / "effective from" instant). Any other operator is rejected.
+- The value is an ISO-8601 datetime **with a zone offset**, e.g. `2026-04-01T00:00:00Z` or `2026-04-01T00:00:00-08:00`. A bare local date with no offset is rejected.
+- If a rate card row omits `EffectiveDate`, it defaults to "effective from now" (`>= current time`).
+- For the **same business-attribute combination**, adding a new row with a later `EffectiveDate` does NOT overwrite the old price. The system automatically closes the previous row to a bounded window ending 1 second before the new start, and the new row becomes the open-ended current price. This builds a price timeline:
+  - Old row: US → $10, effective `[original start, 2026-03-31T23:59:59]`
+  - New row: US → $12, effective `>= 2026-04-01T00:00:00Z`
+- Rows are grouped for timeline purposes by their business attributes only (`EffectiveDate` is excluded from the grouping key). So each unique dimension combination carries its own independent price history.
+
+When to surface effective dating in the design:
+- The user wants a scheduled/future price change ("raise EU price to €9 starting next quarter").
+- The user wants to backfill or preserve historical prices rather than replace them.
+- Two rows in the same request that share the same business attributes AND the same effective date are a duplicate and will be rejected — flag this if the requirements imply it.
+
+If pricing never changes over time, no `EffectiveDate` attribute needs to be shown to the user — the system still records an implicit "effective from now" internally.
 
 ### Step 2: Inspect tenant state
 
@@ -147,16 +168,31 @@ Present a structured proposal:
 - Default pricing: $X.XX (applies when no rate card matches)
 
 ### Rate Card
-| Region | CommitmentType | Price (USD) |
-|--------|---------------|-------------|
-| US | on-demand | $10.00 |
-| US | reserved | $7.00 |
-| EU | on-demand | $8.00 |
-| EU | reserved | $5.50 |
+Include an `Effective From` column only when pricing is time-varying. Omit it (or show "now") when all prices are effective immediately.
+
+| Region | CommitmentType | Price (USD) | Effective From |
+|--------|---------------|-------------|----------------|
+| US | on-demand | $10.00 | now |
+| US | reserved | $7.00 | now |
+| EU | on-demand | $8.00 | now |
+| EU | reserved | $5.50 | now |
+
+### Pricing Timeline (only if effective dating is used)
+Show scheduled price changes as separate rows for the same attribute combination. The system preserves the earlier price as bounded history automatically — you only supply the new "effective from" date.
+
+| Region | CommitmentType | Price (USD) | Effective From |
+|--------|---------------|-------------|----------------|
+| US | on-demand | $10.00 | now (implicit) |
+| US | on-demand | $12.00 | 2026-04-01T00:00:00Z |
+
+Resulting effective windows after the system merges:
+- US / on-demand → $10.00 for `[now, 2026-03-31T23:59:59]`
+- US / on-demand → $12.00 for `>= 2026-04-01T00:00:00Z`
 
 ### Rate Card Operators
 - Region: == (exact match)
 - CommitmentType: == (exact match)
+- EffectiveDate: >= (reserved attribute; only `>=` is valid — marks the effective-from instant)
 
 ### Constraints
 - [any edge cases, limitations, or decisions to confirm]
@@ -164,7 +200,17 @@ Present a structured proposal:
 
 ### Step 5: Confirm with user
 
-Use AskUserQuestion to confirm the design before proceeding. If confirmed, suggest running `/zuora-dynamic-pricing-build` to execute.
+Use `AskUserQuestion` to present the design summary and ask for explicit approval before any build work begins. The question must offer at least these options:
+
+- **Approve — proceed to build** (confirm the design is correct and ready to execute)
+- **Revise** (user wants to change something; loop back to update the design)
+- **Cancel** (stop without building)
+
+**If the user approves:** tell the user to run `/zuora-dynamic-pricing-build` with the approved design as input to execute it.
+
+**If the user does not approve:** do NOT proceed. Ask what needs to change and re-present an updated design for approval.
+
+Do not call any write/mutating MCP tools (product, plan, charge, custom field creation) in this skill — those belong in the build skill.
 
 ## Key constraints to surface in design
 
@@ -177,3 +223,9 @@ Use AskUserQuestion to confirm the design before proceeding. If confirmed, sugge
 - First matching rate card wins; if no rate card matches, default pricing applies
 - Mapped fields must exist before attribute creation (standard fields already exist; custom fields must be created first)
 - Consolidate pricing variations into rate cards on a single charge — don't create separate products for each price point
+- **Effective dating**: `EffectiveDate` is a reserved attribute (type `Datetime`) — do not map it to an object field or create a custom field for it
+- `EffectiveDate` accepts only the `>=` operator (marks the effective-from instant); any other operator is rejected
+- `EffectiveDate` values must be ISO-8601 with a zone offset (e.g., `2026-04-01T00:00:00Z`); a bare local datetime is rejected
+- Omitting `EffectiveDate` on a row means "effective from now"; a future date schedules the change while preserving the prior price as bounded history — you do not supply the end date, the system computes it
+- Two rate card rows with the same business attributes AND the same effective date are a duplicate and will be rejected
+- For dynamic pricing updates, re-submitting a row whose price equals the price already in effect at its effective date is a no-op and is dropped (does not grow the rate card)

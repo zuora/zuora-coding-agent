@@ -22,7 +22,7 @@ This could be:
 - Direct instructions to create/update catalog entities
 - A request to update rate card prices or add new rows/attribute values
 
-If no design exists and the request is complex, recommend running `/zuora-dynamic-pricing-design` first.
+If the input is a raw business requirement (not a confirmed design artifact), **stop and ask the user to run `/zuora-dynamic-pricing-design` first** so the design can be reviewed and approved before any catalog mutations occur. Only proceed directly when the user supplies a previously approved design or gives explicit, self-contained build instructions.
 
 ## Tool routing
 
@@ -44,6 +44,8 @@ To discover available fields on an object, call `query_objects` with `help: "fie
 
 Attributes can map to fields on multiple objects:
 - `Account` — standard or custom fields
+- `Account.BillToContact` — fields from the bill-to contact on the account
+- `Account.SoldToContact` — fields from the sold-to contact on the account
 - `Subscription` — standard or custom fields
 - `RatePlan` — standard or custom fields
 - `Usage` — usage record fields (preferred for usage charges)
@@ -268,8 +270,9 @@ chargeJson: {
 **Attribute declaration:**
 - `name` — attribute display name
 - `type` — `String`, `Integer`, `Double` (NOT Decimal), `Boolean`, `Date`, `Datetime`
-- `mapping.object` — `account`, `subscription`, `rate_plan`, or `usage` (choose by granularity: account = per-customer, subscription = per-sub, rate_plan = per-plan instance, usage = per-event)
-- `mapping.field` — the field name: standard (e.g., `Country`) or custom (e.g., `Region__c`)
+- `mapping.object` — `account`, `account.billtocontact`, `account.soldtocontact`, `subscription`, `rate_plan`, or `usage` (choose by granularity: account = per-customer, subscription = per-sub, rate_plan = per-plan instance, usage = per-event)
+- `mapping.field` — field name on that object: standard (e.g., `Country`, `WorkEmail`) or custom (e.g., `Region__c`)
+- For contact sub-objects, the `path` in the attribute mapping JSON uses dot notation: `Account.BillToContact.FieldName` or `Account.SoldToContact.FieldName`
 
 **Default pricing:** The `pricing` field at charge level is the fallback when no rate card matches. Always include it.
 
@@ -278,10 +281,58 @@ chargeJson: {
 - Integer: `{"intValue": 42}`
 - Double: `{"numberValue": 9.99}`
 - Boolean: `{"boolValue": true}`
+- Datetime (used for `EffectiveDate`): `{"stringValue": "2026-04-01T00:00:00Z"}` — ISO-8601 with a zone offset
 
 **Supported operators:** `==`, `>`, `>=`, `<`, `<=`, `between`, `between-inclusive`, `matches` (regex). NOT supported: `!=`.
 - For `between`/`between-inclusive`, value is an array: `[lower, upper]`
 - First matching rate card wins
+- `EffectiveDate` is a reserved attribute and accepts ONLY the `>=` operator (see the effective dating section below)
+
+### Effective dating (time-varying pricing)
+
+Rate cards support effective dating so a price can change on a future date while the prior price is preserved as history. This is driven by a **reserved attribute named `EffectiveDate`**:
+
+- Do NOT declare `EffectiveDate` in the charge-level `attributes[]` array, and do NOT create a custom field or `mapping` for it. It is a reserved attribute the system understands — you only reference it inside a rate card's `attributes[]` criteria.
+- On a rate card row, `EffectiveDate` uses operator `>=` only (marks the row's effective-from instant). Any other operator is rejected.
+- The value is a `Datetime` wrapped as `{"stringValue": "..."}` in ISO-8601 with a zone offset, e.g. `2026-04-01T00:00:00Z` or `2026-04-01T00:00:00-08:00`. A bare local datetime (no offset) is rejected.
+- If a rate card row omits `EffectiveDate`, it is treated as effective from now.
+
+**Set an initial effective-from date on a rate card row:**
+```
+{
+  "attributes": [
+    {"name": "Region", "operator": "==", "value": {"stringValue": "US"}},
+    {"name": "EffectiveDate", "operator": ">=", "value": {"stringValue": "2026-01-01T00:00:00Z"}}
+  ],
+  "pricing": {"unitAmounts": {"USD": 10.00}}
+}
+```
+
+**Schedule a future price change (preserve history):** submit a new row for the SAME business attributes with a later `EffectiveDate`. Do NOT delete the old row — the system automatically closes the previous price to a bounded window ending 1 second before the new start, and the new row becomes the open-ended current price.
+```
+"rateCards": [
+  {
+    "attributes": [
+      {"name": "Region", "operator": "==", "value": {"stringValue": "US"}},
+      {"name": "EffectiveDate", "operator": ">=", "value": {"stringValue": "2026-01-01T00:00:00Z"}}
+    ],
+    "pricing": {"unitAmounts": {"USD": 10.00}}
+  },
+  {
+    "attributes": [
+      {"name": "Region", "operator": "==", "value": {"stringValue": "US"}},
+      {"name": "EffectiveDate", "operator": ">=", "value": {"stringValue": "2026-04-01T00:00:00Z"}}
+    ],
+    "pricing": {"unitAmounts": {"USD": 12.00}}
+  }
+]
+```
+Resulting timeline: US → $10.00 for `[2026-01-01, 2026-03-31T23:59:59]`, then US → $12.00 from `2026-04-01` onward.
+
+Notes:
+- Rows are grouped by their business attributes only (`EffectiveDate` is excluded from the grouping key), so each dimension combination carries an independent timeline.
+- Two rows with the same business attributes AND the same effective date are a duplicate and will be rejected.
+- Re-submitting a row whose pricing equals the price already in effect at its effective date is a no-op and is dropped — it will not add a redundant row.
 
 ### Step 5: Verify creation
 
@@ -367,6 +418,10 @@ chargeJson: {
 }
 ```
 
+### Change a price effective a future date
+
+To change the price of an EXISTING attribute combination on a schedule (rather than adding a new dimension value), add a new rate card row for the same business attributes with a later `EffectiveDate` — see the effective dating section above. Keep the existing rows in the submitted `rateCards[]`; the system truncates the prior price window automatically and preserves it as history. Do not use `update_tier_price` for scheduled changes — that overwrites the current price in place with no history.
+
 ## Critical constraints
 
 - `pricing.flatAmounts` is a map `{"USD": 99.99}`, NOT an array
@@ -382,3 +437,7 @@ chargeJson: {
 - Mapped fields must exist on the object before attribute creation (standard fields already exist; custom fields must be created first)
 - Execute in order: custom fields (if needed) → context attributes → product → plan → charge
 - Consolidate pricing variations into rate cards — don't create separate products
+- `EffectiveDate` is a reserved attribute — never declare it in charge-level `attributes[]`, never map it to a field, never create a custom field for it; use it only inside a rate card's `attributes[]` criteria
+- `EffectiveDate` accepts only the `>=` operator; value must be ISO-8601 with a zone offset (e.g. `2026-04-01T00:00:00Z`); omitting it means effective from now
+- For a scheduled price change, add a new effective-dated row for the same attributes and keep the existing rows — the system computes the end of the prior window; do not delete old rows or use `update_tier_price`
+- Same business attributes + same effective date across two rows is a duplicate (rejected); a row identical in price to what's already in effect is dropped as a no-op
