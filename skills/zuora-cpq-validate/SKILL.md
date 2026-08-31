@@ -60,4 +60,4 @@ Validate namespace handling: managed package fields use `zqu__`, custom fields o
 
 ### Step 4: Report
 
-Return PASS/WARN/FAIL with issue severity, location, explanation, and specific fix.
+Return PASS/WARN/FAIL with issue severity, location, explanation, and specific fix. As an INFO-level (non-blocking) suggestion, when the code can fail silently — unchecked `null`/empty CPQ results, `result.success == false` swallowed, or nested `quoteState` reads returning `undefined` — recommend logging the request and response payloads with `System.debug(JSON.serialize(...))` (Apex) or `console.log` (LWC) per `cpq-patterns.md` and `cpq-zqf-client.md`.

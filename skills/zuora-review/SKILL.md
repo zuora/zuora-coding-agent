@@ -69,6 +69,6 @@ For each issue:
 - Description
 - Recommended fix
 
-**Suggestions**: Non-blocking improvements for consideration
+**Suggestions**: Non-blocking improvements for consideration. If the code can fail silently — swallowed errors, unchecked empty/`null` results, HTTP 200 with an unexpected body, or a request that succeeds but has no visible effect — suggest logging the outgoing request and incoming response payloads per `references/best-practices.md` `## Error handling`.
 
 **Next steps**: What to do after addressing the review findings

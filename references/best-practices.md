@@ -13,6 +13,10 @@
 - Retry with exponential backoff for transient errors (HTTP 429, 500, 502, 503, 504)
 - Respect `Retry-After` header on 429 responses
 - Log Zuora correlation IDs from response headers for debugging
+- On silent failures — no exception thrown, an empty/`null` result, HTTP 200 with an unexpected or empty body, or a request that "succeeded" but did not take effect — proactively SUGGEST (do not silently add) logging the outgoing request payload and the incoming response payload/body to isolate where the flow breaks. Frame it as a debugging recommendation for the user to accept.
+  - Apex: `System.debug(JSON.serialize(requestPayload))` for the request and `System.debug(JSON.serialize(responseResult))` for the response
+  - JS/LWC: `console.log('request', requestPayload)` and `console.log('response', responseResult)`
+  - Workflow callouts: read/echo the callout `ResponseBody` (or `payload_location`) in an `If` task so a silent failure surfaces in the run log
 - Treat `STOP_AND_CONFIRM` responses as permanent errors — do not retry automatically; these require user action
 - Distinguish between validation errors (fix input) and server errors (retry or escalate)
 

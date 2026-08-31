@@ -85,7 +85,7 @@ Do not read from `this.quoteState.getQuote()`; use `this.zqf.getQuote()` or `thi
 
 ## Navigating nested quote state
 
-Validate the object type and nesting path before reading or updating quote data. Incorrect nested navigation is a common source of silent data access failures in generated CPQ code.
+Validate the object type and nesting path before reading or updating quote data. Incorrect nested navigation is a common source of silent data access failures in generated CPQ code. When a read returns `undefined`/empty and no error is thrown, suggest a `console.log` of the resolved object and the path being read (for example `console.log('quoteState nav', JSON.stringify(this.quoteState))`) so the silent break can be located before writing more code.
 
 **Read quote header fields from helpers, not raw nested state**
 

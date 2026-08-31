@@ -68,6 +68,6 @@ For each issue:
 - **Issue**: What is wrong
 - **Fix**: Specific change to make
 
-**Best practice suggestions** (non-blocking improvements)
+**Best practice suggestions** (non-blocking improvements) — including, where the code could fail silently (swallowed errors, unchecked empty/`null` results, HTTP 200 with an unexpected body, or an "accepted" request with no visible effect), a suggestion to log the request and response payloads per `references/best-practices.md` `## Error handling`.
 
 **Summary**: Overall assessment in 1-2 sentences

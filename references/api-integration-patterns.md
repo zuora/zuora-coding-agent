@@ -145,6 +145,7 @@ Key SDK conventions:
 - **Polling without limits**: Always set max attempts for async operations
 - **Hardcoded IDs**: Product, rate plan, and charge IDs differ between environments
 - **Missing error handling**: Always handle 4xx/5xx responses
+- **Silent failures**: A `200` with an unexpected/empty body, an empty result set, or an "accepted" request that had no effect is still a failure. When one is suspected, suggest logging the outgoing request and incoming response payloads to locate the break (see `best-practices.md` `## Error handling`).
 - **Ignoring pagination**: Large result sets will be truncated without cursor handling
 - **Guessing field names**: Always verify against actual model details from the SDK
 - **Missing Zuora-Version header**: Always pin to a known API version

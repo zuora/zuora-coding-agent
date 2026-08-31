@@ -281,6 +281,7 @@ Always implement defensive programming:
 - Don't re-throw exceptions in metrics/secondary processing
 - Log errors with specific context for debugging
 - Continue processing other items when one fails
+- On silent failures — a `null` or empty API result, `result.success == false` with no exception, or a call that returned but produced no effect — suggest logging the request arguments and returned result object to isolate the break (see `best-practices.md` `## Error handling`).
 
 ### Error Handling Template
 
