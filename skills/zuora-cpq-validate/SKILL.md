@@ -49,7 +49,7 @@ For target Zuora managed package version 10.58 or later, or when the user says `
 
 ### Apex validation rules
 
-**Schema validation:** Flag unknown `zqu__*` / `Zuora__*` field names (EAPEX052/WAPEX050/WJS080), incompatible literal types in `quoteParams.put(...)` (EAPEX050), and missing `renewQuote` required SOQL fields (WAPEX051). Run `lint-cpq-apex.js` and `lint-cpq-hooks-events.js` to enforce the bundled `cpq-salesforce-fields.json` catalog.
+**Schema validation:** Flag unknown `zqu__*` / `Zuora__*` field names (EAPEX052/WAPEX050/WJS080/WJS082), incompatible literal types in `quoteParams.put(...)` (EAPEX050), and missing `renewQuote` required SOQL fields (WAPEX051). For Quote Studio JS, validate quote header fields (`WJS080`), QRPC charge reads/patches (`WJS082`), and known bad field names (`EJS090`). Run `lint-cpq-apex.js` and `lint-cpq-hooks-events.js` to enforce the bundled `cpq-salesforce-fields.json` catalog.
 
 **Data access validation:** Flag Zuora REST API callouts when equivalent data is available via local SOQL on `zqu__` objects (e.g., `zqu__Quote__c`, `zqu__Product__c`). Validate proper use of `@future`, `Queueable`, or `Batchable` Apex for async operations.
 

@@ -10,8 +10,13 @@
       "EAPEX052": "known hallucinated field name ($common_mistakes)",
       "WAPEX050": "zqu__/Zuora__ field not in catalog",
       "WAPEX051": "renewQuote flow missing required SELECT fields",
-      "WJS080": "Quote Studio patch/getQuoteField references unknown zqu__ field"
+      "WJS080": "Quote Studio patch/getQuoteField references unknown zqu__Quote__c field",
+      "WJS082": "Quote Studio charge/tier field read or update references unknown QRPC or tier field"
     }
+  },
+  "$ui_label_hints": {
+    "QRPC.Effective Price": "zqu__EffectivePrice__c on zqu__QuoteRatePlanCharge__c",
+    "Effective Price": "zqu__EffectivePrice__c on QRPC — not zqu__Effective_Price__c (tier) or zqu__Effective_Price_c (typo)"
   },
   "$common_mistakes": {
     "Zuora_ZuoraId__c": "Use Zuora__Zuora_Id__c",
@@ -19,7 +24,13 @@
     "Zuora__ZuoraId__c": "Use Zuora__Zuora_Id__c",
     "zqu__BillingAccount__c": "Deprecated — use zqu__ZuoraAccountId__c",
     "zqu__SubscriptionId__c": "Use zqu__ExistSubscriptionID__c with the Zuora subscription Id, not the Salesforce record Id",
-    "Quote__c": "Use zqu__Quote__c (managed package namespace prefix)"
+    "Quote__c": "Use zqu__Quote__c (managed package namespace prefix)",
+    "zqu__Effective_Price_c": "Use zqu__EffectivePrice__c on zqu__QuoteRatePlanCharge__c (typo: __c suffix and wrong field name)",
+    "zqu__QuoteChargeTier__c": "Use zqu__QuoteCharge_Tier__c (managed package API name)"
+  },
+  "$qrpc_context_mistakes": {
+    "zqu__Effective_Price__c": "On QRPC/charge reads use zqu__EffectivePrice__c; zqu__Effective_Price__c is valid on zqu__QuoteCharge_Tier__c only",
+    "zqu__BillingPeriod__c": "On QRPC use zqu__Period__c; Billing Period is the UI label"
   },
   "objects": {
     "zqu__Quote__c": {
@@ -110,6 +121,42 @@
         { "name": "Id", "type": "id" },
         { "name": "zqu__Quote__c", "type": "reference" },
         { "name": "zqu__Type__c", "type": "picklist" }
+      ]
+    },
+    "zqu__QuoteRatePlanCharge__c": {
+      "fields": [
+        { "name": "Id", "type": "id" },
+        { "name": "Name", "type": "string" },
+        { "name": "zqu__QuoteRatePlan__c", "type": "reference" },
+        { "name": "zqu__ProductRatePlanCharge__c", "type": "reference" },
+        { "name": "zqu__ChargeType__c", "type": "picklist" },
+        { "name": "zqu__Model__c", "type": "picklist" },
+        { "name": "zqu__UOM__c", "type": "string" },
+        { "name": "zqu__Quantity__c", "type": "decimal" },
+        { "name": "zqu__ListPrice__c", "type": "decimal" },
+        { "name": "zqu__Discount__c", "type": "decimal" },
+        { "name": "zqu__EffectivePrice__c", "type": "decimal" },
+        { "name": "zqu__Total__c", "type": "decimal" },
+        { "name": "zqu__ListTotal__c", "type": "decimal" },
+        { "name": "zqu__EffectiveStartDate__c", "type": "date" },
+        { "name": "zqu__EffectiveEndDate__c", "type": "date" },
+        { "name": "zqu__Period__c", "type": "picklist" },
+        { "name": "zqu__BillingTiming__c", "type": "picklist" },
+        { "name": "zqu__Discount_Level__c", "type": "picklist" },
+        { "name": "zqu__ProductRatePlanChargeZuoraId__c", "type": "string" },
+        { "name": "zqu__QuoteRatePlanChargeZuoraId__c", "type": "string" }
+      ]
+    },
+    "zqu__QuoteCharge_Tier__c": {
+      "fields": [
+        { "name": "Id", "type": "id" },
+        { "name": "zqu__QuoteRatePlanCharge__c", "type": "reference" },
+        { "name": "zqu__StartingUnit__c", "type": "decimal" },
+        { "name": "zqu__EndingUnit__c", "type": "decimal" },
+        { "name": "zqu__Discount__c", "type": "decimal" },
+        { "name": "zqu__Effective_Price__c", "type": "decimal" },
+        { "name": "zqu__Price__c", "type": "decimal" },
+        { "name": "zqu__Tier__c", "type": "decimal" }
       ]
     }
   }

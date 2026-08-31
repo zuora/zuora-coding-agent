@@ -898,6 +898,182 @@ function isKnownQuoteField(indexed, fieldName) {
   return Boolean(quoteObject && quoteObject.fieldMap.has(fieldName));
 }
 
+function isKnownObjectField(indexed, objectName, fieldName) {
+  const objectEntry = indexed.byObject.get(objectName);
+  return Boolean(objectEntry && objectEntry.fieldMap.has(fieldName));
+}
+
+function extractManagedFieldKeys(body) {
+  const keys = [];
+  const keyRe = /(?:['"](zqu__[^'"]+)['"]|(zqu__[\w]+))\s*:/g;
+  let km;
+  while ((km = keyRe.exec(body))) {
+    keys.push({ fieldName: km[1] || km[2], index: km.index });
+  }
+  return keys;
+}
+
+function isInsideStringLiteral(text, index) {
+  const before = text.slice(0, index);
+  let single = 0;
+  let double = 0;
+  for (const ch of before) {
+    if (ch === "'") single++;
+    else if (ch === '"') double++;
+  }
+  return single % 2 === 1 || double % 2 === 1;
+}
+
+function objectLabelToCatalogName(objectLabel) {
+  const map = {
+    Quote: 'zqu__Quote__c',
+    QuoteRatePlanCharge: 'zqu__QuoteRatePlanCharge__c',
+    QuoteChargeTier: 'zqu__QuoteCharge_Tier__c'
+  };
+  return map[objectLabel] || null;
+}
+
+function lintJsQrpcFieldReferences(text, file, issues, indexed) {
+  const QRPC = 'zqu__QuoteRatePlanCharge__c';
+  const TIER = 'zqu__QuoteCharge_Tier__c';
+  const qrpcContextMistakes = indexed.qrpcContextMistakes || {};
+
+  const chargeRecordRe = /\bcharge\.record\.(zqu__[\w]+__c)\b/g;
+  let m;
+  while ((m = chargeRecordRe.exec(text))) {
+    const fieldName = m[1];
+    if (qrpcContextMistakes[fieldName]) {
+      issues.push({
+        severity: 'error',
+        rule: 'WJS082',
+        file,
+        line: lineOf(text, m.index),
+        message: `charge.record field read: invalid field "${fieldName}" — ${qrpcContextMistakes[fieldName]}`
+      });
+      continue;
+    }
+    if (!isKnownObjectField(indexed, QRPC, fieldName)) {
+      issues.push({
+        severity: 'error',
+        rule: 'WJS082',
+        file,
+        line: lineOf(text, m.index),
+        message: `charge.record field read: "${fieldName}" is not a known ${QRPC} field — confirm against cpq-salesforce-fields.json or live SFDX describe`
+      });
+    }
+  }
+
+  const tierRecordRe = /\btier\.record\.(zqu__[\w]+__c)\b/g;
+  while ((m = tierRecordRe.exec(text))) {
+    if (!isKnownObjectField(indexed, TIER, m[1])) {
+      issues.push({
+        severity: 'error',
+        rule: 'WJS082',
+        file,
+        line: lineOf(text, m.index),
+        message: `tier.record field read: "${m[1]}" is not a known ${TIER} field — confirm against cpq-salesforce-fields.json or live SFDX describe`
+      });
+    }
+  }
+
+  const chargeFieldPatterns = [
+    /updateChargeField\s*\(\s*[^,]+,\s*[^,]+,\s*['"](zqu__[^'"]+)['"]/g,
+    /updateChargeFieldInInterval\s*\(\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*['"](zqu__[^'"]+)['"]/g
+  ];
+  for (const re of chargeFieldPatterns) {
+    while ((m = re.exec(text))) {
+      const fieldName = m[1];
+      if (qrpcContextMistakes[fieldName]) {
+        issues.push({
+          severity: 'error',
+          rule: 'WJS082',
+          file,
+          line: lineOf(text, m.index),
+          message: `updateChargeField: invalid field "${fieldName}" — ${qrpcContextMistakes[fieldName]}`
+        });
+        continue;
+      }
+      if (!isKnownObjectField(indexed, QRPC, fieldName)) {
+        issues.push({
+          severity: 'error',
+          rule: 'WJS082',
+          file,
+          line: lineOf(text, m.index),
+          message: `updateChargeField: "${fieldName}" is not a known ${QRPC} field`
+        });
+      }
+    }
+  }
+
+  const tierFieldPatterns = [
+    /updateTierField\s*\(\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*['"](zqu__[^'"]+)['"]/g,
+    /updateTierFieldInInterval\s*\(\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*[^,]+,\s*['"](zqu__[^'"]+)['"]/g
+  ];
+  for (const re of tierFieldPatterns) {
+    while ((m = re.exec(text))) {
+      if (!isKnownObjectField(indexed, TIER, m[1])) {
+        issues.push({
+          severity: 'error',
+          rule: 'WJS082',
+          file,
+          line: lineOf(text, m.index),
+          message: `updateTierField: "${m[1]}" is not a known ${TIER} field`
+        });
+      }
+    }
+  }
+
+  const updateBlockRe = /update\s*:\s*\{([\s\S]*?)\}/g;
+  while ((m = updateBlockRe.exec(text))) {
+    for (const { fieldName, index } of extractManagedFieldKeys(m[1])) {
+      if (!fieldName.startsWith('zqu__')) continue;
+      const inQrpc = isKnownObjectField(indexed, QRPC, fieldName);
+      const inTier = isKnownObjectField(indexed, TIER, fieldName);
+      if (!inQrpc && !inTier) {
+        issues.push({
+          severity: 'error',
+          rule: 'WJS082',
+          file,
+          line: lineOf(text, m.index + 'update: {'.length + index),
+          message: `charge/tier update patch key "${fieldName}" is not a known ${QRPC} or ${TIER} field`
+        });
+      }
+    }
+  }
+
+  const configEntryPatterns = [
+    /object\s*:\s*['"](QuoteRatePlanCharge|QuoteChargeTier|Quote)['"][\s\S]{0,240}?\bfield\s*:\s*['"](zqu__[^'"]+)['"]/g,
+    /\bfield\s*:\s*['"](zqu__[^'"]+)['"][\s\S]{0,240}?\bobject\s*:\s*['"](QuoteRatePlanCharge|QuoteChargeTier|Quote)['"]/g
+  ];
+  for (const re of configEntryPatterns) {
+    while ((m = re.exec(text))) {
+      const objectLabel = m[1].startsWith('zqu__') ? m[2] : m[1];
+      const fieldName = m[1].startsWith('zqu__') ? m[1] : m[2];
+      const catalogObject = objectLabelToCatalogName(objectLabel);
+      if (!catalogObject || !fieldName.startsWith('zqu__')) continue;
+      if (catalogObject === QRPC && qrpcContextMistakes[fieldName]) {
+        issues.push({
+          severity: 'error',
+          rule: 'WJS082',
+          file,
+          line: lineOf(text, m.index),
+          message: `objectfieldconfig ${objectLabel} field "${fieldName}" — ${qrpcContextMistakes[fieldName]}`
+        });
+        continue;
+      }
+      if (!isKnownObjectField(indexed, catalogObject, fieldName)) {
+        issues.push({
+          severity: 'error',
+          rule: 'WJS082',
+          file,
+          line: lineOf(text, m.index),
+          message: `objectfieldconfig ${objectLabel} field "${fieldName}" is not a known ${catalogObject} field`
+        });
+      }
+    }
+  }
+}
+
 function lintJsQuoteFieldReferences(text, file, issues) {
   const indexed = indexFieldCatalog(loadFieldCatalog());
   const commonMistakes = indexed.commonMistakes || {};
@@ -913,6 +1089,19 @@ function lintJsQuoteFieldReferences(text, file, issues) {
         line: lineOf(text, m.index),
         message: `invalid field "${bad}" — ${hint}`
       });
+    }
+    if (/^zqu__|^Zuora__/.test(bad)) {
+      const unquotedRe = new RegExp(`\\b${bad.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+      while ((m = unquotedRe.exec(text))) {
+        if (isInsideStringLiteral(text, m.index)) continue;
+        issues.push({
+          severity: 'error',
+          rule: 'EJS090',
+          file,
+          line: lineOf(text, m.index),
+          message: `invalid field "${bad}" — ${hint}`
+        });
+      }
     }
   }
 
@@ -950,6 +1139,8 @@ function lintJsQuoteFieldReferences(text, file, issues) {
       }
     }
   }
+
+  lintJsQrpcFieldReferences(text, file, issues, indexed);
 }
 
 function lintFiles(files, options = {}) {

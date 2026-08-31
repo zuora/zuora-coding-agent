@@ -27,7 +27,7 @@ function indexFieldCatalog(fieldCatalog) {
     }
     byObject.set(objectName, { entry, fieldMap });
   }
-  return { byObject, byFieldName, commonMistakes: fieldCatalog.$common_mistakes || {} };
+  return { byObject, byFieldName, commonMistakes: fieldCatalog.$common_mistakes || {}, qrpcContextMistakes: fieldCatalog.$qrpc_context_mistakes || {} };
 }
 
 function collectFiles(targets) {

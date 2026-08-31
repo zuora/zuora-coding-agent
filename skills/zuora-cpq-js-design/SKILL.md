@@ -43,6 +43,7 @@ Read:
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-js-state-model.md`
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-js-registration.md`
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-patterns.md`
+- `${CLAUDE_PLUGIN_ROOT}/references/cpq-salesforce-fields.json` — QRPC and quote field API names; use `$ui_label_hints` when the user cites UI labels such as "Effective Price"
 - `${CLAUDE_PLUGIN_ROOT}/references/cpq-zqf-client.md` when the package version is 10.58 or later, or when the user says `zqfClient` is available
 
 ### Step 3: Select hooks and events
