@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.5] - 2026-08-31
+
+### Added
+- New reference for cloning Commerce Catalog products (with nested plans/charges) on the current tenant via `manage_commerce_products`
+
+### Improved
+- CPQ JS skills now resolve UI labels like "Effective Price" to the correct QRPC/tier field API name instead of guessing, and catch invalid QRPC and tier field references (WJS082/EJS090)
+- Review, validate, and workflow-build skills now flag silent-failure patterns (swallowed errors, empty results, accepted-but-no-effect requests) and suggest adding request/response logging to help pinpoint the break
+
 ## [1.5.4] - 2026-08-17
 
 ### Added
