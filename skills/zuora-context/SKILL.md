@@ -1,6 +1,6 @@
 ---
 name: zuora-context
-description: This skill should be used when the user mentions "Zuora API", "Zuora SDK", "Zuora Billing", "Zuora Revenue", "Zuora CPQ", "Zuora Payments", "subscription billing", "invoice settlement", "zuora-mcp", "rate plan", "product rate plan charge", "order API", "tenant settings", "billing configuration", "configure tenant", "billing rules", "payment terms", "Zuora settings", or discusses integration with or configuration of Zuora systems. Do not activate for generic billing or subscription discussions that are not Zuora-specific.
+description: This skill should be used when the user mentions "Zuora API", "Zuora SDK", "Zuora Billing", "Zuora Revenue", "Zuora CPQ", "Zuora Payments", "subscription billing", "invoice settlement", "zuora-mcp", "rate plan", "product rate plan charge", "clone product", "clone plan", "copy product", "order API", "tenant settings", "billing configuration", "configure tenant", "billing rules", "payment terms", "Zuora settings", or discusses integration with or configuration of Zuora systems. Do not activate for generic billing or subscription discussions that are not Zuora-specific.
 version: 1.0.0
 ---
 
@@ -98,7 +98,12 @@ When generating code for the customer's repository, output Zuora REST API or SDK
 - **`mcp__zuora-mcp__manage_meters`** / **`mcp__zuora-mcp__manage_meters_run`** — Create, validate, import/export meter definitions, and run meters, check run status, run history, audit trail, and prefetch management.
 - **`mcp__zuora-mcp__create_subscriptions`** / **`manage_subscriptions`** — Create or manage subscriptions for validation.
 - **`mcp__zuora-mcp__manage_billing_documents`** — Verify billing document generation.
+- **`mcp__zuora-mcp__manage_commerce_products`** — Create, update, and clone Commerce Catalog products on the current tenant (`clone_product` — see "Cloning Commerce Catalog products" below).
 - Other `manage_*` tools as needed for their specific domains.
+
+## Cloning Commerce Catalog products
+
+Read `${CLAUDE_PLUGIN_ROOT}/references/commerce-product-clone.md` before cloning a **product** (and its nested plans/charges) on the **current tenant** via `mcp__zuora-mcp__manage_commerce_products` (`clone_product`). It has the full execution rule, dry-run/confirm/execute workflow, and constraints — follow it exactly.
 
 ## Tool routing
 
