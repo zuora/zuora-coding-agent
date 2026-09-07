@@ -1,0 +1,125 @@
+{
+  "name": "PaymentScheduleItemPayment",
+  "label": "Payment Schedule Item Payment",
+  "href": "https://staging2.zuora.com/rest/api/describe/PaymentScheduleItemPayment",
+  "fields": [
+    {
+      "name": "CreatedById",
+      "label": "Created By Id",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By Id",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Payment",
+      "label": "Payment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "PaymentScheduleItemPayment.Payment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Payment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethod",
+      "label": "Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PaymentScheduleItemPayment.Payment.PaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethodSnapshot",
+      "label": "Payment Method Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PaymentScheduleItemPayment.Payment.PaymentMethodSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethodSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentScheduleItem",
+      "label": "Payment Schedule Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "PaymentScheduleItemPayment.PaymentScheduleItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentScheduleItem",
+      "foreign_key_field": null
+    }
+  ]
+}

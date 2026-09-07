@@ -1,0 +1,130 @@
+{
+  "name": "FulfillmentItem",
+  "label": "Fulfillment Item",
+  "href": "https://staging2.zuora.com/rest/api/describe/FulfillmentItem",
+  "fields": [
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Description",
+      "label": "Description",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ItemIdentifier",
+      "label": "Item Identifier",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Fulfillment",
+      "label": "Fulfillment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "FulfillmentItem.Fulfillment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Fulfillment",
+      "foreign_key_field": null
+    }
+  ]
+}

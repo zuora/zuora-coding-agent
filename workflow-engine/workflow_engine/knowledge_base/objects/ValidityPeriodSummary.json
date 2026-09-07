@@ -1,0 +1,353 @@
+{
+  "name": "ValidityPeriodSummary",
+  "label": "Prepaid Validity Period Summary",
+  "href": "https://staging2.zuora.com/rest/api/describe/ValidityPeriodSummary",
+  "fields": [
+    {
+      "name": "AccountId",
+      "label": "Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AccountNumber",
+      "label": "Account Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "BilledBalance",
+      "label": "Billed Balance",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PrepaidBalanceId",
+      "label": "Prepaid Balance ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RemainingBalance",
+      "label": "Remaining Balance",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionNumber",
+      "label": "Subscription Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TotalBilled",
+      "label": "Total Billed",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TotalPrepaidBalance",
+      "label": "Total Prepaid Balance",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UnitOfMeasure",
+      "label": "UOM",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ValidityPeriodEndDate",
+      "label": "End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ValidityPeriodStartDate",
+      "label": "Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "ValidityPeriodSummary.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "AccountId"
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ValidityPeriodSummary.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ValidityPeriodSummary.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ValidityPeriodSummary.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PrepaidBalance",
+      "label": "Prepaid Balance",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "ValidityPeriodSummary.PrepaidBalance",
+      "href": "https://staging2.zuora.com/rest/api/describe/PrepaidBalance",
+      "foreign_key_field": "PrepaidBalanceId"
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ValidityPeriodSummary.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ValidityPeriodSummary.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ValidityPeriodSummary.PrepaidBalance.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": null
+    }
+  ]
+}

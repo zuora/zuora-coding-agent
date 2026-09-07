@@ -1,0 +1,2041 @@
+{
+  "name": "BillingTransaction",
+  "label": "Billing Transaction",
+  "href": "https://staging2.zuora.com/rest/api/describe/BillingTransaction",
+  "fields": [
+    {
+      "name": "AdjustmentLiabilityAccountId",
+      "label": "Adjustment Liability Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentLiabilityAccountName",
+      "label": "Adjustment Liability Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentLiabilityAccountNumber",
+      "label": "Adjustment Liability Account Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentLiabilityGlAccountName",
+      "label": "Adjustment Liability GL Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentRevenueAccountId",
+      "label": "Adjustment Revenue Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentRevenueAccountName",
+      "label": "Adjustment Revenue Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentRevenueAccountNumber",
+      "label": "Adjustment Revenue Account Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentRevenueGlAccountName",
+      "label": "Adjustment Revenue GL Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AvoidOverage",
+      "label": "Avoid Overage",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BillToCityId",
+      "label": "Bill To City ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BillToCountryId",
+      "label": "Bill To Country ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BillToStateId",
+      "label": "Bill To State ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BookingRatePlanChargeVersion",
+      "label": "Booking Rate Plan Charge Version",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BookingReference",
+      "label": "Booking Reference",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BookingSubscriptionVersion",
+      "label": "Booking Subscription Version",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BusinessType",
+      "label": "Business Type",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeCreateDate",
+      "label": "Charge Create Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeLastUpdateDate",
+      "label": "Charge Last Update Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeModel",
+      "label": "Charge Model",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Flat Fee Pricing",
+        "Discount-Percentage",
+        "Custom Charge Model Pricing",
+        "Delivery Pricing",
+        "Minimum Commitment Pricing",
+        "Calculated Charge",
+        "Per Unit Pricing",
+        "Overage Pricing",
+        "Volume Pricing",
+        "Tiered Pricing",
+        "Tiered with Overage Pricing",
+        "Discount-Fixed Amount"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeName",
+      "label": "Charge Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeNumber",
+      "label": "Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeSegment",
+      "label": "Charge Segment",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeThroughDate",
+      "label": "Charge Through Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeType",
+      "label": "Charge Type",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "OneTime",
+        "Recurring",
+        "Usage"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentChargeNumber",
+      "label": "Commitment Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentChargeSegment",
+      "label": "Commitment Charge Segment",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CompanyCode",
+      "label": "Company Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractAssetAccountId",
+      "label": "Contract Asset Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractAssetAccountName",
+      "label": "Contract Asset Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractAssetAccountNumber",
+      "label": "Contract Asset Account Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractAssetGlAccountName",
+      "label": "Contract Asset Gl Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractLiabilityAccountId",
+      "label": "Contract Liability Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractLiabilityAccountName",
+      "label": "Contract Liability Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractLiabilityAccountNumber",
+      "label": "Contract Liability Account Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractLiabilityGlAccountName",
+      "label": "Contract Liability GL Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractRecognizedRevenueAccountId",
+      "label": "Contract Recognized Revenue Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractRecognizedRevenueAccountName",
+      "label": "Contract Recognized Revenue Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractRecognizedRevenueAccountNumber",
+      "label": "Contract Recognized Revenue Account Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContractRecognizedRevenueGlAccountName",
+      "label": "Contract Recognized Revenue GL Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CurrencyCode",
+      "label": "Currency Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CustomerId",
+      "label": "Customer ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CustomerName",
+      "label": "Customer Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CustomerNumber",
+      "label": "Customer Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DiscountAppliedToRatePlanChargeModelId",
+      "label": "Discount Applied To Rate Plan Charge Model ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DiscountAppliedToRatePlanChargeNumber",
+      "label": "Discount Applied To Rate Plan Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DiscountAppliedToRatePlanChargeSegment",
+      "label": "Discount Applied To Rate Plan Charge Segment",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DiscountAppliedToRatePlanChargeTypeId",
+      "label": "Discount Applied To Rate Plan Charge Type ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DocumentDate",
+      "label": "Document Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DocumentId",
+      "label": "Document ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DocumentLineId",
+      "label": "Document Line ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DocumentLineNumber",
+      "label": "Document Line Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DocumentNumber",
+      "label": "Document Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DocumentQuantity",
+      "label": "Document Quantity",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DocumentType",
+      "label": "Document Type",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "EndDate",
+      "label": "End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExcludeItemBillingFromRevenueAccounting",
+      "label": "Exclude Item Billing From Revenue Accounting",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExcludeItemBookingFromRevenueAccounting",
+      "label": "Exclude Item Booking From Revenue Accounting",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "FxRate",
+      "label": "Fx Rate",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "GlobalFxRate",
+      "label": "Global Fx Rate",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "HomeCurrencyCode",
+      "label": "Home Currency Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceId",
+      "label": "Invoice ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceOriginalOwnerId",
+      "label": "Invoice Original Owner ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceOwnerName",
+      "label": "Invoice Owner Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "IsAllocationEligible",
+      "label": "Is Allocation Eligible",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "IsUnbilled",
+      "label": "Is Unbilled",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ListPrice",
+      "label": "List Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "OrderedQuantity",
+      "label": "Ordered Quantity",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "OrgName",
+      "label": "Organization Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalInvoiceLineId",
+      "label": "Original Invoice Line ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalRatePlanChargeId",
+      "label": "Original Rate Plan Charge ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalSalesOrderLineItemId",
+      "label": "Original Sales Order Line Item ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ProductCategory",
+      "label": "Product Category",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ProductClass",
+      "label": "Product Class",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ProductFamily",
+      "label": "Product Family",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ProductLine",
+      "label": "Product Line",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RatePlanChargeVersion",
+      "label": "Rate Plan Charge Version",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RatePlanName",
+      "label": "Rate Plan Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ReflectDiscountInNetAmount",
+      "label": "Reflect Discount In Net Amount",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RetainLineId",
+      "label": "Retain Line ID",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueAmortizationMethod",
+      "label": "Revenue Amortization Method",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueExtendedSellingPrice",
+      "label": "Revenue Extended Selling Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueRecognitionTiming",
+      "label": "Revenue Recognition Timing",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SalesOrderLineId",
+      "label": "Sales Order Line ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SalesOrderLineNumber",
+      "label": "Sales Order Line Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SalesOrderNumber",
+      "label": "Sales Order Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SellPrice",
+      "label": "Sell Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SoldToCityId",
+      "label": "Sold To City ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SoldToCountryId",
+      "label": "Sold To Country ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SoldToStateId",
+      "label": "Sold To State ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "StartDate",
+      "label": "Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionEndDate",
+      "label": "Subscription End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionName",
+      "label": "Subscription Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionOriginalOwnerId",
+      "label": "Subscription Original Owner ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionOwnerName",
+      "label": "Subscription Owner Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionStartDate",
+      "label": "Subscription Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionStatus",
+      "label": "Subscription Status",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Draft",
+        "PendingActivation",
+        "PendingAcceptance",
+        "Active",
+        "Cancelled",
+        "Expired",
+        "Suspended"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionTermEndDate",
+      "label": "Subscription Term End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionTermStartDate",
+      "label": "Subscription Term Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionVersion",
+      "label": "Subscription Version",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxAmount",
+      "label": "Tax Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TermNumber",
+      "label": "Term Number",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TermType",
+      "label": "Term Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "TERMED",
+        "EVERGREEN"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionType",
+      "label": "Transaction Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "BookingCharge",
+        "BookingDiscount",
+        "BookingOLI",
+        "INV",
+        "CMI",
+        "DMI",
+        "IIA"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TriggerEvent",
+      "label": "Trigger Event",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "ContractEffective",
+        "ServiceActivation",
+        "CustomerAcceptance",
+        "SpecificDate"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnbilledReceivablesAccountId",
+      "label": "Unbilled Receivables Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnbilledReceivablesAccountName",
+      "label": "Unbilled Receivables Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnbilledReceivablesAccountNumber",
+      "label": "Unbilled Receivables Account Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnbilledReceivablesGlAccountName",
+      "label": "Unbilled Receivables GL Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnitListPrice",
+      "label": "Unit List Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnitSalePrice",
+      "label": "Unit Sale Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ZbillExRateDate",
+      "label": "Zbill Ex Rate Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Amendment",
+      "label": "Amendment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.SubscriptionRatePlan.Amendment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Amendment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.SubscriptionOwner.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.SubscriptionOwner.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DiscountAppliedToRatePlanCharge",
+      "label": "Discount Applied To Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "BillingTransaction.DiscountAppliedToRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.SubscriptionOwner.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Product",
+      "label": "Product",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.ProductRatePlan.Product",
+      "href": "https://staging2.zuora.com/rest/api/describe/Product",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlan",
+      "label": "Product Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "BillingTransaction.ProductRatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "BillingTransaction.ProductRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlan",
+      "label": "Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.RatePlanCharge.RatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlanCharge",
+      "label": "Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "BillingTransaction.RatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.SubscriptionOwner.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "BillingTransaction.SubscriptionOwner.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "BillingTransaction.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionOwner",
+      "label": "Subscription Owner",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "BillingTransaction.SubscriptionOwner",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionRatePlan",
+      "label": "Subscription Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "BillingTransaction.SubscriptionRatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlan",
+      "foreign_key_field": null
+    }
+  ]
+}

@@ -1,0 +1,319 @@
+{
+  "name": "RefundApplicationItem",
+  "label": "Refund Application Item",
+  "href": "https://staging2.zuora.com/rest/api/describe/RefundApplicationItem",
+  "fields": [
+    {
+      "name": "Amount",
+      "label": "Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "EffectiveDate",
+      "label": "Effective Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountingPeriod",
+      "label": "AccountingPeriod",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.JournalEntry.AccountingPeriod",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingPeriod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountReceivableAccountingCode",
+      "label": "Accounts Receivable Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.AccountReceivableAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ApplicationGroup",
+      "label": "Application Group",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.ApplicationGroup",
+      "href": "https://staging2.zuora.com/rest/api/describe/ApplicationGroup",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CashAccountingCode",
+      "label": "Bank Account Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.CashAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemo",
+      "label": "Credit Memo",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.CreditMemo",
+      "href": "https://staging2.zuora.com/rest/api/describe/CreditMemo",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemoItem",
+      "label": "Credit Memo Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.CreditMemoItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/CreditMemoItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditTaxationItem",
+      "label": "Credit Taxation Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.CreditTaxationItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/CreditTaxationItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalEntry",
+      "label": "Journal Entry",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.JournalEntry",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalEntry",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalRun",
+      "label": "Journal Run",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.JournalEntry.JournalRun",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalRun",
+      "foreign_key_field": null
+    },
+    {
+      "name": "OnAccountAccountingCode",
+      "label": "On-Account Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.OnAccountAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Payment",
+      "label": "Payment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Payment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Payment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethod",
+      "label": "Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Payment.PaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethodSnapshot",
+      "label": "Payment Method Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Payment.PaymentMethodSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethodSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Refund",
+      "label": "Refund",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Refund",
+      "href": "https://staging2.zuora.com/rest/api/describe/Refund",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RefundApplication",
+      "label": "Refund Application",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.RefundApplication",
+      "href": "https://staging2.zuora.com/rest/api/describe/RefundApplication",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundApplicationItem.RefundApplication.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "UnappliedPaymentAccountingCode",
+      "label": "Unapplied Payment Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundApplicationItem.UnappliedPaymentAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    }
+  ]
+}

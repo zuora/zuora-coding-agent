@@ -1,0 +1,178 @@
+{
+  "name": "SubscriptionStatusHistory",
+  "label": "Subscription Status History",
+  "href": "https://staging2.zuora.com/rest/api/describe/SubscriptionStatusHistory",
+  "fields": [
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "EndDate",
+      "label": "End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SortOrder",
+      "label": "Sort Order",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "StartDate",
+      "label": "Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Draft",
+        "PendingActivation",
+        "PendingAcceptance",
+        "Active",
+        "Cancelled",
+        "Expired",
+        "Suspended",
+        "OutOfTerm",
+        "Trial"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionNumber",
+      "label": "Subscription Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": []
+}

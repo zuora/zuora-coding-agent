@@ -1,0 +1,216 @@
+{
+  "name": "AccountingPeriod",
+  "label": "AccountingPeriod",
+  "href": "https://staging2.zuora.com/rest/api/describe/AccountingPeriod",
+  "fields": [
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EndDate",
+      "label": "End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "FiscalQuarter",
+      "label": "Fiscal Quarter",
+      "type": "integer",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "FiscalYear",
+      "label": "Fiscal Year",
+      "type": "integer",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Name",
+      "label": "Name",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Notes",
+      "label": "Notes",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "StartDate",
+      "label": "Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "Open",
+        "PendingClose",
+        "Closed"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": []
+}

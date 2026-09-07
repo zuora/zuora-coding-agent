@@ -1,0 +1,1070 @@
+{
+  "name": "Payment",
+  "label": "Payment",
+  "href": "https://staging2.zuora.com/rest/api/describe/Payment",
+  "fields": [
+    {
+      "name": "AccountId",
+      "label": "Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "AccountingCode",
+      "label": "Accounting Code",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Amount",
+      "label": "Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AppliedAmount",
+      "label": "Applied Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AppliedCreditBalanceAmount",
+      "label": "Applied Credit Balance Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AppliedInvoiceAmount",
+      "label": "Applied Invoice Amount",
+      "type": "decimal",
+      "selectable": false,
+      "createable": true,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "AuthTransactionId",
+      "label": "Authorized Transaction ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "BankIdentificationNumber",
+      "label": "Bank Identification Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CancelledOn",
+      "label": "Cancelled On",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Comment",
+      "label": "Comment",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Currency",
+      "label": "Currency",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "USD",
+        "ZAR",
+        "MUR",
+        "MVR",
+        "MWK",
+        "AFN",
+        "MYR",
+        "MZN",
+        "NAD",
+        "NGN",
+        "NIO",
+        "MXN",
+        "NOK",
+        "NPR",
+        "NZD",
+        "OMR",
+        "PAB",
+        "PEN",
+        "PGK",
+        "PHP",
+        "PKR",
+        "PLN",
+        "AED",
+        "PYG",
+        "QAR",
+        "RON",
+        "RSD",
+        "RWF",
+        "SAR",
+        "SBD",
+        "SCR",
+        "SDG",
+        "SEK",
+        "ALL",
+        "SGD",
+        "SHP",
+        "SLL",
+        "SOS",
+        "SRD",
+        "STD",
+        "HKD",
+        "SVC",
+        "SYP",
+        "SZL",
+        "THB",
+        "TJS",
+        "TND",
+        "TOP",
+        "TRY",
+        "AMD",
+        "TTD",
+        "TWD",
+        "TZS",
+        "UAH",
+        "UGX",
+        "UYU",
+        "UZS",
+        "VEF",
+        "ANG",
+        "VND",
+        "VUV",
+        "WST",
+        "XAF",
+        "XCD",
+        "XOF",
+        "AOA",
+        "XPF",
+        "YER",
+        "ZMK",
+        "ZWD",
+        "HNL",
+        "VES",
+        "VED",
+        "ARS",
+        "AWG",
+        "EUR",
+        "AZN",
+        "BAM",
+        "BBD",
+        "BDT",
+        "BGN",
+        "BHD",
+        "BIF",
+        "BMD",
+        "BND",
+        "BOB",
+        "GBP",
+        "BRL",
+        "BSD",
+        "BTN",
+        "BWP",
+        "BYR",
+        "BZD",
+        "CDF",
+        "CLP",
+        "COP",
+        "CRC",
+        "JPY",
+        "CUP",
+        "CVE",
+        "CZK",
+        "DJF",
+        "DKK",
+        "DOP",
+        "DZD",
+        "EEK",
+        "EGP",
+        "CNY",
+        "ERN",
+        "ETB",
+        "FJD",
+        "FKP",
+        "GEL",
+        "GHS",
+        "GIP",
+        "GMD",
+        "GNF",
+        "CAD",
+        "GTQ",
+        "GYD",
+        "HRK",
+        "HTG",
+        "HUF",
+        "IDR",
+        "ILS",
+        "INR",
+        "IQD",
+        "AUD",
+        "IRR",
+        "ISK",
+        "JMD",
+        "JOD",
+        "KES",
+        "KGS",
+        "KHR",
+        "KMF",
+        "KPW",
+        "CHF",
+        "KRW",
+        "KWD",
+        "KYD",
+        "KZT",
+        "LAK",
+        "LBP",
+        "LKR",
+        "LRD",
+        "LSL",
+        "LTL",
+        "RUB",
+        "LVL",
+        "LYD",
+        "MAD",
+        "MDL",
+        "MGA",
+        "MKD",
+        "MMK",
+        "MNT",
+        "MOP",
+        "MRO"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EffectiveDate",
+      "label": "Effective Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Gateway",
+      "label": "Gateway",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayOrderId",
+      "label": "Gateway Order ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayReconciliationReason",
+      "label": "Gateway Reconciliation Reason",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayReconciliationStatus",
+      "label": "Gateway Reconciliation Status",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayResponse",
+      "label": "Gateway Response",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayResponseCode",
+      "label": "Gateway Response Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayState",
+      "label": "Gateway State",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "MarkedForSubmission",
+        "Submitted",
+        "Settled",
+        "NotSubmitted",
+        "FailedToSettle"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceId",
+      "label": "Invoice ID",
+      "type": "text",
+      "selectable": false,
+      "createable": true,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "InvoiceNumber",
+      "label": "Invoice Number",
+      "type": "text",
+      "selectable": false,
+      "createable": true,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "IsStandalone",
+      "label": "Is Standalone",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "MarkedForSubmissionOn",
+      "label": "Marked For Submission On",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentMethodId",
+      "label": "Payment Method ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "PaymentMethodSnapshotId",
+      "label": "Payment Method Snapshot ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "PaymentNumber",
+      "label": "Payment Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PayoutId",
+      "label": "Payout Id",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Prepayment",
+      "label": "Prepayment",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ReferencedPaymentID",
+      "label": "Referenced Payment ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ReferenceId",
+      "label": "Reference ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RefundAmount",
+      "label": "Refund Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SecondPaymentReferenceId",
+      "label": "Second Payment Reference ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SettledOn",
+      "label": "Settled On",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SoftDescriptor",
+      "label": "Soft Descriptor",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SoftDescriptorPhone",
+      "label": "Soft Descriptor Phone",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Source",
+      "label": "Source",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "PaymentRun",
+        "Import",
+        "Manually",
+        "API",
+        "Checkout",
+        "RefundReconcile",
+        "PaymentSchedule",
+        "PaymentLink",
+        "OrderAPI",
+        "SubscriptionsAPI",
+        "SubscribeAPI",
+        "HostedForm"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SourceName",
+      "label": "Source Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "Draft",
+        "Processing",
+        "Processed",
+        "Error",
+        "Voided",
+        "Canceled",
+        "Posted",
+        "Pending"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SubmittedOn",
+      "label": "Submitted On",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TransferredToAccounting",
+      "label": "Transferred to Accounting",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Processing",
+        "Yes",
+        "Error",
+        "Ignore"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Type",
+      "label": "Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "External",
+        "Electronic"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UnappliedAmount",
+      "label": "Unapplied Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Payment.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "AccountId"
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Payment.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Payment.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Payment.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethod",
+      "label": "Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Payment.PaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": "PaymentMethodId"
+    },
+    {
+      "name": "PaymentMethodSnapshot",
+      "label": "Payment Method Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Payment.PaymentMethodSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethodSnapshot",
+      "foreign_key_field": "PaymentMethodSnapshotId"
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Payment.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Payment.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    }
+  ]
+}

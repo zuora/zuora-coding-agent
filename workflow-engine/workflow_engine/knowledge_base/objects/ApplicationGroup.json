@@ -1,0 +1,141 @@
+{
+  "name": "ApplicationGroup",
+  "label": "Application Group",
+  "href": "https://staging2.zuora.com/rest/api/describe/ApplicationGroup",
+  "fields": [
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "OperationDate",
+      "label": "Operation Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Payment",
+      "label": "Payment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "ApplicationGroup.Payment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Payment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethod",
+      "label": "Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ApplicationGroup.Payment.PaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethodSnapshot",
+      "label": "Payment Method Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "ApplicationGroup.Payment.PaymentMethodSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethodSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Refund",
+      "label": "Refund",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "ApplicationGroup.Refund",
+      "href": "https://staging2.zuora.com/rest/api/describe/Refund",
+      "foreign_key_field": null
+    }
+  ]
+}

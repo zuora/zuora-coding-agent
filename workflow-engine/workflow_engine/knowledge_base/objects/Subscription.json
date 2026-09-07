@@ -1,0 +1,1224 @@
+{
+  "name": "Subscription",
+  "label": "Subscription",
+  "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+  "fields": [
+    {
+      "name": "AccountId",
+      "label": "Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "AncestorAccountId",
+      "label": "Ancestor Account ID",
+      "type": "text",
+      "selectable": false,
+      "createable": true,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "AutoRenew",
+      "label": "Auto Renew",
+      "type": "boolean",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CancelledDate",
+      "label": "Cancelled Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CancelReason",
+      "label": "Cancel Reason",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Cmrr",
+      "label": "CMRR",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CommunicationProfileId",
+      "label": "Communication Profile ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ContractAcceptanceDate",
+      "label": "Contract Acceptance Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ContractEffectiveDate",
+      "label": "Contract Effective Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CpqBundleJsonId__QT",
+      "label": "Cpq Bundle Json ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": true,
+      "required": false,
+      "maxlength": 255,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatorAccountId",
+      "label": "Creator Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatorInvoiceOwnerId",
+      "label": "Creator Invoice Owner ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Currency",
+      "label": "Currency",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CurrentTerm",
+      "label": "Current Term",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CurrentTermPeriodType",
+      "label": "Current Term Period Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Month",
+        "Year",
+        "Day",
+        "Week"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ExternallyManagedBy",
+      "label": "Externally Managed By",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Apple",
+        "Google",
+        "Roku",
+        "Amazon"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InitialTerm",
+      "label": "Initial Term",
+      "type": "integer",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InitialTermPeriodType",
+      "label": "Initial Term Period Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Month",
+        "Year",
+        "Day",
+        "Week"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceGroupNumber",
+      "label": "Invoice Group Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceOwnerId",
+      "label": "Invoice Owner ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceTemplateId",
+      "label": "Invoice Template ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsInvoiceSeparate",
+      "label": "Invoice Separate",
+      "type": "boolean",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsLatestVersion",
+      "label": "Is Latest Version",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "LastBookingDate",
+      "label": "Last Booking Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Name",
+      "label": "Name",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Notes",
+      "label": "Notes",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OpportunityCloseDate__QT",
+      "label": "Opportunity Close Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": true,
+      "required": false,
+      "maxlength": 255,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OpportunityName__QT",
+      "label": "Opportunity Name",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": true,
+      "required": false,
+      "maxlength": 255,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OrderId",
+      "label": "Order ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalCreatedDate",
+      "label": "Original Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalId",
+      "label": "Original ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentTerm",
+      "label": "Payment Term",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PreviousSubscriptionId",
+      "label": "Previous Subscription ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "QuoteBusinessType__QT",
+      "label": "Quote Business Type",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": true,
+      "required": false,
+      "maxlength": 255,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "QuoteNumber__QT",
+      "label": "Quote Number",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": true,
+      "required": false,
+      "maxlength": 255,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "QuoteType__QT",
+      "label": "Quote Type",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": true,
+      "required": false,
+      "maxlength": 255,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RampId",
+      "label": "Ramp ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RenewalSetting",
+      "label": "Renewal Setting",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "RENEW_WITH_SPECIFIC_TERM",
+        "RENEW_TO_EVERGREEN"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RenewalTerm",
+      "label": "Renewal Term",
+      "type": "integer",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RenewalTermPeriodType",
+      "label": "Renewal Term Period Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Month",
+        "Year",
+        "Day",
+        "Week"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Revision",
+      "label": "Revision",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SequenceSetId",
+      "label": "Sequence Set ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ServiceActivationDate",
+      "label": "Service Activation Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SingleVersioned",
+      "label": "Single Versioned",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Draft",
+        "Pending Activation",
+        "Pending Acceptance",
+        "Active",
+        "Cancelled",
+        "Expired",
+        "Suspended",
+        "InTrial"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionBillToId",
+      "label": "Subscription Bill To ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "SubscriptionBillToSnapshotId",
+      "label": "Subscription Bill To ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "SubscriptionEndDate",
+      "label": "Subscription End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionShipToId",
+      "label": "Subscription Ship To ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "SubscriptionShipToSnapshotId",
+      "label": "Subscription Ship To Snapshot ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "SubscriptionSoldToId",
+      "label": "Subscription Sold To ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "SubscriptionSoldToSnapshotId",
+      "label": "Subscription Sold To Snapshot ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "SubscriptionStartDate",
+      "label": "Subscription Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TermEndDate",
+      "label": "Term End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TermStartDate",
+      "label": "Term Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TermType",
+      "label": "Term Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "TERMED",
+        "EVERGREEN"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Version",
+      "label": "Version",
+      "type": "integer",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "AccountId"
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Subscription.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Subscription.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "InvoiceOwner",
+      "label": "Invoice Owner",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.InvoiceOwner",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "InvoiceOwnerId"
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Subscription.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Subscription.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "Subscription.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionBillTo",
+      "label": "Subscription Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionBillTo",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": "SubscriptionBillToId"
+    },
+    {
+      "name": "SubscriptionBillToSnapshot",
+      "label": "Subscription Bill To Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionBillToSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": "SubscriptionBillToSnapshotId"
+    },
+    {
+      "name": "SubscriptionShipTo",
+      "label": "Subscription Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionShipTo",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": "SubscriptionShipToId"
+    },
+    {
+      "name": "SubscriptionShipToSnapshot",
+      "label": "Subscription Ship To Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionShipToSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": "SubscriptionShipToSnapshotId"
+    },
+    {
+      "name": "SubscriptionSoldTo",
+      "label": "Subscription Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionSoldTo",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": "SubscriptionSoldToId"
+    },
+    {
+      "name": "SubscriptionSoldToSnapshot",
+      "label": "Subscription Sold To Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionSoldToSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": "SubscriptionSoldToSnapshotId"
+    },
+    {
+      "name": "SubscriptionStatusHistory",
+      "label": "Subscription Status History",
+      "cardinality": "TO_MANY",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionStatusHistory",
+      "href": "https://staging2.zuora.com/rest/api/describe/SubscriptionStatusHistory",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionVersionAmendment",
+      "label": "Subscription Version Amendment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "Subscription.SubscriptionVersionAmendment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Amendment",
+      "foreign_key_field": null
+    }
+  ]
+}

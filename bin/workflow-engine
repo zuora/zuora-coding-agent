@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Run the vendored workflow engine (prefers uv, falls back to python -m).
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ENGINE_DIR="$ROOT/workflow-engine"
+cd "$ENGINE_DIR"
+if command -v uv >/dev/null 2>&1; then
+  exec uv run --project "$ENGINE_DIR" workflow-engine "$@"
+fi
+export PYTHONPATH="$ENGINE_DIR:${PYTHONPATH:-}"
+exec python3 -m workflow_engine.cli "$@"

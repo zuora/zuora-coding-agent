@@ -1,0 +1,178 @@
+{
+  "name": "InvoiceSplitItem",
+  "label": "Invoice Split Item",
+  "href": "https://staging2.zuora.com/rest/api/describe/InvoiceSplitItem",
+  "fields": [
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceDate",
+      "label": "Invoice Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceId",
+      "label": "Invoice ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceSplitId",
+      "label": "Invoice Split ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentTerm",
+      "label": "Payment Term",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SplitPercentage",
+      "label": "Split Percentage",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": []
+}

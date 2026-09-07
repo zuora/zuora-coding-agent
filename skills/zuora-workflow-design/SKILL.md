@@ -16,6 +16,32 @@ Design output is not an import artifact. Do not emit partial Workflow import JSO
 
 The user's automation requirement: $ARGUMENTS
 
+## Engine pipeline (required)
+
+Produce **plan artifacts**, not import JSON. The vendored workflow engine is the source of truth for event parameters, linkage rules, Iterate resolution, and Query vs Export selection.
+
+1. Write `${CLAUDE_PLUGIN_ROOT}/output/<name>.intent.json` (WorkflowIntent shape: `name`, `description`, `call_type`, `trigger`, `data_objects`, `missing_info_signals`).
+2. Validate intent (auto-wires `event_parameters`):
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine validate-plan --stage intent -i output/<name>.intent.json
+   ```
+   If `ok` is false, fix blockers and re-run until `ok: true`. Apply corrections from the report to the intent file.
+3. Write `${CLAUDE_PLUGIN_ROOT}/output/<name>.plan.json` (flat plan: `name`, `description`, `call_type`, `trigger`, `tasks[]`, `linkages[]` — **not** wire/export shape).
+4. Validate plan:
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine validate-plan --stage plan -i output/<name>.plan.json
+   ```
+5. Hand off to `zuora-workflow-build` with the validated `.plan.json` path.
+
+Reference lookups during design:
+```bash
+${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine lookup events BillingRunCompletion
+${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine lookup planning_guidance run_event
+${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine lookup task Iterate
+```
+
+Never hand-author `event_parameters`, event entry linkages, or final `workflow`/`tasks`/`linkages` import JSON in this skill.
+
 ## Workflow
 
 ### Step 1: Understand the business process
@@ -63,6 +89,9 @@ If relevant objects need inspection, use `mcp__zuora-mcp__query_objects` to chec
 
 Read these in parallel for composition fluency:
 
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-data-retrieval.md` — **task selection matrix** (Query vs Export vs Data::Link vs GraphQuery; BATCH vs REALTIME; run-scoped bulk reads). Read before Step 5a.
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-task-guidance.md` — per-`action_type` behavioral rules (when to use, config pitfalls).
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-planning-patterns.md` — named composition patterns (`run_event`, `callout`, `parent_child_filter`, …).
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-patterns.md` — composition strategy and patterns.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-task-catalog.md` — all 71 `action_type` values grouped by category, with format pitfalls.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-triggers-and-linkages.md` — trigger types, call_type matrix, linkage catalog, For-Each-before-Merge rule, and the **"Workflow-level field derivation"** cheat-sheet.
@@ -78,9 +107,9 @@ Before mapping tasks (Step 5a), confirm the workflow-envelope settings. Ask the 
 
 1. **Trigger style(s)** (from Step 1a). Determines which trigger flags are `true` and what additional `parameters.*` keys are needed. Select every mode that should launch the same workflow:
    - `ondemand` -> no extra fields.
-   - `callout` -> consider `parameters.fields[]` if the inbound POST body has a known schema. Often paired with a Zuora Notification configured to hit the workflow's callout URL (preferred over registering a custom event).
+   - `callout` -> consider `parameters.fields[]` if the inbound POST body has a known schema. Use this for external systems or Notification bridges when **no standard Zuora event exists**. Do **not** default to Notification → Callout for processes that have a standard event (for example `BillingRunCompletion` for "after a bill run completes").
    - `scheduled` -> requires `interval` (6-token cron preferred) and `timezone` (Rails `ActiveSupport::TimeZone` friendly name). Translate the user's natural-language schedule (e.g., "weekdays at 8 AM Pacific") into the cron string + a Rails-friendly timezone such as `"Pacific Time (US & Canada)"`.
-   - `event` -> requires `workflow.event_trigger: true`, `parameters.event_triggers[]`, and `parameters.event_parameters[]`. Resolve the event name through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first; if not in the standard catalog, treat the user-provided name as a custom event candidate, keep that exact registered name in `event_triggers[]`, and instruct the user that the custom event must be registered (Settings -> Notifications -> Custom Events, or `POST /events/event-triggers`). Do not drop the event trigger or switch trigger styles solely because the name is tenant-custom.
+   - `event` -> requires `workflow.event_trigger: true`, `parameters.event_triggers[]`, and `parameters.event_parameters[]`. For "after a bill run completes", default to `BillingRunCompletion` with `Data.BillingRun.ID` (event parameter `key: "ID"`, `value: "<BillRun.ID>"`) — do not design a Notification → Callout bridge unless the user explicitly cannot use standard event triggers. Resolve the event name through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first; if not in the standard catalog, treat the user-provided name as a custom event candidate, keep that exact registered name in `event_triggers[]`, and instruct the user that the custom event must be registered (Settings -> Notifications -> Custom Events, or `POST /events/event-triggers`). Do not drop the event trigger or switch trigger styles solely because the name is tenant-custom.
    - If multiple modes share one task graph, combine them in one workflow. Verify that any data consumed by shared tasks is available for every enabled trigger, or add defaults / a normalizer step before consuming trigger-specific data.
 2. **Entity** (multi-entity tenants only). Ask which Zuora entity the workflow should run against. Skip in single-entity tenants — `Workflow::Setup.import` auto-fills.
 3. **`call_type`**. Default `BATCH`. Switch only on explicit need: `REALTIME` for sub-second responsiveness, `UIACTION` for an embedded UI button, `SYNC` for synchronous callouts, `DATASTREAM` for streaming. Confirm tenant prerequisites are enabled (see call_type matrix).
@@ -119,6 +148,25 @@ When a `Callout` / `AsynchronousCallout` targets a Zuora API, design it with `au
 
 Use `Query`, not `Export`, when a later task needs direct workflow variables such as `Data.RatePlan.SubscriptionId`, `Data.Subscription.Id`, or `Data.Account.AccountNumber`. `Export` is a file-producing task: it writes `Data.Export.<object>` metadata plus `Data.Files.<file-holder>`, and row fields become `Data.<object>.<field>` only inside a downstream `Iterate` over that file holder.
 
+**Data volume task selection check:** before choosing `Query`, estimate row count. `Query` is capped at 2000 rows. When volume may exceed that limit, or the read is scoped to a billing/payment/journal run that routinely produces bulk output, design `Export` (ZOQL bulk CSV) + `Iterate`, or `Data::Link` / Data Query when SQL joins are needed. Examples: after `BillingRunCompletion`, export invoices with `Invoice.SourceId = '{{ Data.BillingRun.ID }}'` (not `BillRunId` — not filterable; linter `W197`); after `PaymentRunCompletion` or when `Data.PaymentRun.Id` is available, export payments with the run-scoping filter confirmed via describe. Per-invoice `InvoiceItem` queries inside the Iterate branch are fine when each child set is small. Reserve `Data::Aqua` for datasets too large for `Export` or when stateful AQuA extraction is required.
+
+**Canonical pattern — bill run invoices to external system:** when the user wants invoices (and optionally invoice items) created during a bill run sent to an external API, design this shape — see `workflow-planning-patterns.md` → `run_event` and `workflow-patterns.md`:
+
+```text
+BillingRunCompletion (event_trigger)
+  → Export Invoice  WHERE Invoice.SourceId = '{{ Data.BillingRun.ID }}'
+  → Iterate         object = Invoice__<ExportTaskId>.csv.zip
+      → Query InvoiceItem  WHERE InvoiceId = '{{ Data.Invoice.Id }}'   (per-row; usually ≤ 2000)
+      → Callout POST       raw_body references Data.Invoice.* and Data.InvoiceItem inline
+```
+
+**Do not design:**
+- `Query Invoice` scoped to a bill run — bill runs can produce hundreds of thousands of invoices; `Query` returns at most 2000 (`W196`).
+- `BillRunId` in `Export`/`Query` `where_clause` on Invoice — `BillRunId` is not filterable; use `SourceId` (`W197`).
+- Notification → Callout → Workflow as the default trigger when `BillingRunCompletion` is available.
+- Invented scopes such as `Data.BillRun.*`, `Data.CurrentInvoice.*`, or `Data.InvoiceItems` — use `Data.BillingRun.ID`, `Data.Invoice.*` inside the Iterate branch, and `Data.InvoiceItem` from the per-invoice Query.
+- A separate `Logic::Liquid` task before Callout just to format JSON — inline the payload in `Callout.parameters.raw_body`.
+
 Before adding multiple Data Query / `Data::Link` tasks, run a consolidation check:
 
 - If one query only resolves scalar context for the next query (for example looking up `ProductRatePlanId` from a run-prompt `ProductRatePlanChargeId`), fold that lookup into the main query with a CTE and `CROSS JOIN`, then project the scalar columns on each output row.
@@ -129,7 +177,7 @@ When the user asks for a workflow error summary, final error report, or workflow
 
 Before adding a `Logic::Liquid` task that loops over arrays, review `workflow-liquid.md` -> Filters and `workflow-liquid-filters.md` for exact signatures. If the step is simple row selection or grouping, design it with Workflow's built-in filters (`where`, `where_exp`, `group_by`, `group_by_exp`) instead of a manual `for` + `if` + `push` loop. Keep manual loops only for real row transformation or custom shape building.
 
-Before adding a separate `Logic::Liquid` task, check whether it only prepares values for the next task. If the value is used once, inline the Liquid into that downstream task instead: date math in Export/Query predicates or task date fields, cancel/write-off decisions in `If` / `Logic::Case`, and request-body construction in a Callout `raw_body`. Keep a separate Liquid step only when it creates shared context for multiple tasks, normalizes a large reusable payload, or needs independent review/failure behavior.
+Before adding a separate `Logic::Liquid` task, check whether it only prepares values for the next task. Most Workflow parameters are Liquid-evaluated, so if a value is used once, inline it into that downstream task: predicates on `Export` / `Query` / `Data::Link`; clauses on `If` / `Logic::Case`; `raw_body` / URL / headers on `Callout`; templates on `Email`; field values on `Create` / `Update`. Do not insert `Logic::Liquid` solely to format data for one consumer — for example `Iterate → Logic::Liquid → Callout` when the JSON can live in `raw_body`, or `Data::Link → Logic::Liquid → Data::Link` when scalar context can be folded into one SQL query (`W180`). Keep a separate Liquid step only when it creates shared context for multiple tasks, normalizes reusable workflow state, or needs independent review/failure behavior.
 
 Example shape for scalar context:
 
@@ -231,7 +279,9 @@ Deliver a structured workflow design:
 - **Error handling**: `Failure` branches, retry rules, fallback actions, notification on failure.
 - **External integrations**: Callout endpoints, auth mode, payload shape, validation status codes. For Zuora REST v1 endpoints, note that `Credentials.zuora.rest_endpoint` already includes the v1 base; designs should append only the resource path (`orders`, not `/v1/orders`).
 - **Expected outcomes**: what changes in Zuora after successful execution.
-- **Testing approach**: how to validate the workflow in sandbox (lint, dry-run `import_workflow activate=false` + `delete_workflow`, `manage_workflow_runs` `run_workflow` + `get_run_status` polling).
+- **Testing approach**: lint + `/zuora-workflow-verify` (import, test-run, poll, bounded plan fix loop) when MCP sandbox access is available; otherwise lint-only with manual run instructions.
+
+**Event workflows — design for sandbox verify:** BATCH event workflows are manually runnable (`ondemand_trigger` is set by the assembler) but on-demand runs do **not** auto-seed `event_parameters`. When the task graph reads `Data.<EventObject>.<key>` from the event payload, either (a) add optional plan `input_fields[]` mirroring each `event_parameters` binding (`object_name` + `field_name` same as event `object` + `key`, `required: false`) so verify can pass discovered ids via `query_objects`, or (b) document that verify requires a real sandbox event. Prefer (a) for bill-run / payment-run / invoice-posted patterns. Do not add mirror fields to production-only REALTIME/UIACTION workflows unless the user wants on-demand testing.
 - **Next step**: Suggest `zuora-workflow-build` in Codex (or `/zuora-workflow-build` in Claude/Cursor) to compose the complete importable JSON artifact.
 
 Do NOT implement the workflow in this skill. Focus on design and decision-making.

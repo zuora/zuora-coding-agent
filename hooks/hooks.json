@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": [
+    {
+      "name": "workflow-artifact-guard",
+      "description": "Remind agents to use workflow-engine build for .workflow.json artifacts",
+      "event": "preToolUse",
+      "matcher": "Write|Edit",
+      "command": "node -e \"const p=process.env.CURSOR_FILE_PATH||''; if(/\\.workflow\\.json$/i.test(p)){console.error('Use bin/workflow-engine build — do not hand-write .workflow.json'); process.exit(1)}\""
+    }
+  ]
+}

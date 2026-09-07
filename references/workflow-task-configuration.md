@@ -414,7 +414,7 @@ These five tasks are the building blocks of every non-trivial workflow: pick a b
 
 ### If
 
-- **Purpose:** Branch on a Liquid expression that must reduce to the literal string `true` or `false`. Emits exactly one of the `True`, `False`, or `Failure` linkages -- never `Success`.
+- **Purpose:** Branch on a Liquid expression that must reduce to the literal string `True` or `False` (capitalized). Emits exactly one of the `True`, `False`, or `Failure` linkages -- never `Success`.
 - **UI partial:** [`app/views/tasks/partials/_if.html.erb`](../../../workflow/rails/app/views/tasks/partials/_if.html.erb) -- single textarea bound to `parameters.if_clause`. The placeholder shows the canonical pattern `{% if 0 > 1 %} True {% else %} False {% endif %}`.
 - **Controller permit:** Fall-through `else` branch at [`tasks_controller.rb` L800-802](../../../workflow/rails/app/controllers/tasks_controller.rb): the entire `parameters` hash is accepted opaquely; `disable_validation` and `strict_variables` ride on `common_params`.
 - **Model validation ([`app/models/tasks/if.rb`](../../../workflow/rails/app/models/tasks/if.rb) L2-10):** `task_setup_validation` runs `template_parse(item: parameters.if_clause, validate: true)` so any Liquid syntax error fails the save. Skipped on `Task.import` (which calls `save(validate: false)`).
@@ -422,14 +422,14 @@ These five tasks are the building blocks of every non-trivial workflow: pick a b
 
 | Field | Required | Source / UI control | Notes |
 | --- | --- | --- | --- |
-| `parameters.if_clause` | Yes | Code editor (Liquid) | Must reduce to lowercase `true` / `false`. Lowercasing happens at runtime, so `True` works too. |
+| `parameters.if_clause` | Yes | Code editor (Liquid) | Must reduce to `True` / `False` (capitalized). Runtime lowercases before routing, so either casing works, but always emit capitalized branch literals. |
 | `parameters.disable_validation` | No (`"false"`) | Boolean checkbox | Skips the save-time Liquid parse if the expression depends on runtime data. |
 | `parameters.strict_variables` | No (`"true"`) | Boolean checkbox | When `true`, missing Liquid variables raise instead of silently rendering empty. |
 
 **Common gotchas**
 
 - Emitting a `Success` linkage from an `If` is a hard error -- the hooks block declares only `True`, `False`, `Failure`. The linter flags this via E110.
-- Wrap the entire Liquid body in `{% if ... %}true{% else %}false{% endif %}` -- bare conditionals like `{{ Data.X | size }} > 0` render as the unparsed string `"5 > 0"` and blow up at runtime.
+- Wrap the entire Liquid body in `{% if ... %}True{% else %}False{% endif %}` -- bare conditionals like `{{ Data.X | size }} > 0` render as the unparsed string `"5 > 0"` and blow up at runtime.
 - Liquid scope is the standard top-level set: `Data`, `Credentials.zuora`, `WorkflowInstance`, `WorkflowSetup`, `TaskInstance`, `GlobalConstants`.
 
 ### Logic::Case

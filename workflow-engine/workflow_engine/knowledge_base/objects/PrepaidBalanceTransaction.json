@@ -1,0 +1,422 @@
+{
+  "name": "PrepaidBalanceTransaction",
+  "label": "Prepaid Balance Transaction",
+  "href": "https://staging2.zuora.com/rest/api/describe/PrepaidBalanceTransaction",
+  "fields": [
+    {
+      "name": "AccountId",
+      "label": "Account Id",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Amount",
+      "label": "Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Balance",
+      "label": "Balance",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "DrawdownRate",
+      "label": "Drawdown Rate",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "PrepaidBalanceId",
+      "label": "Prepaid Balance Id",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SourceId",
+      "label": "Source Id",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionDate",
+      "label": "Transaction Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionSourceType",
+      "label": "Transaction Source Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "CHARGE",
+        "ORDER_LINE_ITEM",
+        "USAGE",
+        "INVOICE_ITEM",
+        "CREDIT_MEMO_ITEM",
+        "DEPLETE_FUND"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionType",
+      "label": "Transaction Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "PREPAYMENT",
+        "DRAWDOWN",
+        "PREPAYMENT_ADJUSTMENT",
+        "DRAWDOWN_ADJUSTMENT",
+        "PREPAYMENT_CREDIT_BACK",
+        "PREPAYMENT_CREDIT_BACK_REVERSAL",
+        "DRAWDOWN_REVERSAL",
+        "INTERNAL_DRAWDOWN_REVERSAL_DONE",
+        "ROLLOVER",
+        "ROLLED_OVER",
+        "BILLED_TOPUP",
+        "BILLED_ADJUSTMENT",
+        "TRANSFER_FUND_SOURCE_TYPE_TO_UPFRONT",
+        "TRANSFER_FUND_SOURCE_TYPE_TO_INARREAR",
+        "PREPAYMENT_INCENTIVE",
+        "INCENTIVE_DRAWDOWN",
+        "INCENTIVE_DRAWDOWN_ADJUSTMENT",
+        "DEPLETE_FUND",
+        "TRUE_UP",
+        "TRUE_UP_REVERSAL",
+        "DISCOUNT_DRAWDOWN"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UsageUOM",
+      "label": "Usage UOM",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "AccountId"
+    },
+    {
+      "name": "Amendment",
+      "label": "Amendment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.RatePlanCharge.RatePlan.Amendment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Amendment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Fund",
+      "label": "Prepaid Balance Fund",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "PrepaidBalanceTransaction.Fund",
+      "href": "https://staging2.zuora.com/rest/api/describe/Fund",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PrepaidBalance",
+      "label": "Prepaid Balance",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.PrepaidBalance",
+      "href": "https://staging2.zuora.com/rest/api/describe/PrepaidBalance",
+      "foreign_key_field": "PrepaidBalanceId"
+    },
+    {
+      "name": "Product",
+      "label": "Product",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.RatePlanCharge.RatePlan.ProductRatePlan.Product",
+      "href": "https://staging2.zuora.com/rest/api/describe/Product",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlan",
+      "label": "Product Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.RatePlanCharge.RatePlan.ProductRatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.RatePlanCharge.ProductRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlan",
+      "label": "Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.RatePlanCharge.RatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlanCharge",
+      "label": "Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.RatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.PrepaidBalance.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ValidityPeriodSummary",
+      "label": "Prepaid Validity Period Summary",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PrepaidBalanceTransaction.Fund.ValidityPeriodSummary",
+      "href": "https://staging2.zuora.com/rest/api/describe/ValidityPeriodSummary",
+      "foreign_key_field": null
+    }
+  ]
+}

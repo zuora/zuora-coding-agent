@@ -237,7 +237,7 @@
           {
             "object": "<base object, e.g., 'BillingRun', 'Invoice', 'Payment'>",
             "key": "<field path on the event, e.g., 'Id', 'AccountId', 'Status'>",
-            "value": "<Liquid placeholder using <Event.Object.Field> syntax, e.g., '<BillingRun.Id>'>"
+            "value": "<Liquid placeholder using <Event.Object.Field> syntax, e.g., '<BillRun.ID>'>"
           }
         ]
       }
@@ -451,7 +451,7 @@
     "boolean_params_must_be_strings": true,
     "$notes": [
       "workflow_type_value: Rails overrides whatever the client sends for workflow.type, but the composer still emits the canonical value so the JSON matches Workflow::Setup#export output. See app/models/workflow/setup.rb:418.",
-      "start_linkage_required: Workflow::Setup.import requires exactly one linkage with linkage_type 'Start' whose source_workflow_id == workflow.id and source_task_id == null.",
+      "start_linkage_required: Workflow::Setup.import requires exactly one workflow entry linkage whose source_workflow_id == workflow.id and source_task_id == null. Non-event workflows use linkage_type 'Start'; event-triggered workflows use the event name from parameters.event_triggers[].",
       "forbid_for_each_before_merge: mirrors app/models/linkage.rb:72-122 avoid_for_each_linkage_before_merge_task. Path-substring check is sufficient client-side; server DFS + merge_start/merge_paths rewrites are server-only.",
       "require_non_empty_tasks_and_linkages: Workflow::Setup.import raises 'No tasks/linkages present in import payload' when either array is blank (setup.rb:411-413).",
       "require_parameters_object_per_task: Task.import uses parameters.merge! which raises on nil (task.rb:1652-1701). Every emitted task needs 'parameters': {} minimum.",

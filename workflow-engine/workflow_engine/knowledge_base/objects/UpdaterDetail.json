@@ -1,0 +1,753 @@
+{
+  "name": "UpdaterDetail",
+  "label": "Payment Method Update",
+  "href": "https://staging2.zuora.com/rest/api/describe/UpdaterDetail",
+  "fields": [
+    {
+      "name": "AchBankABACode",
+      "label": "Ach Bank ABA Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AchBankAccountName",
+      "label": "Ach Bank Account Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AchBankAccountType",
+      "label": "Ach Bank Account Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Checking",
+        "Saving",
+        "BusinessChecking"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AchBankName",
+      "label": "Ach Bank Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BillingAccountId",
+      "label": "Billing Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CardExpirationMonth",
+      "label": "Credit Card Expiration Month",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CardExpirationYear",
+      "label": "Credit Card Expiration Year",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CardNumberMasked",
+      "label": "Credit Card Number Masked",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CardType",
+      "label": "Credit Card Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Visa",
+        "MasterCard",
+        "AmericanExpress",
+        "Discover",
+        "JCB",
+        "Diners",
+        "CUP",
+        "Maestro",
+        "Electron",
+        "AppleVisa",
+        "AppleMasterCard",
+        "AppleAmericanExpress",
+        "AppleDiscover",
+        "AppleJCB",
+        "Elo",
+        "Hipercard",
+        "Naranja",
+        "Nativa",
+        "TarjetaShopping",
+        "Cencosud",
+        "Argencard",
+        "Cabal",
+        "Dankort",
+        "MercadoLibre",
+        "Mir",
+        "CarteBancaire",
+        "LocalCard",
+        "GoogleVisa",
+        "GoogleMasterCard",
+        "GoogleAmericanExpress",
+        "GoogleDiscover",
+        "GoogleJCB",
+        "RuPay"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ErrorCode",
+      "label": "Error Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ErrorMessage",
+      "label": "Error Message",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayType",
+      "label": "Gateway Type",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "IsPaymentMethodUpdated",
+      "label": "Is Payment Method Updated",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "NewCardExpirationMonth",
+      "label": "New Credit Card Expiration Month",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "NewCardExpirationYear",
+      "label": "New Credit Card Expiration Year",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "NewCardNumberMasked",
+      "label": "New Credit Card Number Masked",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "NewCardType",
+      "label": "New Credit Card Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Visa",
+        "MasterCard",
+        "AmericanExpress",
+        "Discover",
+        "JCB",
+        "Diners",
+        "CUP",
+        "Maestro",
+        "Electron",
+        "AppleVisa",
+        "AppleMasterCard",
+        "AppleAmericanExpress",
+        "AppleDiscover",
+        "AppleJCB",
+        "Elo",
+        "Hipercard",
+        "Naranja",
+        "Nativa",
+        "TarjetaShopping",
+        "Cencosud",
+        "Argencard",
+        "Cabal",
+        "Dankort",
+        "MercadoLibre",
+        "Mir",
+        "CarteBancaire",
+        "LocalCard",
+        "GoogleVisa",
+        "GoogleMasterCard",
+        "GoogleAmericanExpress",
+        "GoogleDiscover",
+        "GoogleJCB",
+        "RuPay"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentId",
+      "label": "Payment ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentMethodType",
+      "label": "Payment Method Type",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentTransactionLogId",
+      "label": "Payment Transaction Log ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RecordId",
+      "label": "Record ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RetrieveRequestTransactionLog",
+      "label": "Retrieve Request Transaction Log",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RetrieveResponseCode",
+      "label": "Retrieve Response Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RetrieveResponseMessage",
+      "label": "Retrieve Response Message",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RetrieveResponseTransactionLog",
+      "label": "Retrieve Response Transaction Log",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SourceType",
+      "label": "Source Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "Batch",
+        "RTAU",
+        "RTR"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "Processing",
+        "NoUpdateRequired",
+        "Updated",
+        "Warning",
+        "Cancelled",
+        "Error"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubmitRequestTransactionLog",
+      "label": "Submit Request Transaction Log",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubmitResponseCode",
+      "label": "Submit Response Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubmitResponseMessage",
+      "label": "Submit Response Message",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubmitResponseTransactionLog",
+      "label": "Submit Response Transaction Log",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubmittedResponseTime",
+      "label": "Submitted Response Time",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionId",
+      "label": "Transaction ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdateType",
+      "label": "Update Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "ApprovedForSubmitted",
+        "NotApprovedForSubmitted",
+        "AccountUpdated",
+        "AccountClosed",
+        "ExpiryDateChanged",
+        "ContactCardHolder",
+        "NoChange",
+        "NoMatch",
+        "Other"
+      ],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "NewPaymentMethod",
+      "label": "New Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "UpdaterDetail.NewPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethod",
+      "label": "Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "UpdaterDetail.PaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "UpdaterBatch",
+      "label": "Updater Batch",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "UpdaterDetail.UpdaterBatch",
+      "href": "https://staging2.zuora.com/rest/api/describe/UpdaterBatch",
+      "foreign_key_field": null
+    }
+  ]
+}

@@ -1,0 +1,980 @@
+{
+  "name": "CreditMemoItem",
+  "label": "Credit Memo Item",
+  "href": "https://staging2.zuora.com/rest/api/describe/CreditMemoItem",
+  "fields": [
+    {
+      "name": "AmountWithoutTax",
+      "label": "Amount Without Tax",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AppliedToItemId",
+      "label": "Applied To Item Id",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AppliedToOthersAmount",
+      "label": "Applied To Others Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BeAppliedByOthersAmount",
+      "label": "Be Applied By Others Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeDate",
+      "label": "Charge Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeName",
+      "label": "Charge Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeNumber",
+      "label": "Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentChargeNumber",
+      "label": "Commitment Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentChargeSegmentNumber",
+      "label": "Commitment Charge Segment Number",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentId",
+      "label": "Commitment ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentPeriodId",
+      "label": "Commitment Period ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreditFromItemId",
+      "label": "Credit From Item ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreditFromItemSource",
+      "label": "Credit From Item Source",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "InvoiceItem",
+        "CreditMemoItem",
+        "DebitMemoItem"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Description",
+      "label": "Description",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExchangeRateDate",
+      "label": "Exchange Rate Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExcludeItemBillingFromRevenueAccounting",
+      "label": "Exclude Item Billing From Revenue Accounting",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "NumberOfDeliveries",
+      "label": "Number Of Deliveries",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ProcessingType",
+      "label": "Processing Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Quantity",
+      "label": "Quantity",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ReflectDiscountInNetAmount",
+      "label": "Reflect Discount In Net Amount",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueImpacting",
+      "label": "Revenue Impacting",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueRecognitionRuleName",
+      "label": "Revenue Recognition Rule Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ServiceEndDate",
+      "label": "Service End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ServiceStartDate",
+      "label": "Service Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Sku",
+      "label": "SKU",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SourceItemType",
+      "label": "Source Item Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "SubscriptionComponent",
+        "InvoiceDetail",
+        "ProductRatePlanCharge",
+        "Rounding",
+        "CreditMemoItem",
+        "OrderLineItem",
+        "Adjustment",
+        "DebitMemoItem",
+        "Surcharge",
+        "Commitment"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionNumber",
+      "label": "Subscription Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxAmount",
+      "label": "Tax Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxCodeName",
+      "label": "Tax Code Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxExemptAmount",
+      "label": "Tax Exempt Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxMode",
+      "label": "Tax Mode",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "TaxExclusive",
+        "TaxInclusive"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnappliedAmount",
+      "label": "Unapplied Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnitOfMeasure",
+      "label": "Unit Of Measure",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UnitPrice",
+      "label": "Unit Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountingPeriod",
+      "label": "AccountingPeriod",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.JournalEntry.AccountingPeriod",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingPeriod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountReceivableAccountingCode",
+      "label": "Accounts Receivable Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.AccountReceivableAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Amendment",
+      "label": "Amendment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.RatePlanCharge.RatePlan.Amendment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Amendment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContactSnapshot",
+      "label": "Bill To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.BillToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemo",
+      "label": "Credit Memo",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.CreditMemo",
+      "href": "https://staging2.zuora.com/rest/api/describe/CreditMemo",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemoBillToContact",
+      "label": "Credit Memo Bill To Contact",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.CreditMemoBillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemoItemShipToContact",
+      "label": "Credit Memo Item Ship To Contact",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.CreditMemoItemShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemoItemSoldToContact",
+      "label": "Credit Memo Item Sold To Contact",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.CreditMemoItemSoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemoItemSoldToContactSnapshot",
+      "label": "Credit Memo Item Sold To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.CreditMemoItemSoldToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DebitMemo",
+      "label": "Debit Memo",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.DebitMemo",
+      "href": "https://staging2.zuora.com/rest/api/describe/DebitMemo",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DebitMemoItem",
+      "label": "Debit Memo Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.DebitMemoItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/DebitMemoItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DeferredRevenueAccountingCode",
+      "label": "Deferred Revenue Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.DeferredRevenueAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Fulfillment",
+      "label": "Fulfillment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.Fulfillment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Fulfillment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Invoice",
+      "label": "Invoice",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.InvoiceItem.Invoice",
+      "href": "https://staging2.zuora.com/rest/api/describe/Invoice",
+      "foreign_key_field": null
+    },
+    {
+      "name": "InvoiceItem",
+      "label": "Invoice Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.InvoiceItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/InvoiceItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalEntry",
+      "label": "Journal Entry",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.JournalEntry",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalEntry",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalRun",
+      "label": "Journal Run",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.JournalEntry.JournalRun",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalRun",
+      "foreign_key_field": null
+    },
+    {
+      "name": "NonRevenueWriteOffAccountingCode",
+      "label": "Non Revenue Write Off Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.NonRevenueWriteOffAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "OnAccountAccountingCode",
+      "label": "On-Account Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.OnAccountAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "OrderLineItem",
+      "label": "Order Line Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.OrderLineItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/OrderLineItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Product",
+      "label": "Product",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.ProductRatePlanCharge.ProductRatePlan.Product",
+      "href": "https://staging2.zuora.com/rest/api/describe/Product",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlan",
+      "label": "Product Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.ProductRatePlanCharge.ProductRatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.ProductRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlan",
+      "label": "Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.RatePlanCharge.RatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlanCharge",
+      "label": "Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.RatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RecognizedRevenueAccountingCode",
+      "label": "Recognized Revenue Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.RecognizedRevenueAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContactSnapshot",
+      "label": "Ship To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.ShipToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContactSnapshot",
+      "label": "Sold To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "CreditMemoItem.CreditMemo.SoldToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "CreditMemoItem.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": null
+    }
+  ]
+}

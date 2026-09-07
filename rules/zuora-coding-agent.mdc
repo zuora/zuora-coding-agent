@@ -67,6 +67,16 @@ When generating code for the customer's repository, always output Zuora REST API
 4. Use `mcp__zuora-mcp__ask_zuora` only when a qualitative product question remains after the sources above are checked.
 5. When using `mcp__zuora-mcp__ask_zuora`, ask the exact unresolved question and mention the sources already checked. Do not call it only because a user-facing label is unfamiliar; search the bundled references and catalogs first.
 
+## Workflow task selection (TTV-508)
+
+When designing or building workflows, consult `references/workflow-data-retrieval.md` before choosing data-read tasks:
+
+- **`Query`** — synchronous reads ≤ 2000 rows; REALTIME/UIACTION; per-parent child lookups inside `Iterate`.
+- **`Export`** — BATCH bulk reads, run-scoped collections (bill-run invoices, payment-run payments), sorting/aggregates; always pair with `Iterate` for row-level `Data.*`.
+- **`Data::Link`** — SQL joins, complex reporting, consolidated scalar context (CTE + `CROSS JOIN`, not `Data::Link → Logic::Liquid → Data::Link`).
+- **Never `Query Invoice` scoped to a bill run** after `BillingRunCompletion` — use `Export` + `Iterate` with `Invoice.SourceId = '{{ Data.BillingRun.ID }}'` (`W196`). Do not use `BillRunId` in `where_clause` — not filterable (`W197`). Default trigger: `BillingRunCompletion`, not Notification → Callout.
+- **Inline Liquid** into the consuming task parameter (`raw_body`, `where_clause`, `If` clause) — avoid one-hop `Logic::Liquid` shims (`W187`).
+
 ## Key rules
 
 - Never hardcode Zuora credentials — always use environment variables

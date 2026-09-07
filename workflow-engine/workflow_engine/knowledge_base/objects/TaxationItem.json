@@ -1,0 +1,735 @@
+{
+  "name": "TaxationItem",
+  "label": "Taxation Item",
+  "href": "https://staging2.zuora.com/rest/api/describe/TaxationItem",
+  "fields": [
+    {
+      "name": "AccountingCode",
+      "label": "Accounting Code",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Balance",
+      "label": "Balance",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Country",
+      "label": "Country",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreditAmount",
+      "label": "Credit Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CustomerCode",
+      "label": "Customer Code",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExemptAmount",
+      "label": "Exempt Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ExemptCertificate",
+      "label": "Exempt Certificate",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceId",
+      "label": "InvoiceId",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "InvoiceItemId",
+      "label": "Invoice Item ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "Jurisdiction",
+      "label": "Jurisdiction",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "LocationCode",
+      "label": "Location Code",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Name",
+      "label": "Name",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentAmount",
+      "label": "Payment Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "SellerRegistration",
+      "label": "Seller Registration",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxableAmount",
+      "label": "Taxable Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxAmount",
+      "label": "Tax Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxAmountUnrounded",
+      "label": "Tax Amount Unrounded",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxCode",
+      "label": "Tax Code",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxCodeDescription",
+      "label": "Tax Code Description",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxDate",
+      "label": "Tax Date",
+      "type": "date",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxDescription",
+      "label": "Tax Description",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxEngineName",
+      "label": "Tax Engine Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxMode",
+      "label": "Tax Mode",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "TaxExclusive",
+        "TaxInclusive"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxRate",
+      "label": "Tax Rate",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxRateDescription",
+      "label": "Tax Rate Description",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxRateType",
+      "label": "Tax Rate Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Percentage",
+        "FlatFee"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TaxRuleId",
+      "label": "Tax Rule Id",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.Invoice.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountingPeriod",
+      "label": "AccountingPeriod",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.JournalEntry.AccountingPeriod",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingPeriod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountReceivableAccountingCode",
+      "label": "Accounts Receivable Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "TaxationItem.AccountReceivableAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Amendment",
+      "label": "Amendment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.RatePlanCharge.RatePlan.Amendment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Amendment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.Invoice.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.Invoice.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Invoice",
+      "label": "Invoice",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.Invoice",
+      "href": "https://staging2.zuora.com/rest/api/describe/Invoice",
+      "foreign_key_field": "InvoiceId"
+    },
+    {
+      "name": "InvoiceItem",
+      "label": "Invoice Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "TaxationItem.InvoiceItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/InvoiceItem",
+      "foreign_key_field": "InvoiceItemId"
+    },
+    {
+      "name": "JournalEntry",
+      "label": "Journal Entry",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "TaxationItem.JournalEntry",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalEntry",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalRun",
+      "label": "Journal Run",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.JournalEntry.JournalRun",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalRun",
+      "foreign_key_field": null
+    },
+    {
+      "name": "OrderLineItem",
+      "label": "Order Line Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.OrderLineItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/OrderLineItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.Invoice.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Product",
+      "label": "Product",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.ProductRatePlanCharge.ProductRatePlan.Product",
+      "href": "https://staging2.zuora.com/rest/api/describe/Product",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlan",
+      "label": "Product Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.ProductRatePlanCharge.ProductRatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.ProductRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlan",
+      "label": "Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.RatePlanCharge.RatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlanCharge",
+      "label": "Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.RatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SalesTaxPayableAccountingCode",
+      "label": "Sales Tax Payable Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "TaxationItem.SalesTaxPayableAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.Invoice.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.Invoice.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "TaxationItem.InvoiceItem.RatePlanCharge.RatePlan.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": null
+    }
+  ]
+}

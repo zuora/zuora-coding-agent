@@ -1,6 +1,6 @@
 # Zuora Workflow Examples
 
-Six end-to-end, lint-clean workflow JSONs for the canonical use cases. Each example is annotated with the design decisions and the patterns the linter looks for. Use them as fixtures when composing a new workflow.
+Five end-to-end, lint-clean workflow JSONs for the canonical use cases. Each example is annotated with the design decisions and the patterns the linter looks for. Use them as fixtures when composing a new workflow.
 
 These JSONs double as regression fixtures for `scripts/lint-workflow-json.js`. Keep them lint-clean.
 
@@ -80,7 +80,7 @@ These JSONs double as regression fixtures for `scripts/lint-workflow-json.js`. K
     }
   ],
   "linkages": [
-    { "source_workflow_id": 1, "source_task_id": null, "target_task_id": 101, "linkage_type": "Start" }
+    { "source_workflow_id": 1, "source_task_id": null, "target_task_id": 101, "linkage_type": "InvoicePosted" }
   ]
 }
 ```
@@ -90,7 +90,7 @@ Checklist highlights:
 - `event_trigger: true`, other trigger flags `false`.
 - `parameters.event_triggers` array present and non-empty.
 - `parameters.event_parameters` maps the event payload into `Data.Invoice.*`.
-- Exactly one `Start` linkage from workflow to the entry task.
+- Exactly one entry linkage from workflow to the entry task: `linkage_type` is the event name (`InvoicePosted`), not `Start`.
 - `parameters` object present on every task (here, a complex one).
 - `strict_variables: "true"` is a string, not boolean.
 - Status codes as string-array.
@@ -422,7 +422,7 @@ Checklist highlights:
     }
   ],
   "linkages": [
-    { "source_workflow_id": 3,    "source_task_id": null, "target_task_id": 301, "linkage_type": "Start" },
+    { "source_workflow_id": 3,    "source_task_id": null, "target_task_id": 301, "linkage_type": "PaymentProcessed" },
     { "source_workflow_id": null, "source_task_id": 301,  "target_task_id": 302, "linkage_type": "Success" }
   ]
 }
@@ -435,218 +435,7 @@ Checklist highlights:
 - `object: "Account"` satisfies `Query`'s `required_at_import`.
 - Account and BillToContact fields both selected in one `Query`.
 
-## Use Case 4 — Bill-run-completion: export invoices + items to external system
-
-**Requirement.** After a Zuora bill run completes, export every invoice that was created during the run, fetch each invoice's line items, and POST the combined payload to `https://myexternalsystem.com/invoices`.
-
-**Design choice:** `event_trigger` on `BillingRunCompletion` (the canonical name — natural-language requests like "BillRunCompleted" are corrected through `workflow-enums.json` -> `standard_events.$canonical_name_corrections`). `Export` invoices scoped by `BillRunId`, `Iterate` over each row, `Query` its line items, then `Callout` POST. No `Logic::Merge` because the iterator's `Complete` hook converges naturally.
-
-**Two hard rules this example demonstrates** (both are enforced by the linter):
-
-1. **`Iterate.object` after an `Export`/`File::*`/`Data::Link` must be the file-holder name, not the bare object.** The Iterate UI dropdown only exposes three groups and after a file-producing parent the only selectable object is the file holder (see `app/views/tasks/partials/_iterate.html.erb` lines 7-14). Runtime `Iterate#task_process` checks `self.data['Files'].keys.include?(self.object)` — a bare object like `"Invoice"` fails that check and raises *"The selected file or object 'Invoice' could not be found. Please ensure correct iterate setup."* The correct value is `"<Object>__<ExportTaskId>.csv.zip"` (or `.csv` when `zip = "false"`).
-2. **`event_parameters[].value` must be either a Rails-recognised special token or a merge-field token discovered from the live notifications selections API.** `BusinessEvent` (`app/models/business_event.rb` L143-185) hard-codes these tokens: `<Event.Category>`, `<Event.Date>`, `<Event.Timestamp>`, `<Functions.Today>`, `<Tenant.ID>`, `<Tenant.Name>`. Any other token has its angle brackets (and optional `DataSource.`/`Event.` prefix) stripped and is used as a literal payload key. The canonical set of payload keys for a given event category is published per tenant at `GET {base_url}/notifications/email-templates/info/selections?category={category}` and cached in Redis under `CustomEventFields:{app_instance_id}:Entity-{entity_reference}:{category}`. The agent MUST call this endpoint — either directly with `curl` (Zuora credentials live in `~/.claude/settings.json -> env` as `ZUORA_BASE_URL` / `ZUORA_CLIENT_ID` / `ZUORA_CLIENT_SECRET` and are injected into every `Bash` invocation) or, when they are not in the shell environment, via `mcp__zuora-mcp__ask_zuora` — and pick a token from the returned `mergeFields` hash before emitting a workflow. Guessing a token is not safe because the keyspace varies by tenant and event definition.
-
-```json
-{
-  "workflow_definition": {
-    "name": "Bill Run Invoice Export",
-    "description": "After a bill run completes, export all invoices created during the run and POST each invoice with its line items to an external system.",
-    "category": "Default",
-    "ui_page_roles": []
-  },
-  "workflow": {
-    "id": 1,
-    "name": "Bill Run Invoice Export",
-    "description": "Event-triggered on BillingRunCompletion. Exports invoices scoped to the bill run, iterates over each invoice, queries its line items, and POSTs the combined payload to the external system.",
-    "parameters": {
-      "fields": [],
-      "entity_name": null,
-      "entity_id": null,
-      "skipping_check": "db",
-      "file_encryption": "false",
-      "secure_error_msgs": "false",
-      "show_run_prompt": null,
-      "callout_response": "workflow instance",
-      "event_triggers": ["BillingRunCompletion"],
-      "event_parameters": [
-        {
-          "eventName": "BillingRunCompletion",
-          "params": [
-            { "object": "BillingRun", "key": "Id", "value": "<BillingRun.Id>" }
-          ]
-        }
-      ]
-    },
-    "data": {},
-    "type": "Workflow::Setup",
-    "ondemand_trigger": false,
-    "callout_trigger": false,
-    "scheduled_trigger": false,
-    "event_trigger": true,
-    "interval": null,
-    "timezone": null,
-    "status": "Inactive",
-    "css": { "top": "40px", "left": "35px" },
-    "notifications": {
-      "emails": [],
-      "failure": false,
-      "success": false,
-      "pending": false,
-      "skipped_scheduled_run": false,
-      "error_ignore": ""
-    },
-    "call_type": "BATCH",
-    "priority": "Medium",
-    "delete_ttl": 30,
-    "version": "0.0.1",
-    "ui_pages": {},
-    "solution_id": null,
-    "extension_id": null,
-    "zuora_org_id": null,
-    "zuora_org_ids": []
-  },
-  "tasks": [
-    {
-      "id": 101,
-      "name": "Export Invoices from Bill Run",
-      "parameters": {
-        "fields": {
-          "Invoice": {
-            "Id": "true",
-            "InvoiceNumber": "true",
-            "AccountId": "true",
-            "Amount": "true",
-            "Balance": "true",
-            "Status": "true",
-            "DueDate": "true",
-            "CreatedDate": "true"
-          }
-        },
-        "where_clause": "BillRunId = '{{ Data.BillingRun.Id }}'",
-        "zip": "true",
-        "encrypt": "false",
-        "zero_result_stop": "false",
-        "strict_variables": "true"
-      },
-      "action_type": "Export",
-      "object": "Invoice",
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": null,
-      "css": { "top": "40px", "left": "350px" },
-      "concurrent_limit": 5,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 102,
-      "name": "Iterate Over Invoices",
-      "parameters": {
-        "file_type": "CSV",
-        "skip_trailer": "false",
-        "generate_auto_headers": "false",
-        "fetched_data_is_array": "false",
-        "strict_variables": "true"
-      },
-      "action_type": "Iterate",
-      "object": "Invoice__101.csv.zip",
-      "object_id": null,
-      "call_type": "BATCH",
-      "task_id": 101,
-      "css": { "top": "40px", "left": "750px" },
-      "concurrent_limit": 150,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 103,
-      "name": "Query Invoice Items",
-      "parameters": {
-        "fields": {
-          "InvoiceItem": {
-            "Id": "true",
-            "InvoiceId": "true",
-            "AccountId": "true",
-            "ChargeName": "true",
-            "ChargeAmount": "true",
-            "ServiceStartDate": "true",
-            "ServiceEndDate": "true"
-          }
-        },
-        "where_clause": "InvoiceId = '{{ Data.Invoice.Id }}'",
-        "placement": "",
-        "zero_query_proceed": "true",
-        "strict_variables": "true"
-      },
-      "action_type": "Query",
-      "object": "InvoiceItem",
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 102,
-      "css": { "top": "40px", "left": "1150px" },
-      "concurrent_limit": 5,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 104,
-      "name": "POST Invoice to External System",
-      "parameters": {
-        "url": "https://myexternalsystem.com/invoices",
-        "method": "POST",
-        "body_type": "raw",
-        "raw_body": "{\n  \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n  \"invoice_number\": \"{{ Data.Invoice.InvoiceNumber }}\",\n  \"account_id\": \"{{ Data.Invoice.AccountId }}\",\n  \"amount\": \"{{ Data.Invoice.Amount }}\",\n  \"balance\": \"{{ Data.Invoice.Balance }}\",\n  \"status\": \"{{ Data.Invoice.Status }}\",\n  \"due_date\": \"{{ Data.Invoice.DueDate }}\",\n  \"invoice_items\": {{ Data.InvoiceItem | to_json }}\n}",
-        "headers": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "authorization": { "type": "none" },
-        "validation": { "status_codes": ["200", "201", "202"] },
-        "retry_rules": { "retry_count": "3", "retry_window": "30" },
-        "strict_variables": "true",
-        "disable_validation": "false"
-      },
-      "action_type": "Callout",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 103,
-      "css": { "top": "40px", "left": "1550px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    }
-  ],
-  "linkages": [
-    { "source_workflow_id": 1,    "source_task_id": null, "target_task_id": 101, "linkage_type": "Start" },
-    { "source_workflow_id": null, "source_task_id": 101,  "target_task_id": 102, "linkage_type": "Success" },
-    { "source_workflow_id": null, "source_task_id": 102,  "target_task_id": 103, "linkage_type": "For Each" },
-    { "source_workflow_id": null, "source_task_id": 103,  "target_task_id": 104, "linkage_type": "Success" }
-  ]
-}
-```
-
-Checklist highlights:
-
-- Canonical event name `BillingRunCompletion` (not `BillRunCompleted`); `baseObject = BillingRun`, so `Data.BillingRun.Id` is the runtime reference.
-- `parameters` carries all seven always-present keys from the skeleton, plus `event_triggers` and `event_parameters` for the event style.
-- Both `event_parameters` and the inner `params` are JSON arrays (not Hashes).
-- `notifications` uses the fully-shaped default; an empty `{}` would also be lint-clean.
-- `ui_trigger` is intentionally absent (it is not a column on the workflows table; emitting it would trigger linter rule `E119`).
-- `For Each` linkage on the `Iterate` task uses the exact spelling with a space.
-- No `Logic::Merge` task, so the For-Each-before-Merge rule does not apply.
-- The `Callout` validates HTTP 200/201/202 with three retries, 30s window.
-
-Provenance notes (what the generator must verify before emitting this JSON):
-
-- **`event_parameters[0].params[0].value = "<BillingRun.Id>"`.** The agent MUST have called `GET $ZUORA_BASE_URL/notifications/email-templates/info/selections?category=<BillingRunCompletion.category>` (either directly via `curl` with the bearer token from `POST /oauth/token`, or through `mcp__zuora-mcp__ask_zuora` when the env vars are not present in the shell) and confirmed that `BillingRun.Id` is one of the keys returned in `mergeFields`. Linter rule `E177` rejects any `<BaseObject.Field>` token whose `BaseObject` does not match the event's declared `baseObject` (from `references/zuora-standard-fields.json#/$event_base_objects`). Special tokens `<Event.Category>`, `<Event.Date>`, `<Event.Timestamp>`, `<Functions.Today>`, `<Tenant.ID>`, `<Tenant.Name>` are always allowed.
-- **`Export.parameters.where_clause = "BillRunId = '{{ Data.BillingRun.Id }}'"`.** `Invoice.BillRunId` must be verified against the SOAP describe for the tenant — `curl -sS "$ZUORA_BASE_URL/v1/describe/Invoice" -H "Authorization: Bearer $ACCESS_TOKEN"` is the direct path; `mcp__zuora-mcp__ask_zuora` (with `object=Invoice, context=soap`) is the fallback. The bundled catalog at `references/zuora-standard-fields.json#/objects/Invoice/fields` must list `BillRunId`, which was added specifically so this example is lint-clean. Linter rule `W177` warns if a field in a data-bearing task is absent from both the describe response and the bundled catalog.
-- **`Iterate.object = "Invoice__101.csv.zip"`.** Required because the parent (task 101) is an `Export` with `zip = "true"`. If `zip = "false"` the value would be `"Invoice__101.csv"`. Linter rule `E176` will hard-fail if you set `object` to the bare `"Invoice"` string when the parent is file-producing.
-
-## Use Case 5 — Callout with declared response schema (opaque-with-confirmation)
+## Use Case 4 — Callout with declared response schema (opaque-with-confirmation)
 
 **Requirement.** When an invoice is posted, call an external risk-scoring API to assess fraud risk, then email the fraud team with the score, level, and reason.
 
@@ -765,7 +554,7 @@ This is the **declare-schema** protocol from Step 3e of `zuora-workflow-build/SK
     }
   ],
   "linkages": [
-    { "source_workflow_id": 5,    "source_task_id": null, "target_task_id": 501, "linkage_type": "Start" },
+    { "source_workflow_id": 5,    "source_task_id": null, "target_task_id": 501, "linkage_type": "InvoicePosted" },
     { "source_workflow_id": null, "source_task_id": 501,  "target_task_id": 502, "linkage_type": "Success" }
   ]
 }
@@ -781,7 +570,7 @@ Checklist highlights:
 - The same pattern works with `parameters._opaque_trusted: "true"` instead of `_expected_response_schema` if the user prefers to opt out of field-level analysis entirely (use only when the response shape genuinely cannot be enumerated).
 - Both sentinel keys (`_opaque_trusted`, `_expected_response_schema`) are free-form keys in `parameters`. Rails' Workflow runtime ignores them (the JSONB column accepts any keys); they exist solely to inform the linter / agent.
 
-## Use Case 6 — File-name `Iterate.object` after an Export
+## Use Case 5 — File-name `Iterate.object` after an Export
 
 **Requirement.** Once a month, dump every active account with a non-zero balance to a file, iterate over each row, and POST a per-account audit snapshot to an external compliance endpoint.
 

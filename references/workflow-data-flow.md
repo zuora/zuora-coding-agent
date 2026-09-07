@@ -66,7 +66,7 @@ These are the workflow-level seeds — always available even at task #1:
 
 Per-trigger summary:
 
-- **event_trigger**: seed = `Data.Workflow.*` + every `event_parameters[].object/key` declared on the workflow. The keys you list in `event_parameters` are *exactly* what's available; if you list `BillingRun.Id` then `Data.BillingRun.Id` is seeded — nothing else from the event payload comes through.
+- **event_trigger**: seed = `Data.Workflow.*` + every `event_parameters[].object/key` declared on the workflow. The keys you list in `event_parameters` are *exactly* what's available; if you list `BillingRun.ID` then `Data.BillingRun.ID` is seeded — nothing else from the event payload comes through.
 - **callout_trigger**: seed = `Data.Workflow.*` + the inbound HTTP body merged in at the configured root key (default `Data.Callout.*`). Treated as **OPAQUE** by the linter — declare `_expected_response_schema` on the workflow envelope's `parameters` to enable field-level validation.
 - **ondemand**: seed = `Data.Workflow.*` + every `parameters.fields[]` entry the user populated when launching.
 - **scheduled**: seed = `Data.Workflow.*` + every `parameters.fields[]` default value.
@@ -148,7 +148,7 @@ Downstream tasks can now reference `{{ Data.Liquid.account_count }}` and `{{ Dat
 
 The linter scans `parameters.code` for `assign <name>` and `capture <name>` and adds those names to the available `Data.Liquid.*` symbol set. Other `Logic::Liquid` tasks higher up in the graph contribute their own names too (the set unions). When `parameters.placement` is set, the scope key changes to `Data.<placement>.<name>` instead of `Data.Liquid.<name>`.
 
-Do not add a separate `Logic::Liquid` task just to prepare one value for the next task. Most task parameters already render Liquid, so simple date calculations, boolean branch decisions, and request bodies can live directly in the consuming task's predicate, `If` / `Logic::Case` clause, date parameter, or Callout `raw_body`. Keep `Logic::Liquid` when it produces shared context for multiple downstream tasks, normalizes a large reusable payload, or needs an explicit workflow step. The linter reports avoidable one-consumer Liquid shim tasks as `W187`.
+Do not add a separate `Logic::Liquid` task just to prepare one value for the next task. **Most Workflow task parameters are Liquid-evaluated** — inline simple calculations, branch conditions, predicates, and payloads directly in the consuming task (Export/Query/Data::Link `where_clause`, `If`/`Logic::Case` clauses, Callout `raw_body`/URL/headers, Email templates, Create/Update field values). Inside an `Iterate` For Each branch, reference the current row's `Data.<object>.<field>` (or `Data.<file_holder>.<column>`) in that downstream parameter; do not add `Logic::Liquid` solely to assign `Data.Liquid.*` for a single consumer. Keep `Logic::Liquid` when it produces shared context for multiple downstream tasks, normalizes reusable workflow state, or needs an explicit independent step. The linter reports avoidable single-consumer shims as `W187`; avoidable scalar-copy chains between Data Query tasks as `W180`.
 
 ## 9. Opaque tasks: three protocols
 
@@ -290,20 +290,22 @@ function compute_available_data(workflow):
 
 ## 11. Worked example: bill-run invoice export
 
-Task plan (event_trigger on `BillingRunCompletion`, populating `Data.BillingRun.Id`):
+Task plan (event_trigger on `BillingRunCompletion`, populating `Data.BillingRun.ID`):
 
-1. **Query Invoice** with `where_clause = "BillRunId = '{{Data.BillingRun.Id}}'"` and `parameters.fields = {Invoice: [Id, InvoiceNumber, Amount, AccountId]}`.
-2. **Iterate** with `object: "Invoice"`.
-3. (For Each) **Query InvoiceItem** with `where_clause = "InvoiceId = '{{Data.Invoice.Id}}'"`.
-4. (For Each) **Callout POST** to external system with `raw_body` referencing `{{Data.Invoice.Id}}`, `{{Data.Invoice.Amount}}`, `{{Data.InvoiceItem | json}}`.
+Bill runs routinely create more than 2000 invoices, so this flow uses **`Export`**, not **`Query`**. `Query` is capped at 2000 rows; see `workflow-task-catalog.md` → Data-read selection guide and `workflow-planning-patterns.md` → `run_event`.
+
+1. **Export Invoice** with `where_clause = "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"` and `parameters.fields = {Invoice: [Id, InvoiceNumber, Amount, AccountId]}`.
+2. **Iterate** with `object: "Invoice__<ExportTaskId>.csv.zip"` (the Export file holder — not the bare `"Invoice"` string).
+3. (For Each) **Query InvoiceItem** with `where_clause = "InvoiceId = '{{ Data.Invoice.Id }}'"` (per-invoice line items are usually ≤ 2000).
+4. (For Each) **Callout POST** to external system with `raw_body` referencing `{{ Data.Invoice.Id }}`, `{{ Data.Invoice.Amount }}`, `{{ Data.InvoiceItem | json }}`.
 
 Walker trace:
 
 | Task | Inbound `available_data` | Local writes | Reads validated |
 |---|---|---|---|
 | Workflow seed | `{Workflow:[ExecDate,…], BillingRun:[Id]}` (from `event_parameters`) | — | — |
-| 1. Query Invoice | seed | `+ {Invoice: [Id, InvoiceNumber, Amount, AccountId]}` (DETERMINISTIC, Array) | `Data.BillingRun.Id` ✓ |
-| 2. Iterate | seed + Invoice (Array) | (no positive writes; rebinds `Invoice` to Hash on For-Each) | `Data.Invoice` ✓ |
+| 1. Export Invoice | seed | `+ {Export.Invoice: file ref}`, `+ {Files.Invoice__<id>.csv.zip: File}` (SEMI-DETERMINISTIC) | `Data.BillingRun.ID` ✓ |
+| 2. Iterate | seed + Export + Files | (no positive writes; rebinds `Invoice` to Hash on For-Each) | Files holder ✓ |
 | 3. Query InvoiceItem (For-Each branch) | seed + Invoice (Hash mode) | `+ {InvoiceItem: [...]}` (DETERMINISTIC, Array) | `Data.Invoice.Id` ✓ |
 | 4. Callout POST (For-Each branch) | seed + Invoice (Hash) + InvoiceItem | `+ {ExternalApi: OPAQUE}` (with `_opaque_trusted="true"`) | `Data.Invoice.Id`, `Data.Invoice.Amount`, `Data.InvoiceItem` ✓ |
 

@@ -1,0 +1,301 @@
+{
+  "name": "RefundTransactionLog",
+  "label": "Refund Transaction Log",
+  "href": "https://staging2.zuora.com/rest/api/describe/RefundTransactionLog",
+  "fields": [
+    {
+      "name": "BatchId",
+      "label": "Batch ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Gateway",
+      "label": "Gateway",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayReasonCode",
+      "label": "Gateway Response Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayReasonCodeDescription",
+      "label": "Gateway Response Code Description",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayState",
+      "label": "Gateway State",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "MarkedForSubmission",
+        "Submitted",
+        "Settled",
+        "NotSubmitted",
+        "FailedToSettle"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "GatewayTransactionType",
+      "label": "Gateway Transaction Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Authorization",
+        "Capture",
+        "Sale",
+        "Void",
+        "Credit",
+        "Inquiry",
+        "RefundAuthorize",
+        "Refund",
+        "VoidAuth",
+        "Validate",
+        "Deposit",
+        "NonReferenceRefund",
+        "CancelMandate",
+        "ThreeDS2RequestToken",
+        "ThreeDS2EnrollCheck",
+        "ThreeDS2SubmitDFResult",
+        "ThreeDS2SubmitChallengeResult",
+        "FraudDetection",
+        "BankEvent",
+        "MerchantValidate",
+        "RegisterMerchant",
+        "UnRegisterMerchant",
+        "FetchMerchant",
+        "ChargebackEvent",
+        "PreDebitNotify",
+        "CreateLinkToken",
+        "ExchangePublicToken",
+        "GetAccountAuthData",
+        "GetAccountBalance",
+        "GetAccountIdentityData"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "Transaction Log ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RefundId",
+      "label": "Refund ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "RequestString",
+      "label": "Request String",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ResponseString",
+      "label": "Response String",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ServiceType",
+      "label": "Service Type",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionDate",
+      "label": "Transaction Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionId",
+      "label": "Gateway Transaction ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "PaymentMethodSnapshot",
+      "label": "Payment Method Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RefundTransactionLog.Refund.PaymentMethodSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethodSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Refund",
+      "label": "Refund",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RefundTransactionLog.Refund",
+      "href": "https://staging2.zuora.com/rest/api/describe/Refund",
+      "foreign_key_field": "RefundId"
+    }
+  ]
+}

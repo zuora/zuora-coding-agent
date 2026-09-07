@@ -28,14 +28,14 @@ See `workflow-events.md` for the full standard event catalog, the `<canonical_na
     {
       "eventName": "BillingRunCompletion",
       "params": [
-        { "object": "BillingRun", "key": "Id", "value": "<BillingRun.Id>" }
+        { "object": "BillingRun", "key": "ID", "value": "<BillRun.ID>" }
       ]
     }
   ]
 }
 ```
 
-  Both `event_parameters` and the inner `params` MUST be JSON arrays (not Hashes). Downstream tasks read these as `{{ Data.BillingRun.Id }}`.
+  Both `event_parameters` and the inner `params` MUST be JSON arrays (not Hashes). Downstream tasks read these as `{{ Data.BillingRun.ID }}`. The merge-field `value` uses the notifications payload path prefix (`<BillRun.ID>`), not the Data object name (`BillingRun`).
 
 ### Scheduled-trigger details
 
@@ -76,7 +76,7 @@ Every task-to-task or workflow-to-task edge is one linkage object:
 
 Two patterns:
 
-- **Start linkage (always exactly one per workflow):** `source_workflow_id = workflow.id`, `source_task_id = null`, `linkage_type = "Start"`, `target_task_id` = id of the entry task.
+- **Workflow entry linkage (exactly one per workflow):** `source_workflow_id = workflow.id`, `source_task_id = null`, `target_task_id` = id of the entry task. For non-event workflows, `linkage_type = "Start"`. For event-triggered workflows, `linkage_type` must be the event name from `parameters.event_triggers[]` (for example `BillingRunCompletion` or `InvoicePosted`), **not** `"Start"`. The linter errors on `Start` for event workflows (`E198`).
 - **Task-to-task linkage:** `source_workflow_id = null`, `source_task_id` = upstream task's `id`, `target_task_id` = downstream task's `id`, `linkage_type` = one of the upstream task's published hooks (see catalog below).
 
 Source invariant (client-side only; the server-side check is commented out at `app/models/linkage.rb:33`): a linkage sets either `source_workflow_id` or `source_task_id`, never both and never neither. The linter warns on any violation.
@@ -95,7 +95,8 @@ The server stores `linkage_type` as a free string and does **not** cross-check i
 | `UI::Page`                     | `Page:<route>` for each non-blank `parameters.route`; `Success`, `Failure` |
 | `UI::WebShare`                 | `Webshare:<route>` for each route, `Upload`, `Timeout`, `Success`, `Failure` |
 | `UsageMediation::*`            | `next`, `error` (lowercase, on purpose)                          |
-| Workflow start                 | `Start`                                                         |
+| Workflow start (non-event) | `Start` |
+| Workflow start (event-triggered) | Event name from `parameters.event_triggers[]` (e.g. `BillingRunCompletion`, `InvoicePosted`) |
 
 Common typos the linter rewrites to "did-you-mean" suggestions:
 
@@ -119,10 +120,10 @@ Corollary: if you need to fan out with `Iterate` and then converge, drop the Mer
 
 ## Composition rules for linkages
 
-1. Emit the Start linkage first; `target_task_id` points at the workflow entry task.
+1. Emit the workflow entry linkage first; `target_task_id` points at the workflow entry task. Use `linkage_type: "Start"` for non-event workflows, or the event name for event-triggered workflows.
 2. For every subsequent task, add one linkage per upstream task-to-this-task edge, using the upstream task's `linkage_type`.
 3. `Case_N` linkages must be emitted in numeric order and must match the sequentialized `Case_1`, `Case_2`, … keys in the Case task's `parameters.case_condition`.
-4. Every task needs at least one inbound linkage (except the one targeted by Start, which is the entry). Orphan tasks are lint warnings.
+4. Every task needs at least one inbound linkage (except the one targeted by the workflow entry edge, which is the entry). Orphan tasks are lint warnings.
 5. The linter warns on cycles; Rails does not detect cycles and will happily import a workflow that hangs at runtime.
 
 ## Workflow-level field derivation by trigger style
@@ -235,7 +236,7 @@ Required additional fields `[lint E131, E133, E175]`:
       {
         "eventName": "BillingRunCompletion",
         "params": [
-          { "object": "BillingRun", "key": "Id", "value": "<BillingRun.Id>" }
+          { "object": "BillingRun", "key": "ID", "value": "<BillRun.ID>" }
         ]
       }
     ]

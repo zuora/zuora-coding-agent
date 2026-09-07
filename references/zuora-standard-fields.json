@@ -66,7 +66,14 @@
       "<Tenant.ID>",
       "<Tenant.Name>"
     ],
-    "$payload_token_shape": "For any other token `<Something>` Rails strips the angle brackets and optionally a leading `DataSource.` or `Event.` prefix, then uses the remainder as a literal Avro payload key. The keyspace of the payload is determined by the notifications platform for the given event category (call /notifications/email-templates/info/selections?category={category} via mcp__zuora-mcp__ask_zuora to enumerate it). Tokens may therefore legitimately take forms like `<BillingRun.Id>`, `<DataSource.SomeField>`, `<Event.OCP_OBJECT_ID>`, `<Process.Id>`, depending on what the notifications service publishes."
+    "$payload_token_shape": "For any other token `<Something>` Rails strips the angle brackets and optionally a leading `DataSource.` or `Event.` prefix, then uses the remainder as a literal Avro payload key. The keyspace of the payload is determined by the notifications platform for the given event category (call /notifications/email-templates/info/selections?category={category} via mcp__zuora-mcp__ask_zuora to enumerate it). Tokens may therefore legitimately take forms like `<BillRun.ID>`, `<Invoice.Id>`, `<DataSource.SomeField>`, `<Event.OCP_OBJECT_ID>`, depending on what the notifications service publishes."
+  },
+
+  "$event_payload_path_prefix": {
+    "$description": "Notifications merge-field path prefix for run-completion events. The Data object name (e.g. BillingRun) differs from the payload path prefix published in mergeFields (e.g. BillRun). Linter rule E177 permits tokens whose prefix matches either the declared baseObject or this payload path prefix.",
+    "BillingRunCompletion": "BillRun",
+    "PaymentRunCompletion": "PaymentRun",
+    "JournalRunCompletion": "JournalRun"
   },
 
   "objects": {

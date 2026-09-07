@@ -1,0 +1,763 @@
+{
+  "name": "InvoiceItemAdjustment",
+  "label": "Invoice Item Adjustment",
+  "href": "https://staging2.zuora.com/rest/api/describe/InvoiceItemAdjustment",
+  "fields": [
+    {
+      "name": "AccountId",
+      "label": "Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AccountingCode",
+      "label": "Accounting Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentDate",
+      "label": "Adjustment Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AdjustmentNumber",
+      "label": "Adjustment Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Amount",
+      "label": "Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CancelledById",
+      "label": "Cancelled By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CancelledDate",
+      "label": "Cancelled Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Comment",
+      "label": "Comment",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CustomerName",
+      "label": "CustomerName",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "CustomerNumber",
+      "label": "CustomerNumber",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "DeferredRevenueAccount",
+      "label": "DeferredRevenueAccount",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "ExcludeItemBillingFromRevenueAccounting",
+      "label": "Exclude Item Billing From Revenue Accounting",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceId",
+      "label": "Invoice ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceItemName",
+      "label": "Invoice Item Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "InvoiceNumber",
+      "label": "Invoice Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ReasonCode",
+      "label": "Reason Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RecognizedRevenueAccount",
+      "label": "RecognizedRevenueAccount",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "ReferenceId",
+      "label": "Reference ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ServiceEndDate",
+      "label": "Service End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ServiceStartDate",
+      "label": "Service Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SourceId",
+      "label": "Source ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SourceType",
+      "label": "Source Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "InvoiceDetail",
+        "Tax"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Processed",
+        "Canceled"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TransferredToAccounting",
+      "label": "Transferred to Accounting",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Processing",
+        "Yes",
+        "Error",
+        "Ignore"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Type",
+      "label": "Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "Credit",
+        "Charge"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "AccountId"
+    },
+    {
+      "name": "AccountingPeriod",
+      "label": "AccountingPeriod",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.JournalEntry.AccountingPeriod",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingPeriod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountReceivableAccountingCode",
+      "label": "Accounts Receivable Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.AccountReceivableAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Amendment",
+      "label": "Amendment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.InvoiceItem.RatePlanCharge.RatePlan.Amendment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Amendment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContactSnapshot",
+      "label": "Bill To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.BillToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DeferredRevenueAccountingCode",
+      "label": "Deferred Revenue Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.DeferredRevenueAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Invoice",
+      "label": "Invoice",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.Invoice",
+      "href": "https://staging2.zuora.com/rest/api/describe/Invoice",
+      "foreign_key_field": "InvoiceId"
+    },
+    {
+      "name": "InvoiceItem",
+      "label": "Invoice Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.InvoiceItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/InvoiceItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalEntry",
+      "label": "Journal Entry",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.JournalEntry",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalEntry",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalRun",
+      "label": "Journal Run",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.JournalEntry.JournalRun",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalRun",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Product",
+      "label": "Product",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.InvoiceItem.RatePlanCharge.RatePlan.ProductRatePlan.Product",
+      "href": "https://staging2.zuora.com/rest/api/describe/Product",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlan",
+      "label": "Product Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.InvoiceItem.RatePlanCharge.RatePlan.ProductRatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.InvoiceItem.RatePlanCharge.ProductRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlan",
+      "label": "Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.InvoiceItem.RatePlanCharge.RatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RatePlanCharge",
+      "label": "Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.InvoiceItem.RatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RecognizedRevenueAccountingCode",
+      "label": "Recognized Revenue Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.RecognizedRevenueAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SalesTaxPayableAccountingCode",
+      "label": "Sales Tax Payable Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.SalesTaxPayableAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContactSnapshot",
+      "label": "Ship To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.ShipToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContactSnapshot",
+      "label": "Sold To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.Invoice.SoldToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "InvoiceItemAdjustment.InvoiceItem.RatePlanCharge.RatePlan.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": null
+    },
+    {
+      "name": "TaxationItem",
+      "label": "Taxation Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "InvoiceItemAdjustment.TaxationItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/TaxationItem",
+      "foreign_key_field": null
+    }
+  ]
+}

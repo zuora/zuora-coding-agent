@@ -1,0 +1,381 @@
+{
+  "name": "JournalEntryDetailPaymentApplicationItem",
+  "label": "Journal Entry Detail Payment Application Item",
+  "href": "https://staging2.zuora.com/rest/api/describe/JournalEntryDetailPaymentApplicationItem",
+  "fields": [
+    {
+      "name": "AccountId",
+      "label": "Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Amount",
+      "label": "Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AmountHomeCurrency",
+      "label": "Amount (Home Currency)",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContainerTransactionId",
+      "label": "Container Transaction ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Currency",
+      "label": "Currency",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExchangeRate",
+      "label": "Exchange Rate",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExchangeRateDate",
+      "label": "Exchange Rate Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "HomeCurrency",
+      "label": "Home Currency",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RoundingAmountHomeCurrency",
+      "label": "Rounding Amount (Home Currency)",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionDate",
+      "label": "Transaction Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionId",
+      "label": "Transaction ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionSubtype",
+      "label": "Transaction Subtype",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Unapplied",
+        "TransferredFrom",
+        "TransferredTo",
+        "UnappliedToInvoiceItem",
+        "UnappliedToInvoiceTaxationItem",
+        "UnappliedToDebitMemoItem",
+        "UnappliedToDebitMemoTaxationItem",
+        "InvoiceItem",
+        "InvoiceTaxationItem",
+        "DebitMemoItem",
+        "DebitMemoTaxationItem",
+        "InvoiceItemReversal",
+        "InvoiceTaxationItemReversal",
+        "DebitMemoItemReversal",
+        "DebitMemoTaxationItemReversal",
+        "WriteOff"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionType",
+      "label": "Transaction Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Invoice Item",
+        "Taxation Item",
+        "Invoice Item Adjustment (Invoice)",
+        "Invoice Item Adjustment (Tax)",
+        "Invoice Adjustment",
+        "Credit Balance Adjustment (Applied from Credit Balance)",
+        "Credit Balance Adjustment (Transferred to Credit Balance)",
+        "Debit Memo Item (Charge)",
+        "Debit Memo Item (Tax)",
+        "Electronic Payment",
+        "External Payment",
+        "Electronic Refund",
+        "External Refund",
+        "Electronic Payment Application",
+        "External Payment Application",
+        "Electronic Payment Application Item",
+        "External Payment Application Item",
+        "Electronic Refund Application",
+        "External Refund Application",
+        "Electronic Refund Application Item",
+        "External Refund Application Item",
+        "Credit Memo Item (Charge)",
+        "Credit Memo Item (Tax)",
+        "Credit Memo Application Item",
+        "Electronic Credit Balance Payment",
+        "External Credit Balance Payment",
+        "Electronic Credit Balance Refund",
+        "External Credit Balance Refund",
+        "Revenue Event Item",
+        "Unrealized FX Gain Loss"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "CreditAccountingCode",
+      "label": "Credit Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailPaymentApplicationItem.CreditAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DebitAccountingCode",
+      "label": "Debit Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailPaymentApplicationItem.DebitAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalEntry",
+      "label": "Journal Entry",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailPaymentApplicationItem.JournalEntry",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalEntry",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalRun",
+      "label": "Journal Run",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailPaymentApplicationItem.JournalEntry.JournalRun",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalRun",
+      "foreign_key_field": null
+    }
+  ]
+}

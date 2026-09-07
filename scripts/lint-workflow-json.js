@@ -537,6 +537,11 @@ function checkEnvelope(doc, out, enums, opts) {
     isPlainObject(standardFields.$event_base_objects.events)
   ) {
     const baseObjectMap = standardFields.$event_base_objects.events;
+    const payloadPathPrefixMap =
+      standardFields.$event_payload_path_prefix &&
+      isPlainObject(standardFields.$event_payload_path_prefix)
+        ? standardFields.$event_payload_path_prefix
+        : {};
     const specialTokens = new Set(
       (standardFields.$event_special_tokens && Array.isArray(standardFields.$event_special_tokens.tokens)
         ? standardFields.$event_special_tokens.tokens
@@ -585,7 +590,14 @@ function checkEnvelope(doc, out, enums, opts) {
           const dotIdx = stripped.indexOf(".");
           const prefix = stripped.slice(0, dotIdx);
           const rest = stripped.slice(dotIdx + 1);
-          if (declaredBaseObject && prefix !== declaredBaseObject && prefixType !== "Event" && prefixType !== "DataSource") {
+          const payloadPathPrefix = payloadPathPrefixMap[eventName];
+          if (
+            declaredBaseObject &&
+            prefix !== declaredBaseObject &&
+            prefix !== payloadPathPrefix &&
+            prefixType !== "Event" &&
+            prefixType !== "DataSource"
+          ) {
             out.error(
               "E177",
               `event_parameters[${i}].params[${j}].value "${value}" starts with "<${prefix}." but the event "${eventName}" declares baseObject="${declaredBaseObject}" (references/zuora-standard-fields.json#/$event_base_objects.events). Either switch the token to "<${declaredBaseObject}.${rest}>" (if ${declaredBaseObject}.${rest} is published in the notifications mergeFields for this event) or, if you intended a payload key unrelated to the baseObject, prefix it with "Event." (e.g. "<Event.${prefix}.${rest}>") so Rails strips the Event. prefix and looks up "${prefix}.${rest}" as a literal payload key. Discover the real token list via GET /notifications/email-templates/info/selections?category=${eventCategoryHint(eventName)} (standard events use the 4-digit event id; custom events use namespace:eventName; mcp__zuora-mcp__ask_zuora can fetch it).`,
@@ -700,6 +712,38 @@ function checkEnvelope(doc, out, enums, opts) {
         `workflow.call_type "${w.call_type}" is deprecated/internal. Use "${replacement}" instead. The React settings UI hides these (workflows_controller.rb:20-21).`,
         `$.workflow.call_type`
       );
+    }
+  }
+
+  // W199/W200: call_type should match event trigger class (run-completion vs per-record)
+  if (w.event_trigger) {
+    const eventTriggers = (w.parameters && w.parameters.event_triggers) || [];
+    const runCompletionEvents = new Set([
+      "BillingRunCompletion",
+      "PaymentRunCompletion",
+      "JournalRunCompletion",
+      "TrialBalanceCompletion",
+      "DataSourceOutputCompletion",
+      "PaymentMethodUpdaterBatchCompleted",
+    ]);
+    if (eventTriggers.length > 0) {
+      const hasRunCompletion = eventTriggers.some((e) => runCompletionEvents.has(e));
+      const hasPerRecordOnly =
+        eventTriggers.length > 0 && eventTriggers.every((e) => !runCompletionEvents.has(e));
+      if (hasRunCompletion && w.call_type === "REALTIME") {
+        out.warn(
+          "W199",
+          `workflow.call_type is REALTIME but event_triggers include a run-completion event (${eventTriggers.filter((e) => runCompletionEvents.has(e)).join(", ")}). Run-completion workflows should use call_type BATCH (or ASYNC) because they process large result sets.`,
+          `$.workflow.call_type`
+        );
+      }
+      if (hasPerRecordOnly && w.call_type === "BATCH") {
+        out.warn(
+          "W200",
+          `workflow.call_type is BATCH but event_triggers are per-record events (${JSON.stringify(eventTriggers)}). Per-record event workflows should use call_type REALTIME unless the design intentionally batches work.`,
+          `$.workflow.call_type`
+        );
+      }
     }
   }
 
@@ -1043,6 +1087,45 @@ function isValidLinkageType(linkageType, sourceHooks) {
   return false;
 }
 
+function isWorkflowEntryLinkage(l, workflowId) {
+  return (
+    isPlainObject(l) &&
+    l.source_workflow_id === workflowId &&
+    l.source_task_id == null
+  );
+}
+
+function validateWorkflowEntryLinkageShape(l, i, workflowId, taskById, label, out) {
+  const loc = `$.linkages[${i}]`;
+  if (l.source_workflow_id !== workflowId) {
+    out.error(
+      "E203",
+      `linkages[${i}] (${label}) source_workflow_id ${JSON.stringify(
+        l.source_workflow_id
+      )} must equal workflow.id ${workflowId}`,
+      `${loc}.source_workflow_id`
+    );
+  }
+  if (l.source_task_id != null) {
+    out.error(
+      "E203",
+      `linkages[${i}] (${label}) source_task_id must be null (got ${JSON.stringify(
+        l.source_task_id
+      )})`,
+      `${loc}.source_task_id`
+    );
+  }
+  if (l.target_task_id == null || !taskById.has(l.target_task_id)) {
+    out.error(
+      "E203",
+      `linkages[${i}] (${label}) target_task_id ${JSON.stringify(
+        l.target_task_id
+      )} does not match any task id`,
+      `${loc}.target_task_id`
+    );
+  }
+}
+
 function checkLinkages(doc, out, templates, enums) {
   if (!Array.isArray(doc.linkages)) return;
 
@@ -1054,6 +1137,14 @@ function checkLinkages(doc, out, templates, enums) {
   });
 
   const workflowId = doc.workflow && doc.workflow.id;
+  const eventTrigger = !!(doc.workflow && doc.workflow.event_trigger);
+  const eventTriggers =
+    eventTrigger &&
+    isPlainObject(doc.workflow.parameters) &&
+    Array.isArray(doc.workflow.parameters.event_triggers)
+      ? doc.workflow.parameters.event_triggers.filter((name) => typeof name === "string" && name.length > 0)
+      : [];
+  let entryLinkages = 0;
   let startLinkages = 0;
   const typoHints = enums.typo_hints || {};
 
@@ -1084,40 +1175,40 @@ function checkLinkages(doc, out, templates, enums) {
       );
     }
 
-    // E203: Start linkage shape
-    if (l.linkage_type === "Start") {
-      startLinkages++;
-      if (l.source_workflow_id !== workflowId) {
+    // E203: workflow entry linkage shape (Start or event name)
+    if (isWorkflowEntryLinkage(l, workflowId)) {
+      entryLinkages++;
+      if (eventTrigger && eventTriggers.length > 0) {
+        if (l.linkage_type === "Start") {
+          out.error(
+            "E198",
+            `linkages[${i}] uses linkage_type "Start" on an event-triggered workflow. The workflow entry edge must use the event name from parameters.event_triggers[] (for example "${eventTriggers[0]}"), not "Start".`,
+            `${loc}.linkage_type`
+          );
+          validateWorkflowEntryLinkageShape(l, i, workflowId, taskById, "Start", out);
+        } else if (!eventTriggers.includes(l.linkage_type)) {
+          out.error(
+            "E203",
+            `linkages[${i}] is a workflow entry edge on an event-triggered workflow, but linkage_type "${l.linkage_type}" is not listed in parameters.event_triggers (${JSON.stringify(eventTriggers)}). Use the event name as linkage_type.`,
+            `${loc}.linkage_type`
+          );
+        } else {
+          validateWorkflowEntryLinkageShape(l, i, workflowId, taskById, l.linkage_type, out);
+        }
+      } else if (l.linkage_type === "Start") {
+        startLinkages++;
+        validateWorkflowEntryLinkageShape(l, i, workflowId, taskById, "Start", out);
+      } else {
         out.error(
           "E203",
-          `linkages[${i}] (Start) source_workflow_id ${JSON.stringify(
-            l.source_workflow_id
-          )} must equal workflow.id ${workflowId}`,
-          `${loc}.source_workflow_id`
+          `linkages[${i}] is a workflow entry edge but linkage_type "${l.linkage_type}" is not "Start". Non-event workflows must use linkage_type "Start" on the workflow entry edge.`,
+          `${loc}.linkage_type`
         );
       }
-      if (l.source_task_id != null) {
-        out.error(
-          "E203",
-          `linkages[${i}] (Start) source_task_id must be null (got ${JSON.stringify(
-            l.source_task_id
-          )})`,
-          `${loc}.source_task_id`
-        );
-      }
-      if (l.target_task_id == null || !taskById.has(l.target_task_id)) {
-        out.error(
-          "E203",
-          `linkages[${i}] (Start) target_task_id ${JSON.stringify(
-            l.target_task_id
-          )} does not match any task id`,
-          `${loc}.target_task_id`
-        );
-      }
-      return; // Start's linkage_type is intrinsically valid
+      return;
     }
 
-    // E204: non-Start linkage shape
+    // E204: non-entry linkage shape
     if (l.source_workflow_id != null && l.source_task_id != null) {
       out.warn(
         "W204",
@@ -1167,11 +1258,25 @@ function checkLinkages(doc, out, templates, enums) {
     }
   });
 
-  // E208: exactly one Start linkage
-  if (startLinkages === 0) {
+  // E208: exactly one workflow entry linkage (Start for non-event; event name for event-triggered)
+  if (eventTrigger && eventTriggers.length > 0) {
+    if (entryLinkages === 0) {
+      out.error(
+        "E208",
+        `No workflow entry linkage found. Event-triggered workflows need exactly one linkage with source_workflow_id = workflow.id, source_task_id = null, and linkage_type set to the event name from parameters.event_triggers[] (for example "${eventTriggers[0]}"), not "Start".`,
+        `$.linkages`
+      );
+    } else if (entryLinkages > 1) {
+      out.error(
+        "E208",
+        `Multiple workflow entry linkages found (${entryLinkages}). An event-triggered workflow must have exactly one entry edge from workflow.id to the entry task.`,
+        `$.linkages`
+      );
+    }
+  } else if (startLinkages === 0) {
     out.error(
       "E208",
-      `No Start linkage found. Every workflow needs exactly one linkage with linkage_type "Start", source_workflow_id = workflow.id, source_task_id = null.`,
+      `No Start linkage found. Every non-event workflow needs exactly one linkage with linkage_type "Start", source_workflow_id = workflow.id, source_task_id = null.`,
       `$.linkages`
     );
   } else if (startLinkages > 1) {
@@ -1430,6 +1535,27 @@ function unsupportedBillRunFilterParams(task) {
     if (SUPPORTED_BILL_RUN_PARAMS.has(key)) return false;
     return /filter/i.test(key) || /accountnumber|batchnumber|prpc|productrateplancharge/i.test(key);
   });
+}
+
+function invoiceWhereClause(task) {
+  return isPlainObject(task) && isPlainObject(task.parameters)
+    ? String(task.parameters.where_clause || "")
+    : "";
+}
+
+function isQueryInvoiceRunScoped(task) {
+  if (!isPlainObject(task) || task.action_type !== "Query" || task.object !== "Invoice") return false;
+  const whereClause = invoiceWhereClause(task);
+  if (/\bBillRunId\b/i.test(whereClause)) return true;
+  if (/\bSourceId\b/i.test(whereClause) && /BillingRun|BillRun/i.test(whereClause)) return true;
+  return false;
+}
+
+function isInvoiceBillRunIdFilterInWhereClause(task) {
+  if (!isPlainObject(task) || !["Query", "Export"].includes(task.action_type) || task.object !== "Invoice") {
+    return false;
+  }
+  return /\bBillRunId\b/i.test(invoiceWhereClause(task));
 }
 
 function isCalloutTask(task) {
@@ -1728,7 +1854,27 @@ function checkCompositionQuality(doc, out) {
     const taskIndex = taskIndexById.get(taskId);
     out.warn(
       "W187",
-      `Logic::Liquid task ${taskId} only prepares ${Array.from(assignedVars).join(", ")} for immediate downstream task ${downstreamTask.id} (${downstreamTask.action_type}). This is usually an avoidable Liquid shim: inline the calculation, condition, or request body Liquid into the downstream task's own parameters (for example Export/Query predicates, Logic::Case clauses, or Callout raw_body) to keep the workflow graph smaller. Keep a separate Liquid task when the value is reused by multiple tasks, normalizes a large shared payload, or needs independent failure/retry/review behavior.`,
+      `Logic::Liquid task ${taskId} only prepares ${Array.from(assignedVars).join(", ")} for immediate downstream task ${downstreamTask.id} (${downstreamTask.action_type}). This is usually an avoidable Liquid shim: most Workflow task parameters are Liquid-evaluated, so inline the expression into the downstream task's own parameters (for example Export/Query/Data::Link predicates, If/Logic::Case clauses, Callout/Email body fields, or Create/Update field values) instead of adding a standalone Logic::Liquid step. Keep a separate Liquid task when the value is reused by multiple tasks, normalizes shared workflow context, or needs independent failure/retry/review behavior.`,
+      Number.isInteger(taskIndex) ? `$.tasks[${taskIndex}]` : `$.tasks[id=${taskId}]`
+    );
+  }
+
+  for (const [taskId, task] of taskById.entries()) {
+    if (!isQueryInvoiceRunScoped(task)) continue;
+    const taskIndex = taskIndexById.get(taskId);
+    out.warn(
+      "W196",
+      `Query task ${taskId} selects Invoice rows scoped to a bill run. Query is capped at 2000 rows, but bill runs can produce far more invoices. Use Export Invoice with Invoice.SourceId = '{{ Data.BillingRun.ID }}' (Invoice.BillRunId is not filterable in Object Query/Export), then Iterate over the export file holder before per-invoice work. Per-invoice InvoiceItem queries inside the Iterate branch may still use Query. See workflow-planning-patterns.md → run_event.`,
+      Number.isInteger(taskIndex) ? `$.tasks[${taskIndex}]` : `$.tasks[id=${taskId}]`
+    );
+  }
+
+  for (const [taskId, task] of taskById.entries()) {
+    if (!isInvoiceBillRunIdFilterInWhereClause(task)) continue;
+    const taskIndex = taskIndexById.get(taskId);
+    out.warn(
+      "W197",
+      `${task.action_type} task ${taskId} filters Invoice by BillRunId in where_clause, but Invoice.BillRunId is not filterable in Object Query/Export (describe filterable=false). Use Invoice.SourceId = '{{ Data.BillingRun.ID }}' instead — Invoice.SourceId is the filterable run-scoping field when invoices are created by a bill run.`,
       Number.isInteger(taskIndex) ? `$.tasks[${taskIndex}]` : `$.tasks[id=${taskId}]`
     );
   }

@@ -890,7 +890,7 @@
       "id": "<<TASK_ID>>",
       "name": "If",
       "parameters": {
-        "if_clause": "<<REQUIRED: Liquid expression evaluating to 'true' or 'false'>>",
+        "if_clause": "<<REQUIRED: Liquid expression evaluating to 'True' or 'False'>>",
         "strict_variables": "true",
         "disable_validation": "false"
       },
@@ -929,7 +929,7 @@
       "fields": [
         {
           "$field": "parameters.if_clause",
-          "purpose": "Liquid expression that must evaluate (after lowercasing and stripping) to either 'true' or 'false'.",
+          "purpose": "Liquid expression that must evaluate (after lowercasing and stripping) to either 'true' or 'false'. Emit capitalized True/False branch literals in the template.",
           "source": "code-editor",
           "options_source": "Free-form Liquid; UI placeholder is `{% if 0 > 1 %} True {% else %} False {% endif %}`.",
           "controller_permit": "parameters: any-hash (fall-through branch)",
@@ -946,7 +946,7 @@
         }
       ]
     },
-    "notes": "Example if_clause: '{% if Data.Invoice.Balance > 0 %}true{% else %}false{% endif %}'. Must evaluate to the lowercase string 'true' or 'false' at run time. task_setup_validation parses the Liquid (may raise) but is skipped on import with validate: false."
+    "notes": "Example if_clause: '{% if Data.Invoice.Balance > 0 %}True{% else %}False{% endif %}'. Always emit capitalized True/False branch literals (matches the UI default). Runtime lowercases before routing, so True/False and true/false both work, but generated workflows must use True/False."
   },
 
   "Logic::Case": {

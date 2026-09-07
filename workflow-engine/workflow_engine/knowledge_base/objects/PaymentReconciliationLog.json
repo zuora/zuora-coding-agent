@@ -1,0 +1,218 @@
+{
+  "name": "PaymentReconciliationLog",
+  "label": "Gateway Reconciliation Log",
+  "href": "https://staging2.zuora.com/rest/api/describe/PaymentReconciliationLog",
+  "fields": [
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedObjectId",
+      "label": "Created Object ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedObjectType",
+      "label": "Created Object Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Payment",
+        "Refund",
+        "CreditMemo"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Reason",
+      "label": "Error Code",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Failed",
+        "TransactionUnapplied",
+        "UnknownAllocationRule",
+        "CreditBalanceRelated",
+        "DeductionRejected",
+        "DeductionReversed",
+        "TransactionConflict",
+        "TransactionDeleted",
+        "TransactionStatusConflict",
+        "GatewayStateConflict",
+        "SettlementDateConflict",
+        "AmountConflict",
+        "CurrencyConflict",
+        "CurrencyUndertermined",
+        "PayoutConflict",
+        "CurrencyCodeConflict",
+        "CreditBalanceInsufficient",
+        "CreditBalanceInsufficientInBillingAccount",
+        "CreditBalanceRuleNotEnabled"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ReasonMessage",
+      "label": "Error Message",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RelatedObjectId",
+      "label": "Related Object ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RelatedObjectType",
+      "label": "Related Object Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "Payment",
+        "Refund",
+        "CreditMemo"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "Processed",
+        "Error"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Reconciliation Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "PaymentGatewayReconciliationEventLog",
+      "label": "Gateway Reconciliation Event",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "PaymentReconciliationLog.PaymentGatewayReconciliationEventLog",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentGatewayReconciliationEventLog",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentReconciliationJob",
+      "label": "Gateway Reconciliation Job",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "PaymentReconciliationLog.PaymentGatewayReconciliationEventLog.PaymentReconciliationJob",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentReconciliationJob",
+      "foreign_key_field": null
+    }
+  ]
+}

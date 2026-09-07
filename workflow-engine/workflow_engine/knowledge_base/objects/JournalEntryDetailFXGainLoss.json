@@ -1,0 +1,592 @@
+{
+  "name": "JournalEntryDetailFXGainLoss",
+  "label": "Journal Entry Detail FX Gain Loss",
+  "href": "https://staging2.zuora.com/rest/api/describe/JournalEntryDetailFXGainLoss",
+  "fields": [
+    {
+      "name": "AccountId",
+      "label": "Account ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Amount",
+      "label": "Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "AmountHomeCurrency",
+      "label": "Amount (Home Currency)",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ContainerTransactionId",
+      "label": "Container Transaction ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Currency",
+      "label": "Currency",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExchangeRate",
+      "label": "Exchange Rate",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExchangeRateDate",
+      "label": "Exchange Rate Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "HomeCurrency",
+      "label": "Home Currency",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RoundingAmountHomeCurrency",
+      "label": "Rounding Amount (Home Currency)",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionDate",
+      "label": "Transaction Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionId",
+      "label": "Transaction ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionSubtype",
+      "label": "Transaction Subtype",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Realized FX Gain/Loss",
+        "Creation",
+        "Reversal"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TransactionType",
+      "label": "Transaction Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Invoice Item",
+        "Taxation Item",
+        "Invoice Item Adjustment (Invoice)",
+        "Invoice Item Adjustment (Tax)",
+        "Invoice Adjustment",
+        "Credit Balance Adjustment (Applied from Credit Balance)",
+        "Credit Balance Adjustment (Transferred to Credit Balance)",
+        "Debit Memo Item (Charge)",
+        "Debit Memo Item (Tax)",
+        "Electronic Payment",
+        "External Payment",
+        "Electronic Refund",
+        "External Refund",
+        "Electronic Payment Application",
+        "External Payment Application",
+        "Electronic Payment Application Item",
+        "External Payment Application Item",
+        "Electronic Refund Application",
+        "External Refund Application",
+        "Electronic Refund Application Item",
+        "External Refund Application Item",
+        "Credit Memo Item (Charge)",
+        "Credit Memo Item (Tax)",
+        "Credit Memo Application Item",
+        "Electronic Credit Balance Payment",
+        "External Credit Balance Payment",
+        "Electronic Credit Balance Refund",
+        "External Credit Balance Refund",
+        "Revenue Event Item",
+        "Unrealized FX Gain Loss"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "AccountId"
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditAccountingCode",
+      "label": "Credit Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.CreditAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemo",
+      "label": "Credit Memo",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.CreditMemo",
+      "href": "https://staging2.zuora.com/rest/api/describe/CreditMemo",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditMemoItem",
+      "label": "Credit Memo Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.CreditMemoItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/CreditMemoItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "CreditTaxationItem",
+      "label": "Credit Taxation Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.CreditTaxationItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/CreditTaxationItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DebitAccountingCode",
+      "label": "Debit Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.DebitAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DebitMemo",
+      "label": "Debit Memo",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.DebitMemo",
+      "href": "https://staging2.zuora.com/rest/api/describe/DebitMemo",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DebitMemoItem",
+      "label": "Debit Memo Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.DebitMemoItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/DebitMemoItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DebitTaxationItem",
+      "label": "Debit Taxation Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.DebitTaxationItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/DebitTaxationItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Invoice",
+      "label": "Invoice",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.Invoice",
+      "href": "https://staging2.zuora.com/rest/api/describe/Invoice",
+      "foreign_key_field": null
+    },
+    {
+      "name": "InvoiceItem",
+      "label": "Invoice Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.InvoiceItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/InvoiceItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalEntry",
+      "label": "Journal Entry",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.JournalEntry",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalEntry",
+      "foreign_key_field": null
+    },
+    {
+      "name": "JournalRun",
+      "label": "Journal Run",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.JournalEntry.JournalRun",
+      "href": "https://staging2.zuora.com/rest/api/describe/JournalRun",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Payment",
+      "label": "Payment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.Payment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Payment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentApplication",
+      "label": "Payment Application",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.PaymentApplication",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentApplication",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentApplicationItem",
+      "label": "Payment Application Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.PaymentApplicationItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentApplicationItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethod",
+      "label": "Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.Payment.PaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "PaymentMethodSnapshot",
+      "label": "Payment Method Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.Payment.PaymentMethodSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethodSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Refund",
+      "label": "Refund",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.Refund",
+      "href": "https://staging2.zuora.com/rest/api/describe/Refund",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RefundApplication",
+      "label": "Refund Application",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.RefundApplication",
+      "href": "https://staging2.zuora.com/rest/api/describe/RefundApplication",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RefundApplicationItem",
+      "label": "Refund Application Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.RefundApplicationItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/RefundApplicationItem",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "JournalEntryDetailFXGainLoss.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "TaxationItem",
+      "label": "Taxation Item",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "JournalEntryDetailFXGainLoss.TaxationItem",
+      "href": "https://staging2.zuora.com/rest/api/describe/TaxationItem",
+      "foreign_key_field": null
+    }
+  ]
+}

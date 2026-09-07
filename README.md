@@ -121,6 +121,7 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 | `/zuora-api-build` | Generate or update integration code using the selected APIs |
 | `/zuora-workflow-design` | Design a Zuora Workflow-based solution |
 | `/zuora-workflow-build` | Implement workflow assets or related code/config |
+| `/zuora-workflow-verify` | Import a workflow to sandbox, test-run it, and fix issues in a bounded loop |
 | `/zuora-is-migration-design` | Produce IS migration strategy, mappings, phases, and risks |
 | `/zuora-is-migration-build` | Generate IS migration implementation artifacts |
 | `/zuora-order-migration-design` | Produce order migration design, sequencing, and edge-case analysis |

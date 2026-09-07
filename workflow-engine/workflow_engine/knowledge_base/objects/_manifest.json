@@ -1,0 +1,923 @@
+{
+  "generated_at": "2026-04-20T01:46:59.198988+00:00",
+  "object_count": 131,
+  "objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "field_count": 56,
+      "related_to_one": 7,
+      "related_to_many": 1
+    },
+    {
+      "name": "AccountingCode",
+      "label": "Accounting Code",
+      "field_count": 12,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "AccountingPeriod",
+      "label": "AccountingPeriod",
+      "field_count": 12,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "AchNocEventLog",
+      "label": "ACH NOC Event Log",
+      "field_count": 18,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "Amendment",
+      "label": "Amendment",
+      "field_count": 33,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "ApplicationGroup",
+      "label": "Application Group",
+      "field_count": 6,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "BillingPreviewRun",
+      "label": "BillingPreview Run",
+      "field_count": 19,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "BillingPreviewRunResult",
+      "label": "Billing Preview Run Result",
+      "field_count": 31,
+      "related_to_one": 15,
+      "related_to_many": 0
+    },
+    {
+      "name": "BillingRun",
+      "label": "Billing Run",
+      "field_count": 23,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "BillingTransaction",
+      "label": "Billing Transaction",
+      "field_count": 116,
+      "related_to_one": 15,
+      "related_to_many": 0
+    },
+    {
+      "name": "BookingTransaction",
+      "label": "Booking Transaction",
+      "field_count": 170,
+      "related_to_one": 19,
+      "related_to_many": 0
+    },
+    {
+      "name": "CalloutHistory",
+      "label": "Notification History - Callout",
+      "field_count": 12,
+      "related_to_one": 6,
+      "related_to_many": 0
+    },
+    {
+      "name": "CommunicationProfile",
+      "label": "Communication Profile",
+      "field_count": 10,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "Contact",
+      "label": "Contact",
+      "field_count": 29,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "ContactSnapshot",
+      "label": "Contact Snapshot",
+      "field_count": 27,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditBalanceAdjustment",
+      "label": "Credit Balance Adjustment",
+      "field_count": 20,
+      "related_to_one": 17,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditMemo",
+      "label": "Credit Memo",
+      "field_count": 41,
+      "related_to_one": 14,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditMemoApplication",
+      "label": "Credit Memo Application",
+      "field_count": 7,
+      "related_to_one": 10,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditMemoApplicationItem",
+      "label": "Credit Memo Application Item",
+      "field_count": 7,
+      "related_to_one": 20,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditMemoItem",
+      "label": "Credit Memo Item",
+      "field_count": 39,
+      "related_to_one": 35,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditMemoPart",
+      "label": "Credit Memo Part",
+      "field_count": 6,
+      "related_to_one": 9,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditMemoPartItem",
+      "label": "Credit Memo Part Item",
+      "field_count": 6,
+      "related_to_one": 16,
+      "related_to_many": 0
+    },
+    {
+      "name": "CreditTaxationItem",
+      "label": "Credit Taxation Item",
+      "field_count": 23,
+      "related_to_one": 26,
+      "related_to_many": 0
+    },
+    {
+      "name": "DailyConsumptionSummary",
+      "label": "Daily Consumption Summary",
+      "field_count": 21,
+      "related_to_one": 17,
+      "related_to_many": 0
+    },
+    {
+      "name": "DebitMemo",
+      "label": "Debit Memo",
+      "field_count": 39,
+      "related_to_one": 15,
+      "related_to_many": 0
+    },
+    {
+      "name": "DebitMemoItem",
+      "label": "Debit Memo Item",
+      "field_count": 29,
+      "related_to_one": 32,
+      "related_to_many": 0
+    },
+    {
+      "name": "DebitTaxationItem",
+      "label": "Debit Taxation Item",
+      "field_count": 23,
+      "related_to_one": 25,
+      "related_to_many": 0
+    },
+    {
+      "name": "DeliveryAdjustment",
+      "label": "Delivery Adjustment",
+      "field_count": 29,
+      "related_to_one": 9,
+      "related_to_many": 0
+    },
+    {
+      "name": "DiscountApplyDetail",
+      "label": "Discount Apply Detail",
+      "field_count": 8,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "DiscountClass",
+      "label": "Discount Class",
+      "field_count": 9,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "EmailHistory",
+      "label": "Notification History - Email",
+      "field_count": 17,
+      "related_to_one": 6,
+      "related_to_many": 0
+    },
+    {
+      "name": "Export",
+      "label": "Export",
+      "field_count": 19,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "Fulfillment",
+      "label": "Fulfillment",
+      "field_count": 19,
+      "related_to_one": 1,
+      "related_to_many": 0
+    },
+    {
+      "name": "FulfillmentItem",
+      "label": "Fulfillment Item",
+      "field_count": 7,
+      "related_to_one": 1,
+      "related_to_many": 0
+    },
+    {
+      "name": "Fund",
+      "label": "Prepaid Balance Fund",
+      "field_count": 27,
+      "related_to_one": 15,
+      "related_to_many": 0
+    },
+    {
+      "name": "GatewayProfileData",
+      "label": "Stored Credential Profile Data",
+      "field_count": 8,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "GuidedUsage",
+      "label": "Guided Usage",
+      "field_count": 14,
+      "related_to_one": 14,
+      "related_to_many": 0
+    },
+    {
+      "name": "HpmCaptchaValidationResult",
+      "label": "HPM reCAPTCHA Validation Result",
+      "field_count": 14,
+      "related_to_one": 8,
+      "related_to_many": 0
+    },
+    {
+      "name": "Import",
+      "label": "Import",
+      "field_count": 15,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "Invoice",
+      "label": "Invoice",
+      "field_count": 54,
+      "related_to_one": 14,
+      "related_to_many": 0
+    },
+    {
+      "name": "InvoiceAdjustment",
+      "label": "Invoice Adjustment",
+      "field_count": 23,
+      "related_to_one": 12,
+      "related_to_many": 0
+    },
+    {
+      "name": "InvoiceItem",
+      "label": "Invoice Item",
+      "field_count": 47,
+      "related_to_one": 37,
+      "related_to_many": 0
+    },
+    {
+      "name": "InvoiceItemAdjustment",
+      "label": "Invoice Item Adjustment",
+      "field_count": 30,
+      "related_to_one": 26,
+      "related_to_many": 0
+    },
+    {
+      "name": "InvoicePayment",
+      "label": "Invoice Payment",
+      "field_count": 9,
+      "related_to_one": 15,
+      "related_to_many": 0
+    },
+    {
+      "name": "InvoiceSplit",
+      "label": "Invoice Split",
+      "field_count": 6,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "InvoiceSplitItem",
+      "label": "Invoice Split Item",
+      "field_count": 10,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntry",
+      "label": "Journal Entry",
+      "field_count": 19,
+      "related_to_one": 2,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailCreditBalanceAdjustment",
+      "label": "Journal Entry Detail Credit Balance Adjustment",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailCreditMemoApplicationItem",
+      "label": "Journal Entry Detail Credit Memo Application Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailCreditMemoItem",
+      "label": "Journal Entry Detail Credit Memo Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailCreditTaxationItem",
+      "label": "Journal Entry Detail Credit Taxation Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailDebitMemoItem",
+      "label": "Journal Entry Detail Debit Memo Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailDebitTaxationItem",
+      "label": "Journal Entry Detail Debit Taxation Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailFXGainLoss",
+      "label": "Journal Entry Detail FX Gain Loss",
+      "field_count": 18,
+      "related_to_one": 27,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailInvoiceAdjustment",
+      "label": "Journal Entry Detail Invoice Adjustment",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailInvoiceItem",
+      "label": "Journal Entry Detail Invoice Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailInvoiceItemAdjustment",
+      "label": "Journal Entry Detail Invoice Item Adjustment",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailInvoicePayment",
+      "label": "Journal Entry Detail Invoice Payment",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailPaymentApplication",
+      "label": "Journal Entry Detail Payment Application",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailPaymentApplicationItem",
+      "label": "Journal Entry Detail Payment Application Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailRealizedFxGainLoss",
+      "label": "Journal Entry Detail Realized FX Gain Loss",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailRefundApplication",
+      "label": "Journal Entry Detail Refund Application",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailRefundApplicationItem",
+      "label": "Journal Entry Detail Refund Application Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailRefundInvoicePayment",
+      "label": "Journal Entry Detail Refund Invoice Payment",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailRevenueEventItem",
+      "label": "Journal Entry Detail Revenue Event Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailTaxationItem",
+      "label": "Journal Entry Detail Taxation Item",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryDetailUnrealizedFxGainLoss",
+      "label": "Journal Entry Detail Unrealized FX Gain Loss",
+      "field_count": 18,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalEntryItem",
+      "label": "Journal Entry Item",
+      "field_count": 11,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "JournalRun",
+      "label": "Journal Run",
+      "field_count": 13,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "NotificationHistoryEmailEvent",
+      "label": "Notification History - Email Event",
+      "field_count": 13,
+      "related_to_one": 7,
+      "related_to_many": 0
+    },
+    {
+      "name": "Order",
+      "label": "Order",
+      "field_count": 24,
+      "related_to_one": 6,
+      "related_to_many": 0
+    },
+    {
+      "name": "OrderAction",
+      "label": "Order Action",
+      "field_count": 42,
+      "related_to_one": 25,
+      "related_to_many": 0
+    },
+    {
+      "name": "OrderLineItem",
+      "label": "Order Line Item",
+      "field_count": 56,
+      "related_to_one": 26,
+      "related_to_many": 0
+    },
+    {
+      "name": "OrderMrr",
+      "label": "Order Mrr",
+      "field_count": 13,
+      "related_to_one": 22,
+      "related_to_many": 0
+    },
+    {
+      "name": "OrderQuantity",
+      "label": "Order Quantity",
+      "field_count": 11,
+      "related_to_one": 22,
+      "related_to_many": 0
+    },
+    {
+      "name": "OrderTcb",
+      "label": "Order Tcb",
+      "field_count": 14,
+      "related_to_one": 22,
+      "related_to_many": 0
+    },
+    {
+      "name": "OrderTcv",
+      "label": "Order Tcv",
+      "field_count": 13,
+      "related_to_one": 22,
+      "related_to_many": 0
+    },
+    {
+      "name": "Payment",
+      "label": "Payment",
+      "field_count": 47,
+      "related_to_one": 8,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentApplication",
+      "label": "Payment Application",
+      "field_count": 9,
+      "related_to_one": 18,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentApplicationItem",
+      "label": "Payment Application Item",
+      "field_count": 7,
+      "related_to_one": 23,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentGatewayReconciliationEventLog",
+      "label": "Gateway Reconciliation Event",
+      "field_count": 13,
+      "related_to_one": 1,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentMethod",
+      "label": "Payment Method",
+      "field_count": 97,
+      "related_to_one": 0,
+      "related_to_many": 2
+    },
+    {
+      "name": "PaymentMethodPriority",
+      "label": "Payment Method Priority",
+      "field_count": 8,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentMethodToken",
+      "label": "Payment Method Tokens",
+      "field_count": 17,
+      "related_to_one": 1,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentMethodTransactionLog",
+      "label": "Payment Method Transaction Log",
+      "field_count": 15,
+      "related_to_one": 7,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentPart",
+      "label": "Payment Part",
+      "field_count": 8,
+      "related_to_one": 11,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentPartItem",
+      "label": "Payment Part Item",
+      "field_count": 6,
+      "related_to_one": 16,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentReconciliationJob",
+      "label": "Gateway Reconciliation Job",
+      "field_count": 8,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentReconciliationLog",
+      "label": "Gateway Reconciliation Log",
+      "field_count": 10,
+      "related_to_one": 2,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentRun",
+      "label": "Payment Run",
+      "field_count": 15,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentSchedule",
+      "label": "Payment Schedule",
+      "field_count": 21,
+      "related_to_one": 8,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentScheduleItem",
+      "label": "Payment Schedule Item",
+      "field_count": 19,
+      "related_to_one": 12,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentScheduleItemPayment",
+      "label": "Payment Schedule Item Payment",
+      "field_count": 5,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "PaymentTransactionLog",
+      "label": "Payment Transaction Log",
+      "field_count": 16,
+      "related_to_one": 9,
+      "related_to_many": 0
+    },
+    {
+      "name": "PrepaidBalance",
+      "label": "Prepaid Balance",
+      "field_count": 16,
+      "related_to_one": 7,
+      "related_to_many": 0
+    },
+    {
+      "name": "PrepaidBalanceTransaction",
+      "label": "Prepaid Balance Transaction",
+      "field_count": 15,
+      "related_to_one": 16,
+      "related_to_many": 0
+    },
+    {
+      "name": "ProcessedUsage",
+      "label": "Processed Usage",
+      "field_count": 16,
+      "related_to_one": 18,
+      "related_to_many": 0
+    },
+    {
+      "name": "Product",
+      "label": "Product",
+      "field_count": 13,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "ProductChargeDefinition",
+      "label": "Product Charge Definition",
+      "field_count": 101,
+      "related_to_one": 1,
+      "related_to_many": 0
+    },
+    {
+      "name": "ProductRatePlan",
+      "label": "Product Rate Plan",
+      "field_count": 15,
+      "related_to_one": 1,
+      "related_to_many": 0
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "field_count": 103,
+      "related_to_one": 12,
+      "related_to_many": 0
+    },
+    {
+      "name": "ProductRatePlanChargeTier",
+      "label": "Product Rate Plan Charge Tier",
+      "field_count": 21,
+      "related_to_one": 4,
+      "related_to_many": 0
+    },
+    {
+      "name": "Ramp",
+      "label": "Ramp",
+      "field_count": 17,
+      "related_to_one": 2,
+      "related_to_many": 0
+    },
+    {
+      "name": "RampInterval",
+      "label": "Ramp Interval",
+      "field_count": 15,
+      "related_to_one": 3,
+      "related_to_many": 0
+    },
+    {
+      "name": "RampIntervalDeltaMetrics",
+      "label": "Ramp Interval Delta Metrics",
+      "field_count": 14,
+      "related_to_one": 5,
+      "related_to_many": 0
+    },
+    {
+      "name": "RampIntervalDeltaMrr",
+      "label": "Ramp Interval Delta Mrr",
+      "field_count": 10,
+      "related_to_one": 6,
+      "related_to_many": 0
+    },
+    {
+      "name": "RampIntervalDeltaQuantity",
+      "label": "Ramp Interval Delta Quantity",
+      "field_count": 8,
+      "related_to_one": 6,
+      "related_to_many": 0
+    },
+    {
+      "name": "RampIntervalMetrics",
+      "label": "Ramp Interval Metrics",
+      "field_count": 15,
+      "related_to_one": 10,
+      "related_to_many": 0
+    },
+    {
+      "name": "RampIntervalMrr",
+      "label": "Ramp Interval Mrr",
+      "field_count": 10,
+      "related_to_one": 11,
+      "related_to_many": 0
+    },
+    {
+      "name": "RatePlan",
+      "label": "Rate Plan",
+      "field_count": 21,
+      "related_to_one": 12,
+      "related_to_many": 1
+    },
+    {
+      "name": "RatePlanCharge",
+      "label": "Rate Plan Charge",
+      "field_count": 125,
+      "related_to_one": 25,
+      "related_to_many": 1
+    },
+    {
+      "name": "RatePlanChargeTier",
+      "label": "Rate Plan Charge Tier",
+      "field_count": 17,
+      "related_to_one": 7,
+      "related_to_many": 1
+    },
+    {
+      "name": "RatingResult",
+      "label": "Rating Result",
+      "field_count": 16,
+      "related_to_one": 15,
+      "related_to_many": 0
+    },
+    {
+      "name": "Refund",
+      "label": "Refund",
+      "field_count": 37,
+      "related_to_one": 7,
+      "related_to_many": 0
+    },
+    {
+      "name": "RefundApplication",
+      "label": "Refund Application",
+      "field_count": 7,
+      "related_to_one": 19,
+      "related_to_many": 0
+    },
+    {
+      "name": "RefundApplicationItem",
+      "label": "Refund Application Item",
+      "field_count": 7,
+      "related_to_one": 22,
+      "related_to_many": 0
+    },
+    {
+      "name": "RefundInvoicePayment",
+      "label": "Refund Invoice Payment",
+      "field_count": 9,
+      "related_to_one": 17,
+      "related_to_many": 0
+    },
+    {
+      "name": "RefundPart",
+      "label": "Refund Part",
+      "field_count": 6,
+      "related_to_one": 11,
+      "related_to_many": 0
+    },
+    {
+      "name": "RefundPartItem",
+      "label": "Refund Part Item",
+      "field_count": 6,
+      "related_to_one": 13,
+      "related_to_many": 0
+    },
+    {
+      "name": "RefundTransactionLog",
+      "label": "Refund Transaction Log",
+      "field_count": 14,
+      "related_to_one": 2,
+      "related_to_many": 0
+    },
+    {
+      "name": "RevenueRecognitionEventsTransaction",
+      "label": "Revenue Recognition Events Transaction",
+      "field_count": 32,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "SmartPreventionAudit",
+      "label": "HPM Smart Bot Attacking Prevention Audit",
+      "field_count": 11,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "StoredCredentialProfile",
+      "label": "Stored Credential Profile",
+      "field_count": 18,
+      "related_to_one": 1,
+      "related_to_many": 1
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "field_count": 62,
+      "related_to_one": 14,
+      "related_to_many": 1
+    },
+    {
+      "name": "SubscriptionChargeDeliverySchedule",
+      "label": "Subscription Charge Delivery Schedule",
+      "field_count": 16,
+      "related_to_one": 14,
+      "related_to_many": 0
+    },
+    {
+      "name": "SubscriptionStatusHistory",
+      "label": "Subscription Status History",
+      "field_count": 10,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "TaxationItem",
+      "label": "Taxation Item",
+      "field_count": 32,
+      "related_to_one": 21,
+      "related_to_many": 0
+    },
+    {
+      "name": "UpdaterBatch",
+      "label": "Updater Batch",
+      "field_count": 21,
+      "related_to_one": 0,
+      "related_to_many": 0
+    },
+    {
+      "name": "UpdaterDetail",
+      "label": "Payment Method Update",
+      "field_count": 39,
+      "related_to_one": 3,
+      "related_to_many": 0
+    },
+    {
+      "name": "Usage",
+      "label": "Usage",
+      "field_count": 28,
+      "related_to_one": 13,
+      "related_to_many": 0
+    },
+    {
+      "name": "ValidityPeriodSummary",
+      "label": "Prepaid Validity Period Summary",
+      "field_count": 16,
+      "related_to_one": 8,
+      "related_to_many": 0
+    }
+  ]
+}

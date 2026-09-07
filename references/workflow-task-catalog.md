@@ -6,10 +6,12 @@ Distilled from `Task.action_type` in `~/Workspace/workflow/rails/app/models/task
 
 When picking an `action_type`, follow this order:
 
-1. Scan the relevant category below.
-2. Read the matching entry in `workflow-task-templates.json` for the exact JSON shape.
-3. Read the matching entry in `workflow-triggers-and-linkages.md` for the allowed `linkage_type` hooks.
-4. When in doubt, prefer the most common Tier 1 task; do not invent an `action_type`.
+1. Read `workflow-data-retrieval.md` when choosing among data-read tasks (`Query`, `Export`, `Data::Link`, `GraphQuery`).
+2. Scan the relevant category below.
+3. Read the matching section in `workflow-task-guidance.md` for behavioral rules.
+4. Read the matching entry in `workflow-task-templates.json` for the exact JSON shape.
+5. Read the matching entry in `workflow-triggers-and-linkages.md` for the allowed `linkage_type` hooks.
+6. When in doubt, prefer the most common Tier 1 task; do not invent an `action_type`.
 
 ### Data-read selection guide
 
@@ -17,17 +19,19 @@ When picking an `action_type`, follow this order:
 | --- | --- | --- |
 | Fetch ≤ 2000 rows into `Data.<object>` for downstream Liquid/tasks | `Query` | Synchronous; result lives in `Data.*`. Default choice. |
 | Fetch > 2000 rows or need a CSV/ZIP for downstream `Iterate` | `Export` | SOAP bulk export; produces a file in `Data.Files.*`. |
+| Run-scoped bulk parent read (invoices from a bill run, payments from a payment run, etc.) | `Export` (+ `Iterate`) or `Data::Link` | Even when exact count is unknown, these sources routinely exceed 2000 rows — do not use `Query` for the parent collection. Example: `Export Invoice` with `Invoice.SourceId = '{{ Data.BillingRun.ID }}'` after `BillingRunCompletion` (not `BillRunId` — not filterable; linter `W197`). |
 | Large async ZOQL export (stateful/stateless AQuA job) | `Data::Aqua` | Same ZOQL language as `Query`/`Export`; async; always produces a file — adds a download step before data is usable. |
 | Joined/nested read that fits in GraphQL | `GraphQuery` | Result lives in `Data.<baseObject>`. |
 | Run SQL-style row queries for workflow logic | `Data::Link` / Data Query | Supported SQL-style query surface; result rows can feed downstream `Iterate` / `Callout` logic. |
 
-**Default to `Query`.** Only reach for `Data::Aqua` when the dataset is too large for `Export` or you need AQuA's stateful/incremental extraction. `Data::Aqua` uses the same ZOQL query language as `Query`/`Export` — it is **not** SQL and does not support JOINs. Use `Data::Link` / Data Query when the workflow needs SQL-style row results.
+**Default to `Query` for small reads only.** Do not use `Query` when the result set is expected to exceed 2000 rows or when reading a run-scoped bulk collection (bill-run invoices, payment-run payments, journal-run entries). Only reach for `Data::Aqua` when the dataset is too large for `Export` or you need AQuA's stateful/incremental extraction. `Data::Aqua` uses the same ZOQL language as `Query`/`Export` — it is **not** SQL and does not support JOINs. Use `Data::Link` / Data Query when the workflow needs SQL-style row results.
 
 ### Transform/compute selection guide (avoid overusing JavaScript)
 
 | Situation | Correct choice | Wrong choice |
 | --- | --- | --- |
-| Compute a value, reshape `Data.*`, conditional logic | `Logic::Liquid` | `Script::JavaScript` |
+| Compute a value, reshape `Data.*`, conditional logic reused by multiple tasks | `Logic::Liquid` | `Script::JavaScript` |
+| Format or compute a value for one immediate downstream task | Inline Liquid in the consumer's parameter | `Logic::Liquid` shim |
 | Transform JSON structure or reshape a response payload | `Logic::JSONTransform` | `Script::JavaScript` |
 | Parse/transform XML | `Logic::XMLTransform` | `Script::JavaScript` |
 | Require Node.js libraries, complex business logic, or computation not possible in Liquid | `Script::JavaScript` | — |
@@ -181,10 +185,13 @@ The Rails backend silently accepts many near-valid JSONs but fails at runtime. T
 
 11. **Non-empty `tasks` and `linkages`.** Import rejects payloads whose `tasks` or `linkages` arrays are empty, even if the workflow is meant to be a placeholder.
 
-12. **Start linkage.** Every workflow needs exactly one linkage where `linkage_type = "Start"`, `source_workflow_id = workflow.id`, `source_task_id = null`, and `target_task_id` points at the entry task.
+12. **Workflow entry linkage.** Every workflow needs exactly one entry edge: `source_workflow_id = workflow.id`, `source_task_id = null`, `target_task_id` = entry task. Non-event workflows use `linkage_type = "Start"`. Event-triggered workflows use the event name from `parameters.event_triggers[]` (not `"Start"`).
 
 ## Cross-references
 
+- Task selection matrix: `workflow-data-retrieval.md`
+- Per-task behavioral rules: `workflow-task-guidance.md`
+- Named composition patterns: `workflow-planning-patterns.md`
 - Linkages, triggers, call types: `workflow-triggers-and-linkages.md`
 - Liquid scopes and filters: `workflow-liquid.md`
 - Three end-to-end annotated examples: `workflow-examples.md`

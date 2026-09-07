@@ -136,7 +136,7 @@ For each event the user wants to react to:
 
 ### Worked example: react to bill run completion
 
-User's natural-language request: "Run after a bill run completes; query the invoices in that run."
+User's natural-language request: "Run after a bill run completes; export the invoices in that run."
 
 ```json
 {
@@ -158,7 +158,7 @@ User's natural-language request: "Run after a bill run completes; query the invo
       {
         "eventName": "BillingRunCompletion",
         "params": [
-          { "object": "BillingRun", "key": "Id", "value": "<BillingRun.Id>" }
+          { "object": "BillingRun", "key": "ID", "value": "<BillRun.ID>" }
         ]
       }
     ]
@@ -166,11 +166,15 @@ User's natural-language request: "Run after a bill run completes; query the invo
 }
 ```
 
-A downstream `Export` task can then use `where_clause: "BillRunId = '{{ Data.BillingRun.Id }}'"`.
+A downstream `Export` task can then use `where_clause: "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"`.
 
-**Provenance note.** `<BillingRun.Id>` is not a hard-coded special token; it is a merge-field string that the UI picker obtains from `GET /notifications/email-templates/info/selections?category=<category>` (see `get_custom_event_fields` in `app_instance.rb`). Before emitting this `value`, confirm the field via `curl` against the Notifications API (credentials are in `~/.claude/settings.json -> env`) or via `mcp__zuora-mcp__ask_zuora` — whichever channel the session has access to. Otherwise accept the linter's `W179` warning that the token is statically unverifiable. The linter also cross-checks that `BaseObject` (`BillingRun` here) matches the event's declared `baseObject` (`$event_base_objects.events["BillingRunCompletion"] = "BillingRun"`); a mismatch raises `E177`.
+**Provenance note.** `<BillRun.ID>` is not a hard-coded special token; it is a merge-field string that the UI picker obtains from `GET /notifications/email-templates/info/selections?category=<category>` (see `get_custom_event_fields` in `app_instance.rb`). The `object` is `BillingRun` (Data scope) while the merge-field path prefix is `BillRun` (notifications payload). Before emitting this `value`, confirm the field via `curl` against the Notifications API (credentials are in `~/.claude/settings.json -> env`) or via `mcp__zuora-mcp__ask_zuora` — whichever channel the session has access to. Otherwise accept the linter's `W179` warning that the token is statically unverifiable. The linter also cross-checks that `BaseObject` (`BillingRun` here) matches the event's declared `baseObject` (`$event_base_objects.events["BillingRunCompletion"] = "BillingRun"`) or that the token prefix matches `$event_payload_path_prefix` (`BillRun`); a mismatch raises `E177`.
 
-Similarly, the downstream `Export.parameters.where_clause` references `Invoice.BillRunId`. Confirm the column via `curl $ZUORA_BASE_URL/v1/describe/Invoice` (or MCP `ask_zuora`) before emission; it is also carried in the fallback `references/zuora-standard-fields.json` under `Invoice.fields` so lint stays quiet if neither channel is reachable.
+Similarly, the downstream `Export.parameters.where_clause` must use **`Invoice.SourceId`**, not `Invoice.BillRunId`. `BillRunId` exists on Invoice but is **not filterable** in Object Query/Export (`filterable=false` in describe). `SourceId` is the filterable run-scoping field. Confirm via `curl $ZUORA_BASE_URL/v1/describe/Invoice` (or MCP `ask_zuora`); both fields are listed in `references/zuora-standard-fields.json` under `Invoice.fields`. Linter `W197` warns on `BillRunId` in `where_clause`.
+
+### Payment run completion → bulk payment export
+
+`PaymentRunCompletion` follows the same volume rule as bill runs: payment runs routinely create more than 2000 payments, so use **`Export`**, not **`Query`**, for the parent `Payment` collection. Bind the run id from `event_parameters` or from `Data.PaymentRun.Id` when the workflow created the run, then scope the export with a run filter confirmed via describe (for example a `PaymentRunId`-style field if present on the tenant's `Payment` object). Follow with `Iterate` over the export file holder. Per-payment child reads inside the For Each branch may still use `Query` when each child set is small.
 
 ## Pitfalls the linter catches
 

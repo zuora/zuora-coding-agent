@@ -16,12 +16,27 @@ The user's workflow design or requirement: $ARGUMENTS
 
 ## Correctness strategy
 
-Format correctness is non-negotiable. A slightly malformed JSON fails `import_workflow`. Defense is layered:
+Format and semantics are non-negotiable. Defense is layered:
 
-1. **Compose** from a canonical skeleton + per-action_type templates. Never hand-write structure.
-2. **Lint** with `scripts/lint-workflow-json.js` — the client-side enforcement layer, since `Task.import` runs with `validate: false` and skips each task's `task_setup_validation`.
-3. **Self-check** against the checklist below before writing the file.
-4. **Optional dry-run** in a sandbox: `import_workflow activate=false`, then `delete_workflow` to clean up. Rails has no `validate_only` flag.
+1. **Build** with the vendored engine — the **only** legal producer of import JSON:
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine build -i <plan>.plan.json -o output/<name>.workflow.json
+   ```
+   Input must be a validated flat `WorkflowPlan` (from `/zuora-workflow-design`). Never hand-write `workflow_definition` / `workflow` / `tasks` / `linkages`.
+   Build validates Export/Query/Create/Update `parameters.fields` against `/describe` metadata (live when `ZUORA_*` env vars are set, else cached JSON). Same triage as developer-agent: relocate, block on ambiguity, or remove invalid fields. Inspect fields with:
+   ```bash
+   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine lookup-schema Invoice --context export
+   ```
+   Example: `Invoice.AccountId` is SOAP-only — use a separate `Account` key in multi-object Export and reference `Data.Account.Id`, not `Data.Invoice.AccountId`.
+   Callout tasks may carry `body_brief` + `body_vars` at plan time; build expands them into `raw_body` deterministically (set `raw_body` directly when you need exact payload shape).
+2. **Lint** the engine output:
+   ```bash
+   node ${CLAUDE_PLUGIN_ROOT}/scripts/lint-workflow-json.js output/<name>.workflow.json
+   ```
+   Fix errors in the **plan** and rebuild; do not patch assembled JSON by hand except for explicit user-requested post-build edits (then re-lint).
+3. **Optional dry-run** in a sandbox: `import_workflow activate=false`, then `delete_workflow`.
+
+Legacy skeleton/template composition is fallback only when the engine is unavailable; document why and mark the artifact not ready for import.
 
 ## Output contract
 
@@ -41,6 +56,9 @@ Read these in parallel before composing:
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-skeleton.json` — the canonical empty envelope (start here).
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-task-templates.json` — per-`action_type` templates (description, hooks, template, required_params, required_at_import, param_enums, boolean_string_params, **`data_contract`** for Tier-1).
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-enums.json` — global enums, typo hints, `standard_events`, `supported_ui_pages`, schemas, and `version_regex`.
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-data-retrieval.md` — **task selection matrix** (Query vs Export vs Data::Link; run-scoped bulk reads; join-on-export).
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-task-guidance.md` — per-`action_type` behavioral rules before filling templates.
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-planning-patterns.md` — named composition patterns for common flows.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-patterns.md` — composition strategy.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-task-catalog.md` — task category overview and format pitfalls.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-triggers-and-linkages.md` — trigger modes, call_type matrix, linkage catalog, and the **Workflow-level field derivation** cheat-sheet.
@@ -89,7 +107,11 @@ Use the skeleton + templates composer. Do not hand-write structure.
    j. Set `css.top`/`css.left` using the defaults in `workflow-enums.json.css_layout_defaults` (adjust for branches).
    k. Set `task_id` to the id of the primary upstream task (for layout/dependency purposes), or `null` for the entry task.
 
+   **If task `if_clause` check:** every `If.parameters.if_clause` must wrap the condition in `{% if <condition> %}True{% else %}False{% endif %}`. Emit capitalized `True` / `False` branch literals — never lowercase `true` / `false`. Example: `{% if Data.Workflow.LateFeeEnabled == 'false' or Data.Workflow.LateFeeEnabled == false %}True{% else %}False{% endif %}`.
+
    **Export vs Query data-scope check:** if any downstream task needs direct variables like `Data.RatePlan.SubscriptionId`, the producer must be `Query` (or an `Iterate` For Each branch over an Export file), not a bare `Export`. `Export` writes file/reference metadata (`Data.Export.<object>` and `Data.Files.<file-holder>`); it does not make `Data.<object>.<field>` available until an `Iterate` consumes the file holder.
+
+   **Data volume task selection check:** before emitting a `Query` task, estimate whether the result set can exceed 2000 rows. `Query` is synchronous SOAP object query and hard-capped at `batch_size` 2000. When the user expects more rows, or the source is a run-scoped bulk read (invoices from a bill run, payments from a payment run, journal entries from a journal run, and similar), use `Export` (ZOQL bulk CSV) or `Data::Link` / Data Query (SQL-style) instead of `Query`. Common run-scoped patterns: `Export Invoice` with `where_clause = "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"` after `BillingRunCompletion` (not `BillRunId` — not filterable; linter `W197`); `Export Payment` with a run-scoping filter confirmed via describe after `PaymentRunCompletion` or when chaining off `Data.PaymentRun.Id`. **Never emit `Query` on `Invoice` scoped to a bill run** — bill runs can produce far more than 2000 invoices; the linter flags this as `W196`. Per-row child lookups inside an `Iterate` For Each branch may still use `Query` when each parent row's child set is small (for example `InvoiceItem` per invoice). Use `Data::Aqua` only when the dataset is too large for `Export` or stateful/incremental AQuA extraction is required. Use `Data::Link` when SQL joins or Data Query table access are needed. Do not emit `Query` for run-scoped parent collections that are routinely bulk.
 
    **Bill Run task selection check:** before using `Billing::BillRun`, verify the requested filters fit the OOTB task. It supports standard bill-run fields and v1 single-account/subscription filters via `AccountId` / `SubscriptionIds`; it does not support account-number filters, batch-number filters, or APM/ProductRatePlanCharge ID filters. If the requirement needs unsupported bill-run filters, use a custom Zuora `Callout` to the modern bill run API (`{{ Credentials.zuora.rest_endpoint }}bill-runs`) with `authorization.type = "zuora"` and a raw JSON body instead of forcing `Billing::BillRun`. Do not use the legacy object CRUD endpoint `/object/bill-run` for Create a bill run; the linter flags unsupported OOTB task filters as `W185` and legacy bill-run object CRUD callouts as `W192`.
 
@@ -109,7 +131,20 @@ Use the skeleton + templates composer. Do not hand-write structure.
 
    **Workflow-specific Liquid filter check:** before emitting a `Logic::Liquid` task with loops or array reshaping, review `workflow-liquid.md` -> Filters and `workflow-liquid-filters.md` for exact signatures. Prefer the Workflow filters from `rails/lib/liquid/filters.rb` when they express the operation. Use `where` / `where_exp` for row selection and `group_by` / `group_by_exp` for grouping instead of manual `for` + `if` + `push` loops. Keep manual loops only when transforming rows or building a shape the built-in filters cannot express. The linter flags obvious manual selection loops as `W184`.
 
-   **Liquid shim minimization check:** before emitting a separate `Logic::Liquid` task, ask whether its assigned/captured values are consumed by only the next task. If yes, inline that Liquid into the consuming task's parameter instead: date calculations belong in Export/Query predicates or task date fields, boolean decisions belong in `If` / `Logic::Case` clauses, and request-body assembly belongs in a Callout `raw_body`. Keep a separate Liquid task when the value is reused by multiple tasks, normalizes a large shared payload, creates a reusable named scope, or intentionally needs independent review/failure behavior. The linter flags avoidable one-consumer Liquid shim tasks as `W187`.
+   **Liquid shim minimization check:** most Workflow task parameters are Liquid-evaluated. Do **not** add a standalone `Logic::Liquid` task when its `{% assign %}` / `{% capture %}` output is consumed by only the immediate next task — inline the expression into that consumer's own parameter instead. This applies broadly, not only to Callout payloads:
+
+   | If the next task needs… | Inline Liquid into… |
+   | --- | --- |
+   | A filter date or predicate | `Export` / `Query` / `Data::Link` `where_clause` or date fields |
+   | A branch decision | `If` / `Logic::Case` clause |
+   | An HTTP request body, URL, or header | `Callout` / `AsynchronousCallout` `raw_body`, `url`, headers |
+   | Email content | `Email` subject/body template fields |
+   | A field value on create/update | `Create` / `Update` `parameters.fields[<object>].<Field>` |
+   | A delay or scheduled time | `Delay` parameters |
+
+   **Anti-pattern:** `… → Logic::Liquid (assign only) → <single consumer>` — for example `Iterate → Logic::Liquid → Callout`, `Query → Logic::Liquid → Export`, or `Data::Link → Logic::Liquid → Data::Link` (scalar copy; prefer CTE — `W180`). **Preferred:** `… → <consumer>` with Liquid in the consumer's parameter, referencing `Data.*` from the current scope (including the current `Iterate` row).
+
+   Keep a separate `Logic::Liquid` task when the value is reused by multiple downstream tasks, normalizes shared workflow context, or intentionally needs independent failure/retry/review behavior. The linter flags avoidable single-consumer shims as `W187`.
 
    **Custom Object opt-in check:** do not emit `CustomObject::*` tasks unless the user explicitly asks to use a custom object, an existing custom-object schema, or a durable custom-object audit/state store. Prefer standard Zuora objects, Workflow runtime data, direct queries, files, email, or callouts for ordinary workflow state and reporting. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` on each `CustomObject::*` task to document that intent. The linter flags unmarked Custom Object tasks as `W194`. Shape must match Rails: no trailing `__c` on `object` (`E187`), nested `parameters.fields[<object>]` (`E188`), top-level `object_id` not `parameters.id` (`E189`), Query uses `alternate_location` not `placement` (`E190`).
 
@@ -118,11 +153,11 @@ Use the skeleton + templates composer. Do not hand-write structure.
    **Zuora REST v1 URL check:** when a Callout / AsynchronousCallout uses `Credentials.zuora.rest_endpoint`, remember that the value is already the Zuora REST v1 base URL. For v1 APIs append only the resource path (`{{ Credentials.zuora.rest_endpoint }}orders`), not `/v1/orders`; do not use `replace: "/v1/", ""` plus `/v1/...`. The linter flags duplicate-v1 risks as `E182`.
 
 5. **Emit linkages**:
-   a. First linkage is always the Start: `{ "source_workflow_id": <workflow.id>, "source_task_id": null, "target_task_id": <entry_task.id>, "linkage_type": "Start" }`.
+   a. First linkage is the workflow entry edge: `{ "source_workflow_id": <workflow.id>, "source_task_id": null, "target_task_id": <entry_task.id>, "linkage_type": <"Start" or event name> }`. Use `linkage_type: "Start"` only for non-event workflows. For event-triggered workflows, set `linkage_type` to the event name from `parameters.event_triggers[]` (for example `BillingRunCompletion`, `InvoicePosted`) — not `"Start"`.
    b. For every task-to-task edge in the design, add `{ "source_workflow_id": null, "source_task_id": <upstream.id>, "target_task_id": <downstream.id>, "linkage_type": <hook> }`.
    c. `linkage_type` must be one of the upstream task's `hooks` (see the template). Use exact spelling — `"For Each"` with a space; `"Case_1"` not `"case_1"`; `"Complete"` not `"Iterate"`.
    d. Emit `Case_N` linkages in order and ensure the keys match the pre-normalized `parameters.case_condition`. Emit `Case_Else` as a linkage (not a `case_condition` key).
-   e. Verify: tasks array non-empty, linkages array non-empty, exactly one Start linkage, no `For Each` linkage on any path to a `Logic::Merge` task.
+   e. Verify: tasks array non-empty, linkages array non-empty, exactly one workflow entry linkage (Start for non-event; event name for event-triggered), no `For Each` linkage on any path to a `Logic::Merge` task.
 
 ### Step 3a: Describe before selecting fields (HARD REQUIREMENT)
 
@@ -205,7 +240,7 @@ When you fill in `parameters.fields[<object>]` (Export/Query) or `parameters.fie
 2. Present in the matching `references/zuora-standard-fields.json` entry, OR
 3. Explicitly confirmed by the user (with type) when both describe channels failed AND the field is not in the fallback.
 
-The same rule applies to fields referenced inside `parameters.where_clause` (e.g., `BillRunId = '{{ Data.BillingRun.Id }}'` on an `Export Invoice` task must be backed by `Invoice.BillRunId` in describe or in `zuora-standard-fields.json`).
+The same rule applies to fields referenced inside `parameters.where_clause` (e.g., `Invoice.SourceId = '{{ Data.BillingRun.ID }}'` on an `Export Invoice` task must use `Invoice.SourceId`, not `Invoice.BillRunId` — `BillRunId` is not filterable in Object Query/Export; linter `W197`).
 
 The linter rule `W177 undeclared-describe-field` enforces this — any field name in `parameters.fields`, `parameters.fields[<object>]`, or `parameters.where_clause` that is unknown to both describe and the fallback catalog emits a warning. When describe was unavailable for the lint run, `W177` is downgraded to a notice (the linter cannot prove the field doesn't exist in the live tenant, only that the static fallback doesn't know it). If a required filter is not supported by the Object Query/Export describe surface (for example filtering `Subscription` by `InvoiceScheduleId`), do not emit an Object Query with that unsupported predicate; switch to a supported API/Data::Link path or ask the user for the supported relationship.
 
@@ -438,12 +473,14 @@ Before writing to disk, confirm every item:
 - [ ] Every boolean in a `boolean_string_params` list is emitted as `"true"` / `"false"`.
 - [ ] Enum params use values from `param_enums`.
 - [ ] `Logic::Case.parameters.case_condition` keys are sequential `Case_1`, `Case_2`, … and the linkages use the same keys.
+- [ ] Every `If.parameters.if_clause` uses capitalized `True` / `False` branch literals (`{% if ... %}True{% else %}False{% endif %}`), not lowercase `true` / `false`.
 - [ ] Exactly one `Start` linkage with `source_workflow_id = workflow.id`, `source_task_id = null`.
 - [ ] Every non-Start linkage has `source_workflow_id = null` and non-null `source_task_id`.
 - [ ] `linkage_type` values match upstream task hooks (see `workflow-task-templates.json.hooks`).
 - [ ] No `For Each` linkage sits on any path to a `Logic::Merge` task (if any exists).
 - [ ] **Data-flow walker (Step 3d) ran clean**: no `E170` (unknown `Data.X` reference). Any `W171` / `W172` / `W173` / `W174` warnings either resolved or explicitly accepted.
 - [ ] **Export vs Query data-scope check ran clean**: no downstream task references `Data.<Export.object>.<field>` directly after an `Export`. Use `Query` for direct `Data.*` variables, or `Iterate` over the Export file holder before referencing row fields (`E170` includes this hint).
+- [ ] **Data volume task selection check ran clean**: no `Query` task targets a result set expected to exceed 2000 rows or a run-scoped bulk parent collection (bill-run invoices, payment-run payments, journal-run entries, etc.). Use `Export` + `Iterate`, `Data::Link` / Data Query, or `Data::Aqua` as appropriate; keep `Query` only for small synchronous reads (including per-row child lookups inside an Iterate branch). No `Query Invoice` scoped to a bill run (`W196`). No `BillRunId` in Invoice `where_clause` — use `SourceId` (`W197`).
 - [ ] **Bill Run task selection check ran clean**: no unsupported filter params on `Billing::BillRun`; use a custom Zuora `Callout` to `{{ Credentials.zuora.rest_endpoint }}bill-runs` when the requested bill run requires account-number, batch-number, APM/PRPC, or other filters the OOTB task cannot express; never use legacy `/object/bill-run` (`W185` / `W192`).
 - [ ] **Async Zuora operation polling check ran clean**: async operation create callouts such as bill runs, payment runs, and journal runs are followed by `AsynchronousCallout` polling or a status callout plus `If` / `Logic::Case` completion decision before any dependent async operation starts (`W195`).
 - [ ] **Subscription cancel API-stack check ran clean**: new-stack subscription cancellation uses Orders API `CancelSubscription` through a Zuora-authorized `Callout`, not the legacy SOAP `Cancel` amendment task (`W189`).
@@ -451,7 +488,7 @@ Before writing to disk, confirm every item:
 - [ ] **Zuora API Callout validation/response check ran clean**: Zuora API callouts include `validation.replace = "true"` and `validation.zuora_call = "true"`, and downstream response references include `ResponseBody` unless `include_response_code = "false"` is explicitly set (`W190` / `W191`).
 - [ ] **Data Query consolidation check ran clean**: no avoidable `Data::Link -> Logic::Liquid(assign only) -> Data::Link` chain. If the first query only resolves scalar context for the second query, fold it into one query with a CTE / `CROSS JOIN` and project the scalar fields onto each row (`W180`).
 - [ ] **Workflow Liquid filter check ran clean**: simple array filtering/grouping uses `where`, `where_exp`, `group_by`, or `group_by_exp` instead of manual `for` + `if` + `push` loops (`W184`).
-- [ ] **Liquid shim minimization check ran clean**: no single-consumer `Logic::Liquid` task that can be inlined into the next task's Export/Query predicate, Case/If clause, date field, or Callout `raw_body` (`W187`).
+- [ ] **Liquid shim minimization check ran clean**: no single-consumer `Logic::Liquid` task whose output can be inlined into the immediate downstream task's own Liquid-evaluated parameter (predicates, branch clauses, Callout/Email body fields, CRUD field values, etc.) — including `Iterate → Logic::Liquid → Callout` and similar one-hop shims (`W187`).
 - [ ] **CRUD update consolidation check ran clean**: no adjacent same-record `Update` tasks that each set separate fields. Combine them into one object update; ProductRatePlanCharge / PRPC is one example of this general rule (`W183`).
 - [ ] **Custom Object shape check ran clean**: every `CustomObject::*` task uses `<namespace>__<object>` without trailing `__c` (`E187`), nests Create/Update fields under `parameters.fields[<object>]` (`E188`), puts Update/Delete ids on top-level `object_id` not `parameters.id` (`E189`), and uses Query `alternate_location` not `placement` (`E190`). Unmarked Custom Object tasks still warn as `W194`.
 - [ ] **Zuora REST v1 URL check ran clean**: Callout / AsynchronousCallout URLs that use `Credentials.zuora.rest_endpoint` append resource paths only (`orders`, `subscriptions/...`), never `/v1/...` (`E182`).
@@ -472,17 +509,23 @@ node scripts/lint-workflow-json.js <path-to-generated.json>
 
 The linter uses `workflow-task-templates.json` (per-task templates and `data_contract` blocks) and `workflow-enums.json` as its rule source. It prints errors and warnings with file paths and line numbers where possible. Fix every error; address warnings where they apply. Loop compose → lint until the linter exits with status 0. Do not replace this artifact with a shortened chat excerpt after linting; the linted artifact is the source of truth.
 
-### Step 6: Optional sandbox dry-run
+### Step 6: Sandbox verify (preferred when MCP is available)
 
-When the user wants an authoritative import check (e.g., AR column validations, call_type-enablement checks), run:
+After lint passes, offer `/zuora-workflow-verify` when the user wants sandbox validation or MCP tools are available. Run `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-verify/SKILL.md` — it presents a verify plan, **asks for explicit confirmation before import/run**, then polls `get_run_status` and fixes the **plan** in a bounded loop (default 3 retries).
 
-1. `mcp__zuora-mcp__manage_workflows` with `import_workflow`:
-   - `activate: false`
-   - `name`: prefixed with `lint-dryrun-` so it is easy to identify and delete.
-2. On success, call `delete_workflow` immediately to clean up.
-3. If import fails, read the error, auto-repair (most common: missing `required_at_import`, unsupported `call_type`, empty tasks/linkages), and loop.
+Hand off with:
 
-Note: `activate: false` still **persists** the workflow. It is not a free-form "validate-only" endpoint. Always delete after a dry-run.
+- `output/<name>.workflow.json` (lint-clean)
+- `output/<name>.plan.json` (required for the fix loop)
+- Any known test inputs (account ids, callout payload, etc.)
+
+**Import-only dry-run** (no test run): use verify with immediate delete, or manually:
+
+1. `mcp__zuora-mcp__manage_workflows` → `import_workflow` with `name` prefixed `lint-dryrun-`.
+2. On failure, fix the plan and rebuild (same as verify Step 6).
+3. `delete_workflow` to clean up.
+
+Note: import always **persists** the workflow — there is no validate-only endpoint.
 
 ### Step 7: Write supporting artifacts
 
@@ -494,9 +537,10 @@ In addition to the workflow JSON, generate as appropriate:
 
 ### Step 8: Suggest next steps
 
-- Sandbox import (for real): `import_workflow activate=true` in sandbox.
-- Functional test: `manage_workflow_runs` `run_workflow`, then poll `get_run_status` and inspect task-level results.
-- Production promotion: re-export the sandbox workflow and re-import into production.
+- **Sandbox verify (recommended):** `/zuora-workflow-verify` with the linted `.workflow.json` and `.plan.json` — import, test-run, poll, auto-fix loop.
+- Production promotion: re-export the verified sandbox workflow and re-import into production.
 - Run `/zuora-validate` on any generated callout handler code.
+
+When the user asked to test in sandbox or MCP is available, invoke `zuora-workflow-verify` in the same session instead of only listing manual next steps. Verify still requires explicit user confirmation before any import or test run.
 
 When responding, report the saved `.workflow.json` path and validation status. Only include the full JSON inline when it is small enough to paste completely without truncation.

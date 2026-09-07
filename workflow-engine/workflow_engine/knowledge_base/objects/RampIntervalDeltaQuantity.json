@@ -1,0 +1,191 @@
+{
+  "name": "RampIntervalDeltaQuantity",
+  "label": "Ramp Interval Delta Quantity",
+  "href": "https://staging2.zuora.com/rest/api/describe/RampIntervalDeltaQuantity",
+  "fields": [
+    {
+      "name": "Amount",
+      "label": "Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "EndDate",
+      "label": "End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "StartDate",
+      "label": "Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Order",
+      "label": "Order",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RampIntervalDeltaQuantity.RampIntervalDeltaMetrics.RampInterval.Ramp.Order",
+      "href": "https://staging2.zuora.com/rest/api/describe/Order",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RampIntervalDeltaQuantity.RampIntervalDeltaMetrics.ProductRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlanCharge",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Ramp",
+      "label": "Ramp",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RampIntervalDeltaQuantity.RampIntervalDeltaMetrics.RampInterval.Ramp",
+      "href": "https://staging2.zuora.com/rest/api/describe/Ramp",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RampInterval",
+      "label": "Ramp Interval",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RampIntervalDeltaQuantity.RampIntervalDeltaMetrics.RampInterval",
+      "href": "https://staging2.zuora.com/rest/api/describe/RampInterval",
+      "foreign_key_field": null
+    },
+    {
+      "name": "RampIntervalDeltaMetrics",
+      "label": "Ramp Interval Delta Metrics",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RampIntervalDeltaQuantity.RampIntervalDeltaMetrics",
+      "href": "https://staging2.zuora.com/rest/api/describe/RampIntervalDeltaMetrics",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RampIntervalDeltaQuantity.RampIntervalDeltaMetrics.RampInterval.Ramp.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": null
+    }
+  ]
+}

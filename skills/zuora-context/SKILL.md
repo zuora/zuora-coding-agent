@@ -119,6 +119,7 @@ If the user's intent clearly maps to a dedicated skill, **do not answer generica
 | Generating integration code | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-api-build/SKILL.md` |
 | Automating a business process | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-design/SKILL.md` |
 | Building a workflow | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-build/SKILL.md` |
+| Verifying / test-running a workflow in sandbox | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-verify/SKILL.md` |
 | Planning Invoice Settlement migration | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-is-migration-design/SKILL.md` |
 | Building Invoice Settlement migration artifacts | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-is-migration-build/SKILL.md` |
 | Planning Order API and migration | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-order-migration-design/SKILL.md` |

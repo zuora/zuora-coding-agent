@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ZuoraWorkflowExport",
+  "type": "object",
+  "required": ["workflow_definition", "workflow", "tasks", "linkages"],
+  "additionalProperties": false,
+  "properties": {
+    "workflow_definition": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name":          { "type": "string", "minLength": 1 },
+        "description":   { "type": "string" },
+        "category":      { "type": "string" },
+        "ui_page_roles": { "type": "array" }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["name", "status", "priority", "call_type", "version"],
+      "properties": {
+        "name":               { "type": "string", "minLength": 1 },
+        "description":        { "type": "string" },
+        "status":             { "type": "string", "enum": ["Active", "Inactive"] },
+        "priority":           { "type": "string", "enum": ["Low", "Medium", "High"] },
+        "call_type":          { "type": ["string", "null"] },
+        "version":            { "type": "string", "pattern": "^\\d+(\\.\\d+)?(\\.\\d+)?$" },
+        "ondemand_trigger":   { "type": "boolean" },
+        "callout_trigger":    { "type": "boolean" },
+        "scheduled_trigger":  { "type": "boolean" },
+        "event_trigger":      { "type": "boolean" },
+        "interval":           { "type": ["string", "null"] },
+        "timezone":           { "type": ["string", "null"] },
+        "delete_ttl":         { "type": "integer", "minimum": 0 },
+        "data":               { "type": "object" },
+        "ui_pages":           { "type": "object" },
+        "solution_id":        { "type": ["string", "null", "integer"] },
+        "extension_id":       { "type": ["string", "null", "integer"] },
+        "zuora_org_id":       { "type": ["string", "null"] },
+        "zuora_org_ids":      { "type": "array" },
+        "notifications": {
+          "type": "object",
+          "properties": {
+            "emails":                { "type": "array", "items": { "type": "string" } },
+            "failure":               { "type": "boolean" },
+            "success":               { "type": "boolean" },
+            "pending":               { "type": "boolean" },
+            "skipped_scheduled_run": { "type": "boolean" },
+            "error_ignore":          { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "fields":                   { "type": "array" },
+            "skipping_check":           { "type": "string" },
+            "event_triggers":           { "type": "array" },
+            "merge_task_ids":           { "type": "array" },
+            "disable_pending_status":   { "type": "boolean" },
+            "secure_error_msgs":        { "type": "string" },
+            "legacy_boolean_input":     { "type": "boolean" },
+            "event_parameters":         { "type": "array" },
+            "callout_response":         { "type": ["string", "null"] },
+            "file_encryption":          { "type": ["string", "null"] },
+            "show_run_prompt":          { "type": ["string", "null", "boolean"] }
+          }
+        },
+        "css":  { "type": "object" },
+        "type": { "type": "string", "const": "Workflow::Setup" }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "action_type", "parameters"],
+        "properties": {
+          "id":               { "type": "integer" },
+          "name":             { "type": "string", "minLength": 1 },
+          "action_type":      { "type": "string", "minLength": 1 },
+          "object":           { "type": ["string", "null"] },
+          "object_id":        { "type": ["string", "null"] },
+          "parameters":       { "type": "object" },
+          "css":              { "type": "object" },
+          "task_id":          { "type": ["integer", "null"] },
+          "concurrent_limit": { "type": "integer", "minimum": 1 },
+          "priority":         { "type": "string", "enum": ["Low", "Medium", "High"] },
+          "tags":             { "type": "array" },
+          "entity_id":        { "type": ["string", "null"] },
+          "subprocess_id":    { "type": ["integer", "null"] },
+          "zuora_org_ids":    { "type": "array" },
+          "call_type":        { "type": "string" },
+          "assignment":       { "type": "array" },
+          "zuora_org_id":     { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "linkages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["linkage_type", "target_task_id"],
+        "properties": {
+          "source_task_id":     { "type": ["integer", "null"] },
+          "target_task_id":     { "type": "integer" },
+          "source_workflow_id": { "type": ["integer", "null"] },
+          "linkage_type":       { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

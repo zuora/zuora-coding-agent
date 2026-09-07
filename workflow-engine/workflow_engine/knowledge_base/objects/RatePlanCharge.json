@@ -1,0 +1,2523 @@
+{
+  "name": "RatePlanCharge",
+  "label": "Rate Plan Charge",
+  "href": "https://staging2.zuora.com/rest/api/describe/RatePlanCharge",
+  "fields": [
+    {
+      "name": "AccountingCode",
+      "label": "Accounting Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "AmendedByOrderOn",
+      "label": "Amended By Order On",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ApplyDiscountTo",
+      "label": "Apply Discount To",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "NULL",
+        "ONETIME",
+        "RECURRING",
+        "USAGE",
+        "ONETIMERECURRING",
+        "ONETIMEUSAGE",
+        "RECURRINGUSAGE",
+        "ONETIMERECURRINGUSAGE"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ApplyToBillingPeriodPartially",
+      "label": "Apply To Billing Period Partially",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "BillCycleDay",
+      "label": "Bill Cycle Day",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "BillCycleType",
+      "label": "Bill Cycle Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "DefaultFromCustomer",
+        "SpecificDayofMonth",
+        "SubscriptionStartDay",
+        "ChargeTriggerDay",
+        "SpecificDayofWeek",
+        "TermStartDay",
+        "TermEndDay"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "BillingPeriod",
+      "label": "Billing Period",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Month",
+        "Quarter",
+        "Semi-Annual",
+        "Annual",
+        "Eighteen Months",
+        "Two Years",
+        "Three Years",
+        "Five Years",
+        "Specific Months",
+        "Subscription Term",
+        "Week",
+        "Specific Weeks",
+        "Specific Days"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "BillingPeriodAlignment",
+      "label": "Billing Period Alignment",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "AlignToCharge",
+        "AlignToSubscriptionStart",
+        "AlignToTermStart",
+        "AlignToTermEnd",
+        "AlignToSpecificDate"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "BillingTiming",
+      "label": "Billing Timing",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "In Advance",
+        "In Arrears"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ChargedThroughDate",
+      "label": "Charged Through Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeFunction",
+      "label": "Charge Function",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Standard",
+        "Prepayment",
+        "CommitmentTrueUp",
+        "Drawdown",
+        "DrawdownAndCreditCommitment",
+        "CreditCommitment"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeModel",
+      "label": "Charge Model",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Flat Fee Pricing",
+        "Discount-Percentage",
+        "Custom Charge Model Pricing",
+        "Delivery Pricing",
+        "Minimum Commitment Pricing",
+        "Calculated Charge",
+        "Per Unit Pricing",
+        "Overage Pricing",
+        "Volume Pricing",
+        "Tiered Pricing",
+        "Tiered with Overage Pricing",
+        "Discount-Fixed Amount"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeNumber",
+      "label": "Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ChargeType",
+      "label": "Charge Type",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "OneTime",
+        "Recurring",
+        "Usage"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentLevel",
+      "label": "Commitment Level",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "RATEPLAN",
+        "SUBSCRIPTION",
+        "ACCOUNT"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "CommitmentType",
+      "label": "Commitment Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "UNIT",
+        "CURRENCY"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedById",
+      "label": "Created By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreatedDate",
+      "label": "Created Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "CreditOption",
+      "label": "Credit Option",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "TimeBased",
+        "ConsumptionBased",
+        "FullCreditBack"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Description",
+      "label": "Description",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "DiscountAmount",
+      "label": "DiscountAmount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "DiscountClass",
+      "label": "DiscountClass",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "DiscountLevel",
+      "label": "Discount Level",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "rateplan",
+        "subscription",
+        "account"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "DiscountPercentage",
+      "label": "DiscountPercentage",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "DMRC",
+      "label": "DMRC",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "DrawdownRate",
+      "label": "Drawdown Rate",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "DrawdownUom",
+      "label": "Drawdown Uom",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "DTCV",
+      "label": "DTCV",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EffectiveEndDate",
+      "label": "Effective End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EffectiveStartDate",
+      "label": "Effective Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EligibleAccountConditions",
+      "label": "Eligible Account Conditions",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EligibleChargeConditions",
+      "label": "Eligible Charge Conditions",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EndDateCondition",
+      "label": "End Date Condition",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "SubscriptionEnd",
+        "OneTime",
+        "FixedPeriod",
+        "SpecificEndDate"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "EstimatedEndDate",
+      "label": "Estimated End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "EstimatedStartDate",
+      "label": "Estimated Start Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExcludeItemBillingFromRevenueAccounting",
+      "label": "Exclude Item Billing From Revenue Accounting",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ExcludeItemBookingFromRevenueAccounting",
+      "label": "Exclude Item Booking From Revenue Accounting",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Id",
+      "label": "ID",
+      "type": "text",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IncludedUnits",
+      "label": "IncludedUnits",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "InvoiceOwnerId",
+      "label": "Invoice Owner ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsAllocationEligible",
+      "label": "Allocation Eligible",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsCommitted",
+      "label": "Is Committed",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "IsDimensionalPrice",
+      "label": "Is Dimensional Price",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsLastSegment",
+      "label": "Is Last Segment",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsPrepaid",
+      "label": "Is Prepaid",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsPriceNegotiated",
+      "label": "IsPriceNegotiated",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "IsProcessed",
+      "label": "Is Processed",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "IsRollover",
+      "label": "Is Rollover",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "IsStackedDiscount",
+      "label": "IsStackedDiscount",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "IsUnbilled",
+      "label": "Right To Bill Flag",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ListPriceBase",
+      "label": "List Price Base",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Per Billing Period",
+        "Per Month",
+        "Per Week",
+        "Per Year",
+        "Per Specific Months",
+        "Per Validity Period",
+        "Per Charge Segment Duration"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "MaximumAmount",
+      "label": "Maximum Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "MinimumAmount",
+      "label": "Minimum Amount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "MRR",
+      "label": "MRR",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Name",
+      "label": "Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "NumberOfDeliveries",
+      "label": "Number Of Deliveries",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "NumberOfPeriods",
+      "label": "Number of Periods",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Optional",
+      "label": "Optional",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalId",
+      "label": "Original ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalListPrice",
+      "label": "Original List Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "OriginalOrderDate",
+      "label": "Original Order Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OverageCalculationOption",
+      "label": "Overage Calculation Option",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "EndOfSmoothingPeriod",
+        "PerBillingPeriod"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "OveragePrice",
+      "label": "OveragePrice",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "OverageUnusedUnitsCreditOption",
+      "label": "Overage Unused Units Credit Option",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "NoCredit",
+        "CreditBySpecificRate"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PaymentTermSnapshot",
+      "label": "Payment Term Snapshot",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Percentage",
+      "label": "Percentage",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PrepaidCommittedAmount",
+      "label": "PrepaidCommittedAmount",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "PrepaidOperationType",
+      "label": "Prepaid Operation Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "topup",
+        "drawdown",
+        "CURRENCY_CREDIT",
+        "DRAWDOWN_CURRENCY"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PrepaidQuantity",
+      "label": "Prepaid Quantity",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PrepaidTotalQuantity",
+      "label": "Prepaid Total Quantity",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PrepaidUom",
+      "label": "Prepaid UOM",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Price",
+      "label": "Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "PriceChangeOption",
+      "label": "Price Change Option",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "NoChange",
+        "SpecificPercentageValue",
+        "UseLatestProductCatalogPricing"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PriceIncreasePercentage",
+      "label": "Price Increase Percentage",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "PriceUpsellQuantityStacked",
+      "label": "Price Upsell Quantity Stacked",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "PricingAttributes",
+      "label": "Pricing Attributes",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ProcessedThroughDate",
+      "label": "Processed Through Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ProductCategory",
+      "label": "Product Category",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ProductClass",
+      "label": "Product Class",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ProductFamily",
+      "label": "Product Family",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ProductLine",
+      "label": "Product Line",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "ProductRatePlanChargeId",
+      "label": "ProductRatePlanChargeId",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "ProductRatePlanChargeNumber",
+      "label": "Product Rate Plan Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ProrationOption",
+      "label": "Proration Option",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "NoProration",
+        "TimeBasedProration",
+        "DefaultFromTenantSetting",
+        "ChargeFullPeriod",
+        "CustomizeProrationOptionOverrides"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Quantity",
+      "label": "Quantity",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RatePlanId",
+      "label": "Rate Plan ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "RatingGroup",
+      "label": "Rating Group",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "ByBillingPeriod",
+        "ByUsageStartDate",
+        "ByUsageRecord",
+        "ByUsageUpload",
+        "ByGroupId"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RatingGroupsOperatorType",
+      "label": "Rating Groups Operator Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "SUM",
+        "MAX"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "ReflectDiscountInNetAmount",
+      "label": "Reflect Discount In Net Amount",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueAmortizationMethod",
+      "label": "Revenue Amortization Method",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueRecognitionRuleName",
+      "label": "Revenue Recognition Rule Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RevenueRecognitionTiming",
+      "label": "Revenue Recognition Timing",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Reverted",
+      "label": "Reverted",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "RevRecCode",
+      "label": "Revenue Recognition Code",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RevRecTriggerCondition",
+      "label": "Revenue Recognition Trigger Condition",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "ContractEffectiveDate",
+        "ServiceActivationDate",
+        "CustomerAcceptanceDate"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RolloverApply",
+      "label": "Rollover Apply",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "ApplyLast",
+        "ApplyFirst"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RolloverBalance",
+      "label": "RolloverBalance",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "RolloverPeriodLength",
+      "label": "Rollover Period Length",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "RolloverPeriods",
+      "label": "Rollover Periods",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SalesPrice",
+      "label": "Sales Price",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Segment",
+      "label": "Segment",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SpecificBillingPeriod",
+      "label": "Specific Billing Period",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SpecificEndDate",
+      "label": "Specific End Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SpecificListPriceBase",
+      "label": "Specific List Price Base",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "Status",
+      "label": "Status",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionId",
+      "label": "Subscription ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "SubscriptionOwnerId",
+      "label": "Subscription Owner ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Taxable",
+      "label": "Taxable",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxCodeName",
+      "label": "Tax Code Name",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TaxModeOption",
+      "label": "Tax Mode Option",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "TaxExclusive",
+        "TaxInclusive"
+      ],
+      "contexts": [
+        "export"
+      ]
+    },
+    {
+      "name": "TCV",
+      "label": "TCV",
+      "type": "decimal",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TriggerDate",
+      "label": "Trigger Date",
+      "type": "date",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "TriggerEvent",
+      "label": "Trigger Event",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [
+        "ContractEffective",
+        "ServiceActivation",
+        "CustomerAcceptance",
+        "SpecificDate"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UnusedUnitsCreditRates",
+      "label": "UnusedUnitsCreditRates",
+      "type": "decimal",
+      "selectable": true,
+      "createable": true,
+      "updateable": true,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "UOM",
+      "label": "Unit of Measure",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": true,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedById",
+      "label": "Updated By ID",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpdatedDate",
+      "label": "Updated Date",
+      "type": "datetime",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpsellOriginChargeNumber",
+      "label": "Upsell Origin Charge Number",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpToPeriods",
+      "label": "Up To Periods",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UpToPeriodsType",
+      "label": "Up To Periods Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Billing Periods",
+        "Days",
+        "Weeks",
+        "Months",
+        "Years"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "UsageRecordRatingOption",
+      "label": "UsageRecordRatingOption",
+      "type": "text",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "UseDiscountSpecificAccountingCode",
+      "label": "UseDiscountSpecificAccountingCode",
+      "type": "boolean",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": false,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap"
+      ]
+    },
+    {
+      "name": "ValidityPeriodType",
+      "label": "Validity Period Type",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "SUBSCRIPTION_TERM",
+        "ANNUAL",
+        "SEMI_ANNUAL",
+        "QUARTER",
+        "MONTH"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "Version",
+      "label": "Version",
+      "type": "integer",
+      "selectable": true,
+      "createable": false,
+      "updateable": false,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    },
+    {
+      "name": "WeeklyBillCycleDay",
+      "label": "Weekly Bill Cycle Day",
+      "type": "picklist",
+      "selectable": true,
+      "createable": false,
+      "updateable": true,
+      "filterable": true,
+      "custom": false,
+      "required": false,
+      "maxlength": null,
+      "options": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "contexts": [
+        "soap",
+        "export"
+      ]
+    }
+  ],
+  "related_objects": [
+    {
+      "name": "Account",
+      "label": "Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.Account",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "AccountReceivableAccountingCode",
+      "label": "Accounts Receivable Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.AccountReceivableAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Amendment",
+      "label": "Amendment",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Amendment",
+      "href": "https://staging2.zuora.com/rest/api/describe/Amendment",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContact",
+      "label": "Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.Account.BillToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "BillToContactSnapshot",
+      "label": "Bill To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.BillToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DefaultPaymentMethod",
+      "label": "Default Payment Method",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.Account.DefaultPaymentMethod",
+      "href": "https://staging2.zuora.com/rest/api/describe/PaymentMethod",
+      "foreign_key_field": null
+    },
+    {
+      "name": "DeferredRevenueAccountingCode",
+      "label": "Deferred Revenue Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.DeferredRevenueAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "InvoiceOwner",
+      "label": "Invoice Owner",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.InvoiceOwner",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": "InvoiceOwnerId"
+    },
+    {
+      "name": "ParentAccount",
+      "label": "Parent Account",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.Account.ParentAccount",
+      "href": "https://staging2.zuora.com/rest/api/describe/Account",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Product",
+      "label": "Product",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.ProductRatePlan.Product",
+      "href": "https://staging2.zuora.com/rest/api/describe/Product",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlan",
+      "label": "Product Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.ProductRatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlan",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ProductRatePlanCharge",
+      "label": "Product Rate Plan Charge",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.ProductRatePlanCharge",
+      "href": "https://staging2.zuora.com/rest/api/describe/ProductRatePlanCharge",
+      "foreign_key_field": "ProductRatePlanChargeId"
+    },
+    {
+      "name": "RatePlan",
+      "label": "Rate Plan",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.RatePlan",
+      "href": "https://staging2.zuora.com/rest/api/describe/RatePlan",
+      "foreign_key_field": "RatePlanId"
+    },
+    {
+      "name": "RecognizedRevenueAccountingCode",
+      "label": "Recognized Revenue Accounting Code",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.RecognizedRevenueAccountingCode",
+      "href": "https://staging2.zuora.com/rest/api/describe/AccountingCode",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContact",
+      "label": "Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.Account.ShipToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "ShipToContactSnapshot",
+      "label": "Ship To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.ShipToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContact",
+      "label": "Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.Account.SoldToContact",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SoldToContactSnapshot",
+      "label": "Sold To Contact Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": true,
+      "path": "RatePlanCharge.SoldToContactSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "Subscription",
+      "label": "Subscription",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription",
+      "href": "https://staging2.zuora.com/rest/api/describe/Subscription",
+      "foreign_key_field": "SubscriptionId"
+    },
+    {
+      "name": "SubscriptionBillTo",
+      "label": "Subscription Bill To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.SubscriptionBillTo",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionBillToSnapshot",
+      "label": "Subscription Bill To Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.SubscriptionBillToSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionShipTo",
+      "label": "Subscription Ship To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.SubscriptionShipTo",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionShipToSnapshot",
+      "label": "Subscription Ship To Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.SubscriptionShipToSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionSoldTo",
+      "label": "Subscription Sold To",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.SubscriptionSoldTo",
+      "href": "https://staging2.zuora.com/rest/api/describe/Contact",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionSoldToSnapshot",
+      "label": "Subscription Sold To Snapshot",
+      "cardinality": "TO_ONE",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.SubscriptionSoldToSnapshot",
+      "href": "https://staging2.zuora.com/rest/api/describe/ContactSnapshot",
+      "foreign_key_field": null
+    },
+    {
+      "name": "SubscriptionStatusHistory",
+      "label": "Subscription Status History",
+      "cardinality": "TO_MANY",
+      "direct_relationship": false,
+      "path": "RatePlanCharge.RatePlan.Subscription.SubscriptionStatusHistory",
+      "href": "https://staging2.zuora.com/rest/api/describe/SubscriptionStatusHistory",
+      "foreign_key_field": null
+    }
+  ]
+}

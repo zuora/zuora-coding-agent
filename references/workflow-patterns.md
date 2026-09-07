@@ -14,6 +14,9 @@ Three files underpin safe composition:
 
 Narrative references:
 
+- `workflow-data-retrieval.md` — task selection matrix (Query vs Export vs Data::Link vs GraphQuery; BATCH vs REALTIME; run-scoped bulk reads).
+- `workflow-task-guidance.md` — per-`action_type` behavioral rules and common mistakes.
+- `workflow-planning-patterns.md` — named flows (`run_event`, `realtime_event`, `callout`, `parent_child_filter`, …).
 - `workflow-task-catalog.md` — the 71 `action_type` values grouped by category.
 - `workflow-triggers-and-linkages.md` — trigger modes, `call_type`, linkage catalog.
 - `workflow-liquid.md` — Liquid scopes (`Data`, `Credentials`, `WorkflowInstance`, `WorkflowSetup`, `TaskInstance`, `GlobalConstants`) and filter overview.
@@ -111,6 +114,31 @@ WHERE i.balance > 0
 
 Split the lookup into a separate query only when that first result is reused by multiple branches, needs independent `zero_result_stop` / failure behavior, produces a non-scalar collection, or cannot be expressed in the same SQL. The linter reports the avoidable chain as `W180`.
 
+## Pattern: Bill run completion → export invoices to external system
+
+**User story:** "After a bill run completes, get the invoices (and invoice items) created in that run and POST each invoice to my external system."
+
+This is one of the most common workflow requests. Bill runs can produce **hundreds of thousands of invoices**, so the parent invoice read **must** be `Export`, not `Query` (`Query` is hard-capped at 2000 rows; linter `W196`).
+
+```text
+BillingRunCompletion
+  → Export Invoice     WHERE Invoice.SourceId = '{{ Data.BillingRun.ID }}'
+  → Iterate            object = Invoice__<ExportTaskId>.csv.zip
+      → Query InvoiceItem   WHERE InvoiceId = '{{ Data.Invoice.Id }}'
+      → Callout POST        https://example.com/invoices  (payload in raw_body)
+```
+
+| Do | Don't |
+| --- | --- |
+| `event_trigger` on `BillingRunCompletion` | Notification → Callout bridge as the default (only when standard events are unavailable) |
+| `Export Invoice` by `SourceId` (not `BillRunId`) | `Query Invoice` scoped to a bill run |
+| `Data.BillingRun.ID` from `event_parameters` | `Data.BillRun.*`, `BillRunId` in `where_clause`, or other invented scopes |
+| `Data.Invoice.*` inside Iterate For Each | `Data.CurrentInvoice.*` |
+| `Data.InvoiceItem` from per-invoice Query | Liquid `{% for item in Data.InvoiceItems %}` shim before Callout |
+| JSON in `Callout.parameters.raw_body` | Separate `Logic::Liquid` task before Callout (`W187`) |
+
+See `workflow-examples.md` for other lint-clean JSON fixtures (opaque Callout schema, file-holder Iterate, etc.).
+
 ## Pattern: Prefer Workflow Liquid Filters
 
 Before creating `Logic::Liquid` code that loops over a collection, check the filters documented in `workflow-liquid.md` and the exact signatures in `workflow-liquid-filters.md`, sourced from `rails/lib/liquid/filters.rb`.
@@ -119,7 +147,49 @@ Before creating `Logic::Liquid` code that loops over a collection, check the fil
 - Use `where_exp` for expression-based selection, for example `{% assign overdue = Data.Invoice | where_exp: "inv", "inv.Balance > 0" %}`.
 - Use `group_by` / `group_by_exp` for bucketed results instead of constructing grouping hashes manually.
 - Keep manual `for` loops when each row is transformed, enriched, or emitted into a custom shape that the filters cannot express.
-- Avoid one-consumer Liquid shim tasks. If a Liquid task only calculates a date for the next Export, a boolean for the next `If` / `Logic::Case`, or a payload for the next Callout, inline the Liquid in that consuming task's parameter instead. The linter reports this as `W187`.
+- Avoid single-consumer Liquid shim tasks (`W187`). If a `Logic::Liquid` task only prepares output for the immediate next task, inline that Liquid into the consumer's own parameter instead (predicates, branch clauses, Callout/Email bodies, CRUD field values, etc.).
+
+## Pattern: Inline Liquid in consuming tasks (avoid Liquid shims)
+
+**Rule:** most Workflow task parameters are Liquid-evaluated. Do not add `Logic::Liquid` between tasks when the next task can express the same logic inline.
+
+**Anti-pattern:**
+
+```text
+… → Logic::Liquid (assign only) → <single consumer>
+```
+
+**Preferred:**
+
+```text
+… → <consumer with Liquid in its own parameters>
+```
+
+| Consumer needs… | Inline into… |
+| --- | --- |
+| Filter / date predicate | `Export` / `Query` / `Data::Link` `where_clause` |
+| Branch condition | `If` / `Logic::Case` clause |
+| HTTP payload, URL, header | `Callout` / `AsynchronousCallout` `raw_body`, `url`, headers |
+| Notification content | `Email` template fields |
+| Record field on write | `Create` / `Update` `parameters.fields` |
+| Row POST inside a loop | Same as above — reference current `Iterate` row in the consumer parameter |
+
+**Examples:**
+
+```text
+Data::Link → Iterate → Callout          ✓  (JSON in raw_body)
+Data::Link → Iterate → Liquid → Callout ✗  (shim)
+Query → Liquid → Export                 ✗  (predicate belongs on Export)
+Data::Link → Liquid → Data::Link        ✗  (use CTE; W180)
+```
+
+Inside an Iterate For Each branch, reference the current row directly:
+
+```json
+"raw_body": "{\n  \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n  \"amount\": \"{{ Data.Invoice.Amount }}\",\n  \"line_items\": {{ Data.InvoiceItem | to_json }}\n}"
+```
+
+Keep a separate `Logic::Liquid` task when the formatted value is reused by multiple downstream tasks, represents shared workflow context, or needs independent failure/retry/review behavior.
 
 Avoid this shape for simple filtering:
 
