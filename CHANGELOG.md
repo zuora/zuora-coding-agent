@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.5.6] - 2026-09-07
+
+### Added
+- New `/zuora-workflow-verify` skill: imports a workflow to sandbox, test-runs it, polls task status, and fixes plan/build issues in a bounded loop
+- Vendored `workflow-engine` CLI powers workflow design/build: validates intent/plan artifacts, assembles `.workflow.json` from a plan, and looks up task/object schemas — replacing hand-written workflow JSON
+- New task-selection guidance for choosing `Query` vs `Export` vs `Data::Link` for data reads, including the correct way to scope invoice reads to a bill run
+
+### Improved
+- Workflow lint catches two new anti-patterns: `Query Invoice` scoped to a bill run instead of `Export` + `Iterate` (W196), and non-filterable `BillRunId` in a `where_clause` (W197)
+- Workflow design and build skills now require validated plan artifacts through the workflow-engine pipeline instead of freehand JSON generation
+
 ## [1.5.5] - 2026-08-31
 
 ### Added
