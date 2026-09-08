@@ -31,6 +31,7 @@ When working on Zuora-related tasks, use the zuora-mcp server for authoritative 
 - `/zuora-uat-design` — Extract TR matrix from SDDs (design/testmatrix/)
 - `/zuora-uat-build` — Build test plan, API scripts, and UI docs for scoped features
 - `/zuora-uat-run` — Execute API and UI tests with mark-driven verify gate
+- `/zuora-html-template-designer` — Design and generate Zuora invoice, credit memo, and debit memo HTML templates from prompts and PDFs
 
 ## MCP tools vs customer code
 
@@ -57,6 +58,7 @@ When generating code for the customer's repository, always output Zuora REST API
 - `mcp__zuora-mcp__manage_mediation_meters` — Mediation meter operations: `get_meter`, `create_meter`, `validate_meter`, `list_connections`, `list_event_stores`, `list_schemas`.
 - `mcp__zuora-mcp__create_subscriptions` / `manage_subscriptions` — Create or manage subscriptions for validation.
 - `mcp__zuora-mcp__manage_billing_documents` — Verify billing document generation.
+- `mcp__zuora-mcp__manage_document_presentment` — Validate Zuora HTML templates (Invoice, CreditMemo, DebitMemo) against the Document Presentment API. Use `operation: validate_template` with `objectType` and `template` content.
 - Other `manage_*` tools as needed for their specific domains.
 
 ## Tool routing policy

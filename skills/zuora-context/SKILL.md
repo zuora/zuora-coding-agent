@@ -133,6 +133,7 @@ If the user's intent clearly maps to a dedicated skill, **do not answer generica
 | Validating code or payloads | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-validate/SKILL.md` |
 | Reviewing implementation | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-review/SKILL.md` |
 | UAT/E2E test lifecycle (SDD → TR matrix → generate → run) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-uat-context/SKILL.md` |
+| Designing or generating an HTML invoice / credit memo / debit memo template (from PDF, image, Word doc, or description) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-html-template-designer/SKILL.md` |
 
 If the intent is ambiguous, briefly clarify with the user before invoking a skill. For general Zuora questions that don't map to a skill, answer using the MCP tools and reference materials below.
 

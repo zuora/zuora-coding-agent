@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.6.0] - 2026-09-08
+
+### Added
+- New `/zuora-html-template-designer` skill: design and generate Zuora invoice, credit memo, and debit memo HTML templates from a description, PDF, image, or Word doc
+
 ## [1.5.6] - 2026-09-07
 
 ### Added

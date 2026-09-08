@@ -1,0 +1,6 @@
+# PDF processing (for PDF-to-HTML template generation)
+Pillow>=10.3.0
+pypdf>=4.0.1
+
+# Color extraction and analysis (optional — extract_colors.py works without it, numpy accelerates large images)
+numpy>=1.24.0

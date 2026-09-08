@@ -144,6 +144,7 @@ This plugin uses AI to generate code, API payloads, and migration artifacts. All
 | `/zuora-uat-run` | Execute UAT tests and report results |
 | `/zuora-validate` | Validate generated code/payloads/approach against Zuora patterns |
 | `/zuora-review` | Review work for Zuora best practices |
+| `/zuora-html-template-designer` | Design and generate Zuora invoice, credit memo, and debit memo HTML templates from prompts and PDFs |
 
 The plugin also provides **passive Zuora awareness** — when you discuss Zuora topics in any conversation, it will suggest relevant commands and use zuora-mcp tools to provide accurate answers.
 
@@ -290,6 +291,7 @@ For significant changes, open an issue first to discuss the proposed change.
 | Gautam | Meter |
 | Raja | CPQ |
 | Zhaowei | UAT |
+| Siddharth | HTML Template Designer |
 
 ## License
 
