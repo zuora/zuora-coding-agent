@@ -1,19 +1,18 @@
 # Liquid Templating in Zuora Workflows
 
-Every task parameter that accepts a dynamic value is parsed with Liquid. This document lists the scopes available to Liquid expressions, their shape, and the gotchas that most often cause run-time errors. Distilled from `Task#template_parse` (`~/Workspace/workflow/rails/app/models/task.rb:1423-1480`).
-
+Every task parameter that accepts a dynamic value is parsed with Liquid. This document lists the scopes available to Liquid expressions, their shape, and the gotchas that most often cause run-time errors.
 ## Scopes
 
 Six root scopes are always in context when a task runs:
 
-| Scope              | Purpose                                                                             |
+| Scope | Purpose |
 | ------------------ | ----------------------------------------------------------------------------------- |
-| `Data`             | The workflow payload — everything upstream tasks have written.                      |
-| `Credentials`      | Zuora tenant credentials, gated by auth type.                                       |
-| `WorkflowInstance` | The current workflow run (id, timings, status, call_type, …).                       |
-| `WorkflowSetup`    | The workflow *definition* (original_workflow): name, description, parameters, etc.  |
-| `TaskInstance`     | The currently-executing task (id, name, retry state, timings, …).                   |
-| `GlobalConstants`  | Tenant-level key/value store, populated via Workflow Settings → Global Constants.   |
+| `Data` | The workflow payload — everything upstream tasks have written. |
+| `Credentials` | Zuora tenant credentials, gated by auth type. |
+| `WorkflowInstance` | The current workflow run (id, timings, status, call_type, …). |
+| `WorkflowSetup` | The workflow *definition* (original_workflow): name, description, parameters, etc. |
+| `TaskInstance` | The currently-executing task (id, name, retry state, timings, …). |
+| `GlobalConstants` | Tenant-level key/value store, populated via Workflow Settings → Global Constants. |
 
 Inside a Liquid `{% for row in Data.Invoice %}` block, the `forloop` scope is also defined (`forloop.index`, `forloop.first`, etc.).
 
@@ -21,15 +20,15 @@ Inside a Liquid `{% for row in Data.Invoice %}` block, the `forloop` scope is al
 
 Tasks write their output under a named key inside `Data`. The conventional key is the object name (`Account`, `Invoice`, `Subscription`) or an explicit `parameters.placement` override.
 
-| Task                          | Writes to                                                |
+| Task | Writes to |
 | ----------------------------- | -------------------------------------------------------- |
 | `Query` / `Export` / `Data::Aqua` | `Data.<object>` (array of hashes) unless `parameters.placement` is set, then `Data.<placement>`. |
-| `Callout`                     | `Data.Callout` (single object). Multiple callouts chain into `Data.Callout[0]`, `Data.Callout[1]`, … |
-| `Logic::Liquid`               | `Data.Liquid` (single object) unless `parameters.placement` overrides. |
-| `Iterate`                     | Current row available as `Data.<object>` (singular, a hash) inside the For-Each body. |
-| `GraphQuery`                  | `Data.<baseObject>` (array).                              |
-| `Create`                      | `Data.<object>[<ResponseFields>]`.                        |
-| `Update` / `Delete`           | Updates `Data.<object>` if the record was loaded upstream. |
+| `Callout` | `Data.Callout` (single object). Multiple callouts chain into `Data.Callout[0]`, `Data.Callout[1]`, … |
+| `Logic::Liquid` | `Data.Liquid` (single object) unless `parameters.placement` overrides. |
+| `Iterate` | Current row available as `Data.<object>` (singular, a hash) inside the For-Each body. |
+| `GraphQuery` | `Data.<baseObject>` (array). |
+| `Create` | `Data.<object>[<ResponseFields>]`. |
+| `Update` / `Delete` | Updates `Data.<object>` if the record was loaded upstream. |
 
 Access patterns:
 
@@ -39,7 +38,7 @@ Access patterns:
 {{ Data.Callout.ResponseBody.subscription_id }}
 
 {% for inv in Data.Invoice %}
-  {{ inv.Id }} - {{ inv.Balance | money }}
+ {{ inv.Id }} - {{ inv.Balance | money }}
 {% endfor %}
 ```
 
@@ -56,44 +55,44 @@ When a workflow is triggered with ordinary input parameters (ondemand form, call
 
 Event-triggered workflows get their event payload mapped through `workflow.parameters.event_parameters` into `Data.<object>.<key>`. The server accepts special tokens that are expanded at trigger time:
 
-| Token                    | Meaning                                               |
+| Token | Meaning |
 | ------------------------ | ----------------------------------------------------- |
-| `<Event.Category>`       | `data['name']` — the event name (e.g., `InvoicePosted`). |
-| `<Event.Date>`           | `data['eventTime']` formatted as `%F` (UTC date).     |
-| `<Event.Timestamp>`      | `data['eventTime']`.                                  |
-| `<Functions.Today>`      | Current date formatted as `%F`.                       |
-| `<Tenant.ID>`            | `data['tenantId']`.                                   |
-| `<Tenant.Name>`          | Empty string in the current Rails implementation.     |
+| `<Event.Category>` | `data['name']` — the event name (e.g., `InvoicePosted`). |
+| `<Event.Date>` | `data['eventTime']` formatted as `%F` (UTC date). |
+| `<Event.Timestamp>` | `data['eventTime']`. |
+| `<Functions.Today>` | Current date formatted as `%F`. |
+| `<Tenant.ID>` | `data['tenantId']`. |
+| `<Tenant.Name>` | Empty string in the current Workflow implementation. |
 
-Any other angle-bracket token is treated as a notifications merge-field token: Rails strips the brackets plus an optional `Event.` or `DataSource.` prefix, then looks up that literal key in the event payload. Before emitting tokens such as `<Invoice.Id>` or `<BillingRun.Id>`, fetch the event's merge fields from `/notifications/email-templates/info/selections?category=<event-id-or-custom-category>` and pick a published value. A typical `event_parameters` entry for InvoicePosted writes `Data.Invoice.Id`, `Data.Invoice.AccountId`, etc., which downstream tasks then reference as usual.
+Any other angle-bracket token is treated as a notifications merge-field token: Workflow strips the brackets plus an optional `Event.` or `DataSource.` prefix, then looks up that literal key in the event payload. Before emitting tokens such as `<Invoice.Id>` or `<BillingRun.Id>`, fetch the event's merge fields from `/notifications/email-templates/info/selections?category=<event-id-or-custom-category>` and pick a published value. A typical `event_parameters` entry for InvoicePosted writes `Data.Invoice.Id`, `Data.Invoice.AccountId`, etc., which downstream tasks then reference as usual.
 
 ## `Credentials` — Zuora tenant access
 
 `Credentials.zuora` exposes a drop object whose method return value depends on the authentication type configured for the tenant:
 
-| Access                         | When available                                             |
+| Access | When available |
 | ------------------------------ | ---------------------------------------------------------- |
-| `Credentials.zuora.url`        | Always.                                                    |
+| `Credentials.zuora.url` | Always. |
 | `Credentials.zuora.rest_endpoint` | Always. This value is the Zuora REST v1 base URL and already includes the `v1` segment (for example `https://rest.zuora.com/v1/`). Do NOT append `/v1` to it -- that can produce a `/v1/v1/` double-prefix. |
-| `Credentials.zuora.username`   | Only for Basic auth tenants. Raises on OAuth tenants; do not use for Zuora API Callout headers. |
-| `Credentials.zuora.password`   | Only for Basic auth tenants; do not use for Zuora API Callout headers. |
-| `Credentials.zuora.client_id`  | Only for OAuth tenants.                                    |
-| `Credentials.zuora.client_secret` | Only for OAuth tenants.                                 |
+| `Credentials.zuora.username` | Only for Basic auth tenants. Raises on OAuth tenants; do not use for Zuora API Callout headers. |
+| `Credentials.zuora.password` | Only for Basic auth tenants; do not use for Zuora API Callout headers. |
+| `Credentials.zuora.client_id` | Only for OAuth tenants. |
+| `Credentials.zuora.client_secret` | Only for OAuth tenants. |
 
 Canonical Zuora API Callout auth block:
 
 ```json
 {
-  "authorization": { "type": "zuora" },
-  "headers": [
-    { "key": "Content-Type", "value": "application/json" }
-  ]
+ "authorization": { "type": "zuora" },
+ "headers": [
+ { "key": "Content-Type", "value": "application/json" }
+ ]
 }
 ```
 
 For v1 APIs, append only the resource path after `v1/`: `{{ Credentials.zuora.rest_endpoint }}orders`, `{{ Credentials.zuora.rest_endpoint }}subscriptions/{{ Data.Subscription.Id }}`. Do not emit `{{ Credentials.zuora.rest_endpoint }}/v1/orders`, and do not use the fragile `{{ Credentials.zuora.rest_endpoint | replace: "/v1/", "" }}/v1/orders` form. For non-v1 APIs, first normalize the base explicitly, for example `{{ Credentials.zuora.rest_endpoint | split: "/v1" | first }}/oauth/token`.
 
-Do not hard-code tenant URLs or credentials in callouts; for Zuora APIs, always use `Credentials.zuora.rest_endpoint` with `authorization.type = "zuora"`. Do not add `apiAccessKeyId`, `apiSecretAccessKey`, `Authorization`, or bearer-token headers; Rails rejects some plain-text credential headers and the built-in Zuora auth path is what preserves tenant/entity context.
+Do not hard-code tenant URLs or credentials in callouts; for Zuora APIs, always use `Credentials.zuora.rest_endpoint` with `authorization.type = "zuora"`. Do not add `apiAccessKeyId`, `apiSecretAccessKey`, `Authorization`, or bearer-token headers; Workflow rejects some plain-text credential headers and the built-in Zuora auth path is what preserves tenant/entity context.
 
 ## `WorkflowInstance`, `WorkflowSetup`, `TaskInstance`
 
@@ -126,18 +125,18 @@ Define constants in Workflow Settings → Global Constants; they are loaded on e
 
 ## Filters
 
-Zuora registers stock Liquid filters plus the Workflow-specific `Liquid::Filters` module from `~/Workspace/workflow/rails/lib/liquid/filters.rb`. Before writing a `Logic::Liquid` task, check whether a standard Liquid filter or a Workflow-specific filter already expresses the operation. Prefer built-in filters over manual `for` / `if` / `push` loops for simple array selection or grouping. See `workflow-liquid-filters.md` for argument counts, argument types, return values, and examples.
+Zuora registers stock Liquid filters plus the Workflow-specific `Liquid::Filters` module. Before writing a `Logic::Liquid` task, check whether a standard Liquid filter or a Workflow-specific filter already expresses the operation. Prefer built-in filters over manual `for` / `if` / `push` loops for simple array selection or grouping. See `workflow-liquid-filters.md` for argument counts, argument types, return values, and examples.
 
-| Filter        | Example                                                | Purpose                                  |
+| Filter | Example | Purpose |
 | ------------- | ------------------------------------------------------ | ---------------------------------------- |
-| `date`        | `{{ "now" | date: "%Y-%m-%d" }}`                       | Format timestamps.                       |
-| `money`       | `{{ Data.Invoice.Balance | money }}`                   | Currency formatting.                     |
-| `to_json`     | `{{ Data.Account | to_json }}`                         | Serialize to JSON for logging.           |
-| `escape`      | `{{ body | escape }}`                                  | HTML-escape user input.                  |
-| `default`     | `{{ Data.Account.Name | default: "Anonymous" }}`       | Fallback value.                          |
-| `replace`     | `{{ Data.Account.Name | replace: "-", "_" }}`          | String replacement.                      |
-| `split` / `join` | `{{ "a,b,c" | split: "," | join: " - " }}`          | Token manipulation.                      |
-| `size`        | `{{ Data.Invoice | size }}`                            | Collection length.                       |
+| `date` | `{{ "now" | date: "%Y-%m-%d" }}` | Format timestamps. |
+| `money` | `{{ Data.Invoice.Balance | money }}` | Currency formatting. |
+| `to_json` | `{{ Data.Account | to_json }}` | Serialize to JSON for logging. |
+| `escape` | `{{ body | escape }}` | HTML-escape user input. |
+| `default` | `{{ Data.Account.Name | default: "Anonymous" }}` | Fallback value. |
+| `replace` | `{{ Data.Account.Name | replace: "-", "_" }}` | String replacement. |
+| `split` / `join` | `{{ "a,b,c" | split: "," | join: " - " }}` | Token manipulation. |
+| `size` | `{{ Data.Invoice | size }}` | Collection length. |
 
 Standard Liquid filters (`upcase`, `downcase`, `strip`, `slice`, `truncate`, `first`, `last`, …) all work. Workflow-specific filters most relevant to composition:
 
@@ -169,7 +168,7 @@ When non-strict, missing variables render to empty strings. Always prefer strict
 
 4. **`Data.Callout` is scalar for one callout but an array if multiple callouts exist.** Tasks that appear after the second callout must reference `Data.Callout[0]`, `Data.Callout[1]`, etc.
 
-5. **Liquid validation is skipped on import.** `Logic::Case#task_setup_validation` and `If#task_setup_validation` parse their `case_clause` / `if_clause` at save time, but `Task.import` calls `save!(validate: false)`, which bypasses this. The only pre-run check is the client-side linter; Liquid syntax errors surface at first execution, not import.
+5. **Liquid validation is skipped on import.** `Logic::Case#form save validation and `If#form save validation parse their `case_clause` / `if_clause` at save time, but `task import` calls `save!(without running form validations)`, which bypasses this. The only pre-run check is the client-side linter; Liquid syntax errors surface at first execution, not import.
 
 6. **Do not use Liquid tags in a `Logic::Case.parameters.case_condition` key.** Keys must be sequential `Case_1`, `Case_2`, …, `Case_Else`. Put Liquid in the case *values*, not the keys.
 
@@ -177,7 +176,7 @@ When non-strict, missing variables render to empty strings. Always prefer strict
 
 8. **Template timeout.** Liquid parse is capped at `LIQUID_TEMPLATE_PARSE_TIMEOUT` (three minutes in production). Heavy nested loops or huge payloads will error with `Evaluation takes more than 3 minutes to finish…`. Prefer filtered queries over client-side iteration.
 
-9. **`{{ "now" | date: "%Y-%m-%d" }}`** is the idiomatic "today" expression. Don't inject Ruby-level times.
+9. **`{{ "now" | date: "%Y-%m-%d" }}`** is the idiomatic "today" expression. Don't inject host-language times.
 
 ## Cross-references
 

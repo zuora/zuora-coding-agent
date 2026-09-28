@@ -1,7 +1,7 @@
 ---
 name: zuora-dynamic-pricing-design
 description: Design a Commerce Catalog setup with dynamic pricing — gather requirements, inspect tenant state, and propose the catalog structure before execution
-argument-hint: [product/pricing description or business requirement]
+argument-hint: [product/pricing description, business requirement, and/or CSV/spreadsheet path]
 allowed-tools: [Read, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_commerce_context_attributes, mcp__zuora-mcp__manage_commerce_charges, mcp__zuora-mcp__query_objects, mcp__zuora-mcp__manage_custom_fields, mcp__zuora-mcp__ask_zuora]
 ---
 
@@ -19,9 +19,11 @@ Note: The Commerce Catalog and Classic Catalog are mutually exclusive.
 
 The user's request: $ARGUMENTS
 
+Input may be free-text requirements, an approved prior design, **and/or a CSV / spreadsheet path or attachment**. Treat any tabular price file as design input — do not assume a fixed vendor schema (column names, product families, or MSP layouts vary).
+
 ## Tool routing
 
-Use `manage_commerce_context_attributes` with `list_attributes` to inspect existing schemas. Use `query_objects` to check existing products, plans, and custom fields. Use `manage_commerce_charges` with `help: true` for charge model guidance. Use `manage_custom_fields` to inspect and create custom field definitions. Use `mcp__zuora-mcp__ask_zuora` only as a fallback for unresolved product-behavior questions (e.g., "can dynamic pricing coexist with discount charges?") after checking the charge help and references first.
+Use `manage_commerce_context_attributes` with `list_attributes` to inspect existing schemas. Use `query_objects` to check existing products, plans, and custom fields. Use `manage_commerce_charges` with `help: true` for charge model guidance. Use `manage_custom_fields` to inspect and create custom field definitions. Use `Read` / `Bash` to inspect CSV/spreadsheet contents when a file path or attachment is provided. Use `mcp__zuora-mcp__ask_zuora` only as a fallback for unresolved product-behavior questions (e.g., "can dynamic pricing coexist with discount charges?") after checking the charge help and references first.
 
 ## Workflow
 
@@ -31,6 +33,7 @@ Determine the scope:
 - **Full catalog setup** — new product + plan + charge with dynamic pricing
 - **Add dynamic pricing to existing charge** — new attributes and rate cards on an existing charge
 - **Update rate card** — modify prices, add attribute values, add rows
+- **CSV / spreadsheet → design** — map an arbitrary price table into the design proposal (see CSV section below)
 
 For new setups, gather:
 - Product name, description, category (`base` or `add-on`)
@@ -127,9 +130,54 @@ Key model decisions:
 - **overage** — simple per-unit overage rate
 - **discount_percentage** / **discount_fixed_amount** — discounts applied to other charges
 
+**Quantity bands vs rate-card attributes:**
+- Quantity breakpoints belong in `pricing.tiers` on the charge default and on each rate card row — do **not** model quantity as a business attribute with `between` operators when the charge model is `tiered` or `volume`.
+- Business dimensions (region, commitment year, segment, etc.) belong in rate-card `attributes[]`. Each matching row carries its **own full tier table** under `pricing.tiers` (same `Pricing` shape as charge-level default pricing).
+- Always confirm with the user: **tiered** (progressive / cumulative across bands) vs **volume** (one price for all units at the landed band). Do not infer the model from price shape alone.
+
+### Step 3b: When input is a CSV or spreadsheet (generic)
+
+Works for **any** tabular price file. Do not hard-code expected headers (e.g. do not require `PID`, `MSP …`, `Tier`, or a specific product family). Infer roles from content, then confirm ambiguous mappings with the user.
+
+1. **Read & profile** (use `Read` / `Bash`): headers, row count, distinct values per column, sample rows. For large files, summarize — do not paste thousands of rows into the design proposal.
+2. **Classify every column** into one role (a column has exactly one primary role):
+
+| Role | Meaning | Typical headers (examples only — match by meaning) | Maps to |
+|------|---------|------------------------------------------------------|---------|
+| Catalog identity | What to sell | product, plan, charge, service, SKU, offer name | Product / Plan / Charge entities |
+| Business dimension | Price differentiator that is **not** quantity | region, segment, commitment, term, channel, market | Rate-card `attributes[]` (+ custom field if needed) |
+| Quantity / tier bound | Upper (or lower) qty for a band | quantity, qty, up to, units, tier end, band | `pricing.tiers[].upTo` (not a rate-card attribute) |
+| Tier label | Optional ordinal label | tier, T1, band # | Documentation only (or ignore if redundant with quantity) |
+| Price | Amount | price, list price, amount, rate | `unitAmounts` / `flatAmounts` on the charge or tier |
+| Currency | ISO code or name | currency, curr, UOM currency | Plan `activeCurrencies` + amount maps |
+| Price format | Per unit vs flat | price format, flat/per unit | Tier `priceFormat` |
+| Effective date | When the row starts | effective date, start date, valid from | Rate-card `EffectiveDate` (`>=`, ISO-8601 with offset) |
+| Ignore | Row ids, CRM keys, discount ids, notes | id, sf id, external key, comments | Omit from catalog |
+
+3. **Decide catalog grain** from identity columns:
+   - Group rows that share the same sellable offer into one Product (+ Plan).
+   - Separate **charges** when identity columns describe different billable services/components on that offer.
+   - Apply the product grouping principle: values that only change price (region, year, commitment, …) become **attributes + rate cards**, not extra products — unless the user explicitly wants separate catalog items.
+
+4. **Build rate cards vs plain tiers:**
+   - **Has ≥1 business dimension** → dynamic pricing: one rate-card row per distinct dimension combination; each row's pricing matches the charge model (single amount **or** full `tiers` table).
+   - **No business dimension** (only product/charge + qty + currency + price) → still a valid design, but it is **tiered/volume (or per-unit) catalog pricing**, not attribute-driven rate cards. Say so clearly; do not invent attributes.
+   - **Currency alone** is almost never a rate-card attribute — put currencies in `activeCurrencies` and amount maps.
+
+5. **Convert quantity rows into `upTo` chains (generic):**
+   - Sort distinct quantity bounds ascending within each (charge × attribute-combination) group.
+   - Emit tiers as an **`upTo`-only chain**; omit `from`. Last open-ended tier omits `upTo` (except `tiered_overage`).
+   - If the CSV has both `from`/`to` (or start/end) columns, use them only to validate non-overlap; still prefer emitting `upTo`-only in the design/build payload.
+   - If the CSV has one row per quantity breakpoint with a single price, that price is the list price for that band — confirm `tiered` vs `volume` before locking the model.
+   - Multi-currency: pivot so each tier (or rate-card row) carries a currency→amount map, not separate rate cards per currency.
+
+6. **Fill gaps the CSV never provides** (always ask if missing): charge type, bill cycle / timing, UOM, default fallback pricing, attribute object mapping (Account vs Subscription vs RatePlan vs Usage), whether year/term/advance variants are attributes or separate plans.
+
+7. **Present a column→role mapping table** in the design (or as a prerequisite confirmation) so the user can correct misclassified columns before build. Then produce the normal design proposal, using summarized rate-card/tier tables (representative samples + counts are OK for very large files).
+
 ### Step 4: Propose the design
 
-Present a structured proposal:
+Present a structured proposal. Use the **single-price** Rate Card table for `flat_fee` / `per_unit` / discounts. Use the **tier table per dimension** Rate Card section when `chargeModel` is `tiered` or `volume`. For `tiered_overage`, use that section for the included tiers **and** also capture the separate overage `unitAmounts` (required on that model).
 
 ```
 ## Dynamic Pricing Design
@@ -159,15 +207,15 @@ Present a structured proposal:
 
 ### Charge
 - Name: ...
-- Model: per_unit
+- Model: per_unit | tiered | volume | ...
 - Type: recurring
 - Bill cycle: default_from_customer / monthly / in_advance
 - Trigger: contract_effective
 - End date condition: subscription_end
-- Unit of measure: (if applicable)
-- Default pricing: $X.XX (applies when no rate card matches)
+- Unit of measure: (required for per_unit / tiered / volume / usage)
+- Default pricing: (fallback when no rate card matches — single amount OR default tier table)
 
-### Rate Card
+### Rate Card (flat_fee / per_unit)
 Include an `Effective From` column only when pricing is time-varying. Omit it (or show "now") when all prices are effective immediately.
 
 | Region | CommitmentType | Price (USD) | Effective From |
@@ -177,17 +225,46 @@ Include an `Effective From` column only when pricing is time-varying. Omit it (o
 | EU | on-demand | $8.00 | now |
 | EU | reserved | $5.50 | now |
 
+### Rate Card (tiered / volume — progressive or volume tiers per dimension)
+Each rate-card row is one attribute combination plus a **full** tier table. Show `tierMode` (`tier_mode_tiered` or `tier_mode_volume`). Do not put quantity in the attribute columns.
+
+**Tier boundary rules (critical — wrong boundaries produce invalid or overlapping designs):**
+- Prefer chaining tiers with **`upTo` only** (omit `from`). Each row is "quantity up to N"; the last open-ended tier **omits `upTo`**.
+- Exception: `tiered_overage` requires **`upTo` on every tier** (no open-ended last tier).
+- If you also set `from`, ranges must not overlap (e.g. `upTo: 10` then next `from: 11`, never `from: 10` after `upTo: 10`).
+- Do not invent V1 fields (`startingUnit` / `endingUnit` / single `price`) in the design payload notes.
+
+**Default tiers** (no rate card match) — `upTo` chain:
+
+| upTo | Price format | USD |
+|------|--------------|-----|
+| 100 | per_unit | 10.00 |
+| 500 | per_unit | 8.00 |
+| (open) | per_unit | 6.00 |
+
+**Rate cards:**
+
+| Region | CommitmentType | Tier table (USD, upTo chain) | Effective From |
+|--------|----------------|------------------------------|----------------|
+| US | on-demand | ≤100 @ $10; ≤500 @ $8; open @ $6 | now |
+| US | reserved | ≤100 @ $7; ≤500 @ $5.50; open @ $4 | now |
+| EU | on-demand | ≤100 @ $8; ≤500 @ $6; open @ $5 | now |
+
+For many currencies, either add currency columns inside each tier summary or attach a compact per-row tier appendix — do not flatten quantity bands into separate rate-card rows.
+
 ### Pricing Timeline (only if effective dating is used)
 Show scheduled price changes as separate rows for the same attribute combination. The system preserves the earlier price as bounded history automatically — you only supply the new "effective from" date.
 
-| Region | CommitmentType | Price (USD) | Effective From |
-|--------|---------------|-------------|----------------|
-| US | on-demand | $10.00 | now (implicit) |
-| US | on-demand | $12.00 | 2026-04-01T00:00:00Z |
+For tiered/volume, the new row replaces the **entire** prior tier table for that attribute combination at the new effective date (submit full `pricing.tiers`, not a single tier patch).
+
+| Region | CommitmentType | Price / tier table (USD) | Effective From |
+|--------|----------------|--------------------------|----------------|
+| US | on-demand | $10.00  (or full tier table) | now (implicit) |
+| US | on-demand | $12.00  (or full tier table) | 2026-04-01T00:00:00Z |
 
 Resulting effective windows after the system merges:
-- US / on-demand → $10.00 for `[now, 2026-03-31T23:59:59]`
-- US / on-demand → $12.00 for `>= 2026-04-01T00:00:00Z`
+- US / on-demand → prior pricing for `[now, 2026-03-31T23:59:59]`
+- US / on-demand → new pricing for `>= 2026-04-01T00:00:00Z`
 
 ### Rate Card Operators
 - Region: == (exact match)
@@ -215,7 +292,9 @@ Do not call any write/mutating MCP tools (product, plan, charge, custom field cr
 ## Key constraints to surface in design
 
 - `productRatePlanId` cannot be changed after charge creation
-- Tiered pricing: ranges must not overlap; last tier omits `upTo` (unbounded) — EXCEPT `tiered_overage` where ALL tiers require `upTo`
+- Tiered/volume pricing: prefer `upTo`-only tier chains; last tier omits `upTo` (unbounded) — EXCEPT `tiered_overage` where ALL tiers require `upTo`. If `from` is set, ranges must not overlap.
+- For `tiered` / `volume`, each rate card row uses `pricing.tiers` + `pricing.tierMode` (same shape as charge-level default pricing). Quantity is **not** a rate-card attribute.
+- Per-tier amounts use currency maps on the tier (`unitAmounts` / `flatAmounts`) with `priceFormat` `price_format_per_unit` or `price_format_flat_fee` — not a single V1-style `price` field. `priceFormat` defaults to per-unit when omitted.
 - Rate card operators: `==`, `>`, `>=`, `<`, `<=`, `between`, `between-inclusive`, `matches` (regex). NOT supported: `!=`
 - For `between`/`between-inclusive`, value is an array: `[lower, upper]`
 - Attribute types: `String`, `Integer`, `Double` (NOT Decimal), `Boolean`, `Date`, `Datetime`
@@ -229,3 +308,4 @@ Do not call any write/mutating MCP tools (product, plan, charge, custom field cr
 - Omitting `EffectiveDate` on a row means "effective from now"; a future date schedules the change while preserving the prior price as bounded history — you do not supply the end date, the system computes it
 - Two rate card rows with the same business attributes AND the same effective date are a duplicate and will be rejected
 - For dynamic pricing updates, re-submitting a row whose price equals the price already in effect at its effective date is a no-op and is dropped (does not grow the rate card)
+- **CSV inputs:** classify columns by role (identity / dimension / quantity / price / currency / effective date / ignore); never assume fixed header names; currency ≠ rate-card attribute; quantity ≠ rate-card attribute when using `tiered`/`volume`; confirm `tiered` vs `volume`; summarize large files instead of dumping every row

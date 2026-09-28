@@ -4,7 +4,7 @@ High-level design patterns plus the composition algorithm used by `/zuora-workfl
 
 ## Overview
 
-Zuora Workflows are JSON objects with four top-level sections: `workflow_definition`, `workflow`, `tasks`, and `linkages`. They execute as a directed graph starting from a single `Start` linkage. The Rails backend (`Workflow::Setup.import`) is strict: tasks / linkages arrays cannot be empty, every task needs a `parameters` object, and several top-level task columns (e.g., `object`, `object_id`) are ActiveRecord-validated at import.
+Zuora Workflows are JSON objects with four top-level sections: `workflow_definition`, `workflow`, `tasks`, and `linkages`. They execute as a directed graph starting from a single `Start` linkage. The Workflow backend (`Workflow import`) is strict: tasks / linkages arrays cannot be empty, every task needs a `parameters` object, and several top-level task columns (e.g., `object`, `object_id`) are validated at import at import.
 
 Three files underpin safe composition:
 
@@ -31,26 +31,26 @@ Narrative references:
 2. **Choose trigger mode(s)** — set at least one of `ondemand_trigger`, `callout_trigger`, `scheduled_trigger`, `event_trigger` to `true`. Multiple trigger flags are valid when the same task graph should run in more than one way, such as on-demand plus scheduled. Set `interval` + `timezone` for scheduled, and set `parameters.event_triggers` + `parameters.event_parameters` for event.
 3. **Set `call_type`** (`BATCH` / `ASYNC` default; `SYNC`, `UI`, `DATASTREAM`, etc. only when a tenant-enabled mode is required).
 4. **For each task**, deep-copy its template from `workflow-task-templates.json`, then:
-   - Assign a unique integer `id`.
-   - Fill every `<<REQUIRED: …>>` sentinel.
-   - Populate every field in `required_at_import` (top-level `object` / `object_id` validated by ActiveRecord column presence).
-   - Always include `parameters: {}` even if the task takes no parameters.
-   - For `Logic::Case`, pre-normalize `parameters.case_condition` keys to `Case_1`, `Case_2`, … (sequential).
-   - For Liquid expressions, use the scopes from `workflow-liquid.md`; keep `strict_variables: "true"`.
-   - Position tasks on the canvas with the defaults in `workflow-enums.json.css_layout_defaults`.
+ - Assign a unique integer `id`.
+ - Fill every `<<REQUIRED: …>>` sentinel.
+ - Populate every field in `required_at_import` (top-level `object` / `object_id` validated by required top-level attribute checks at import).
+ - Always include `parameters: {}` even if the task takes no parameters.
+ - For `Logic::Case`, pre-normalize `parameters.case_condition` keys to `Case_1`, `Case_2`, … (sequential).
+ - For Liquid expressions, use the scopes from `workflow-liquid.md`; keep `strict_variables: "true"`.
+ - Position tasks on the canvas with the defaults in `workflow-enums.json.css_layout_defaults`.
 5. **Emit linkages**:
-   - Exactly one `Start` linkage (`source_workflow_id = workflow.id`, `source_task_id = null`).
-   - One linkage per task-to-task edge; `linkage_type` must be one of the upstream task's published `hooks`.
-   - `Case_N` linkages match the renumbered keys.
-   - No `For Each` linkage on any path leading to a `Logic::Merge` task.
-6. **Lint** via `scripts/lint-workflow-json.js`. Fix every error; address warnings when feasible.
-7. **Optional sandbox dry-run**: `import_workflow` with `activate: false` in a sandbox, then `delete_workflow` to clean up. Rails has no `validate_only` flag, so "dry-run" means import-then-delete.
+ - Exactly one `Start` linkage (`source_workflow_id = workflow.id`, `source_task_id = null`).
+ - One linkage per task-to-task edge; `linkage_type` must be one of the upstream task's published `hooks`.
+ - `Case_N` linkages match the renumbered keys.
+ - No `For Each` linkage on any path leading to a `Logic::Merge` task.
+6. **Lint** via `Workflow UI`. Fix every error; address warnings when feasible.
+7. **Optional sandbox dry-run**: `import_workflow` with `activate: false` in a sandbox, then `delete_workflow` to clean up. Workflow has no validate-only import flag, so "dry-run" means import-then-delete.
 
 ## Artifact delivery contract
 
 Workflow import JSON must be delivered as a complete artifact. Do not provide partial, representative, or ellipsized JSON as the thing to import. The generated `.workflow.json` file must contain all four top-level import keys: `workflow_definition`, `workflow`, `tasks`, and `linkages`, and the lint command must be run against that exact file. If prerequisites prevent validation, explain what is missing and mark the artifact as not ready for import instead of filling gaps with hopeful JSON.
 
-Workflow run-prompt fields also need import-safe defaults. For `workflow.parameters.fields[]` entries with `datatype: "JSON"`, never emit `default: null`; Rails validates JSON defaults by calling `.size`, so null, boolean, and numeric defaults crash import. Use `[]` for array inputs, `{}` for object/map inputs, or a valid JSON string/default.
+Workflow run-prompt fields also need import-safe defaults. For `workflow.parameters.fields[]` entries with `datatype: "JSON"`, never emit `default: null`; Workflow validates JSON defaults by size, so null, boolean, and numeric defaults crash import. Use `[]` for array inputs, `{}` for object/map inputs, or a valid JSON string/default.
 
 ## Pattern: Event-driven automation
 
@@ -66,9 +66,9 @@ Trigger on Zuora business events (`InvoicePosted`, `PaymentProcessed`, custom ob
 
 Run on a cron schedule.
 
-- `scheduled_trigger: true`; `interval` is cron syntax; `timezone` is a Rails `ActiveSupport::TimeZone` friendly name such as `"UTC"` or `"Pacific Time (US & Canada)"`.
+- `scheduled_trigger: true`; `interval` is cron syntax; `timezone` is a Workflow timezone allowlist friendly name such as `"UTC"` or `"Pacific Time (US & Canada)"`.
 - Query the collection, Iterate, evaluate per-row logic, converge with the iterator's `Complete` hook (no `Logic::Merge` required for simple cases).
-- For multi-branch fan-out under an Iterator, use `Logic::Case`; Rails serializes its keys to `Case_1..N` but the composer should pre-normalize so no linkages get destroyed.
+- For multi-branch fan-out under an Iterator, use `Logic::Case`; Workflow serializes its keys to `Case_1..N` but the composer should pre-normalize so no linkages get destroyed.
 - Use `zero_query_proceed: "true"` on `Query` to avoid aborting the workflow on empty result sets.
 - See Use Case 2 in `workflow-examples.md`.
 
@@ -91,19 +91,19 @@ Prefer this shape:
 
 ```sql
 WITH expired_charge AS (
-  SELECT
-    id AS expiredchargeproductrateplanchargeid,
-    productrateplanid
-  FROM productrateplancharge
-  WHERE id = '{{ Data.Workflow.ExpiredChargeProductRatePlanChargeId }}'
-  LIMIT 1
+ SELECT
+ id AS expiredchargeproductrateplanchargeid,
+ productrateplanid
+ FROM productrateplancharge
+ WHERE id = '{{ Data.Workflow.ExpiredChargeProductRatePlanChargeId }}'
+ LIMIT 1
 )
 SELECT
-  a.accountnumber,
-  s.name AS subscriptionnumber,
-  i.id AS invoiceid,
-  expired_charge.productrateplanid,
-  expired_charge.expiredchargeproductrateplanchargeid
+ a.accountnumber,
+ s.name AS subscriptionnumber,
+ i.id AS invoiceid,
+ expired_charge.productrateplanid,
+ expired_charge.expiredchargeproductrateplanchargeid
 FROM invoice i
 JOIN invoiceitem ii ON ii.invoiceid = i.id
 JOIN subscription s ON s.id = ii.subscriptionid
@@ -122,10 +122,10 @@ This is one of the most common workflow requests. Bill runs can produce **hundre
 
 ```text
 BillingRunCompletion
-  → Export Invoice     WHERE Invoice.SourceId = '{{ Data.BillingRun.ID }}'
-  → Iterate            object = Invoice__<ExportTaskId>.csv.zip
-      → Query InvoiceItem   WHERE InvoiceId = '{{ Data.Invoice.Id }}'
-      → Callout POST        https://example.com/invoices  (payload in raw_body)
+ → Export Invoice WHERE Invoice.SourceId = '{{ Data.BillingRun.ID }}'
+ → Iterate object = Invoice__<ExportTaskId>.csv.zip
+ → Query InvoiceItem WHERE InvoiceId = '{{ Data.Invoice.Id }}'
+ → Callout POST https://example.com/invoices (payload in raw_body)
 ```
 
 | Do | Don't |
@@ -141,7 +141,7 @@ See `workflow-examples.md` for other lint-clean JSON fixtures (opaque Callout sc
 
 ## Pattern: Prefer Workflow Liquid Filters
 
-Before creating `Logic::Liquid` code that loops over a collection, check the filters documented in `workflow-liquid.md` and the exact signatures in `workflow-liquid-filters.md`, sourced from `rails/lib/liquid/filters.rb`.
+Before creating `Logic::Liquid` code that loops over a collection, check the filters documented in `workflow-liquid.md` and the exact signatures in `workflow-liquid-filters.md`.
 
 - Use `where` for exact field selection, for example `{% assign active = Data.Subscription | where: "Status", "Active" %}`.
 - Use `where_exp` for expression-based selection, for example `{% assign overdue = Data.Invoice | where_exp: "inv", "inv.Balance > 0" %}`.
@@ -177,16 +177,16 @@ Before creating `Logic::Liquid` code that loops over a collection, check the fil
 **Examples:**
 
 ```text
-Data::Link → Iterate → Callout          ✓  (JSON in raw_body)
-Data::Link → Iterate → Liquid → Callout ✗  (shim)
-Query → Liquid → Export                 ✗  (predicate belongs on Export)
-Data::Link → Liquid → Data::Link        ✗  (use CTE; W180)
+Data::Link → Iterate → Callout ✓ (JSON in raw_body)
+Data::Link → Iterate → Liquid → Callout ✗ (shim)
+Query → Liquid → Export ✗ (predicate belongs on Export)
+Data::Link → Liquid → Data::Link ✗ (use CTE; W180)
 ```
 
 Inside an Iterate For Each branch, reference the current row directly:
 
 ```json
-"raw_body": "{\n  \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n  \"amount\": \"{{ Data.Invoice.Amount }}\",\n  \"line_items\": {{ Data.InvoiceItem | to_json }}\n}"
+"raw_body": "{\n \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n \"amount\": \"{{ Data.Invoice.Amount }}\",\n \"line_items\": {{ Data.InvoiceItem | to_json }}\n}"
 ```
 
 Keep a separate `Logic::Liquid` task when the formatted value is reused by multiple downstream tasks, represents shared workflow context, or needs independent failure/retry/review behavior.
@@ -196,9 +196,9 @@ Avoid this shape for simple filtering:
 ```liquid
 {% assign active = null | array %}
 {% for sub in Data.Subscription %}
-  {% if sub.Status == "Active" %}
-    {% assign active = active | push: sub %}
-  {% endif %}
+ {% if sub.Status == "Active" %}
+ {% assign active = active | push: sub %}
+ {% endif %}
 {% endfor %}
 ```
 
@@ -227,8 +227,8 @@ For new-stack subscription cancellation, use a Zuora `Callout` to `{{ Credential
 - Pull external integration URLs / credentials from `GlobalConstants.*`; pull Zuora URLs from `Credentials.zuora.*` and let `authorization.type = "zuora"` supply Zuora credentials.
 - For Zuora REST v1 callouts, `Credentials.zuora.rest_endpoint` is already the v1 base URL. Use `{{ Credentials.zuora.rest_endpoint }}orders`, not `{{ Credentials.zuora.rest_endpoint }}/v1/orders` or `replace: "/v1/", ""` plus `/v1/orders`.
 - For Zuora API callouts, set `parameters.authorization.type = "zuora"` and keep only ordinary headers such as `Content-Type`; do not add `apiAccessKeyId`, `apiSecretAccessKey`, `Authorization`, or bearer-token headers.
-- Validate response status codes with `parameters.validation.status_codes: ["200", ...]` (string array!).
-- `Callout#task_setup_validation` rejects some plain-text credential headers, but generated Zuora API callouts should use the built-in Zuora authorization mode rather than credential header Liquid.
+- Validate response status codes with `parameters.validation.status_codes: ["200",...]` (string array!).
+- `Callout#form save validation rejects some plain-text credential headers, but generated Zuora API callouts should use the built-in Zuora authorization mode rather than credential header Liquid.
 
 ## Pattern: Error handling
 
@@ -265,4 +265,4 @@ Use `mcp__zuora-mcp__manage_workflows`:
 - Parameterize with `workflow.parameters.fields` for runtime inputs rather than hard-coding.
 - Do not introduce `CustomObject::*` unless the user explicitly asks for custom objects or a durable custom-object audit/state store; the linter flags unmarked Custom Object tasks as `W194`.
 - Version with `workflow.version` (default `"0.0.1"`). Sandbox-first: import, activate, run, validate, then promote.
-- Lint on every change; the linter is the front line of defense because `Task.import` skips `task_setup_validation`.
+- Lint on every change; the linter is the front line of defense because `task import` skips form save validation.

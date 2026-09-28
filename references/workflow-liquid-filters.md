@@ -1,6 +1,6 @@
 # Zuora Workflow Liquid Filter Signatures
 
-Source of truth: `~/Workspace/workflow/rails/lib/liquid/filters.rb`. Argument counts below exclude the piped input value on the left side of `|`.
+Argument counts below exclude the piped input value on the left side of `|`.
 
 Prefer these Workflow-specific filters when they express the operation. Use stock Liquid filters for common string/array work (`date`, `default`, `split`, `join`, `replace`, `first`, `last`, `size`, `upcase`, `downcase`, `strip`, etc.).
 
@@ -27,7 +27,7 @@ For simple filtering, prefer `where` / `where_exp` over `{% for %}` + `{% if %}`
 | `parse_json` | String | none | Parsed Hash/Array | `{% assign mapping = Data.Workflow.MappingJson | parse_json %}` |
 | `to_xml` | Hash | none | XML string | `{{ payload | to_xml }}` |
 | `string_escape` | String or nil | none | Escaped string | `{{ raw | string_escape }}` |
-| `data_type` / `get_class` | any | none | Ruby class name string | `{{ Data.Invoice | data_type }}` |
+| `data_type` / `get_class` | any | none | type/class name string | `{{ Data.Invoice | data_type }}` |
 | `money` | String, Integer, Float, or nil | optional `currency: String` | Formatted money string | `{{ Data.Invoice.Balance | money: Data.Account.Currency }}` |
 | `regex` | String | `regexp: String`, `operation: "match_first"|"match_all"` | Match array | `{{ input | regex: "INV[0-9]+", "match_first" }}` |
 

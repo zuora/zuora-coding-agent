@@ -7,7 +7,6 @@ allowed-tools: [Read, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_workflows,
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
 
-
 You are designing a Zuora Workflow-based automation solution. The user has described a business process they want to automate.
 
 Design output is not an import artifact. Do not emit partial Workflow import JSON, abbreviated JSON, ellipsized task arrays, or "representative" JSON that could be copied into Workflow. If the user asks for JSON, either proceed with the `zuora-workflow-build` skill or explicitly hand off to it so the complete `.workflow.json` artifact can be composed, linted, and delivered.
@@ -22,15 +21,15 @@ Produce **plan artifacts**, not import JSON. The vendored workflow engine is the
 
 1. Write `${CLAUDE_PLUGIN_ROOT}/output/<name>.intent.json` (WorkflowIntent shape: `name`, `description`, `call_type`, `trigger`, `data_objects`, `missing_info_signals`).
 2. Validate intent (auto-wires `event_parameters`):
-   ```bash
-   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine validate-plan --stage intent -i output/<name>.intent.json
-   ```
-   If `ok` is false, fix blockers and re-run until `ok: true`. Apply corrections from the report to the intent file.
+ ```bash
+ ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine validate-plan --stage intent -i output/<name>.intent.json
+ ```
+ If `ok` is false, fix blockers and re-run until `ok: true`. Apply corrections from the report to the intent file.
 3. Write `${CLAUDE_PLUGIN_ROOT}/output/<name>.plan.json` (flat plan: `name`, `description`, `call_type`, `trigger`, `tasks[]`, `linkages[]` — **not** wire/export shape).
 4. Validate plan:
-   ```bash
-   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine validate-plan --stage plan -i output/<name>.plan.json
-   ```
+ ```bash
+ ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine validate-plan --stage plan -i output/<name>.plan.json
+ ```
 5. Hand off to `zuora-workflow-build` with the validated `.plan.json` path.
 
 Reference lookups during design:
@@ -59,7 +58,7 @@ If the requirement is unclear, ask targeted questions:
 Pick one or more trigger modes and confirm with the user if ambiguous. Each mode maps to one boolean flag on `workflow`, and Workflow supports multiple flags on a single setup:
 
 - **Event-triggered** (`event_trigger`) — fires on a Zuora business event (e.g., `InvoicePosted`, `PaymentProcessed`, or tenant-custom events). Requires `parameters.event_triggers` + `parameters.event_parameters`.
-- **Scheduled** (`scheduled_trigger`) — cron-based recurrence. Requires `interval` (cron) + `timezone` (Rails `ActiveSupport::TimeZone` friendly name, e.g. `"Pacific Time (US & Canada)"`). Do not use bare IANA names like `"America/Los_Angeles"` in the final JSON.
+- **Scheduled** (`scheduled_trigger`) — cron-based recurrence. Requires `interval` (cron) + `timezone` (Workflow timezone allowlist friendly name, e.g. `"Pacific Time (US & Canada)"`). Do not use bare IANA names like `"America/Los_Angeles"` in the final JSON.
 - **Callout-triggered** (`callout_trigger`) — external system POSTs to the workflow's callout URL.
 - **On-demand** (`ondemand_trigger`) — user runs it manually from the Workflow UI or via API.
 
@@ -98,7 +97,7 @@ Read these in parallel for composition fluency:
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-events.md` — standard Zuora event catalog, `<canonical_name_corrections>` table, and how to use the MCP `ask_zuora` tool to verify custom-event registration.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-data-flow.md` — how `Data.*` is built and validated across tasks (per-task `data_contract` blocks, opaque-task protocol, walker algorithm). **Required reading before Step 5c.**
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-liquid.md` — Liquid scopes for dynamic parameter values.
-- `${CLAUDE_PLUGIN_ROOT}/references/workflow-liquid-filters.md` — Workflow-specific Liquid filter signatures, argument counts/types, and examples from `filters.rb`.
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-liquid-filters.md` — Workflow-specific Liquid filter signatures, argument counts/types, and examples.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-examples.md` — fully annotated workflow JSONs covering each trigger style.
 
 ### Step 5b: Elicit workflow-level fields
@@ -106,12 +105,12 @@ Read these in parallel for composition fluency:
 Before mapping tasks (Step 5a), confirm the workflow-envelope settings. Ask the user only what is not already implied. Cross-reference `workflow-triggers-and-linkages.md` -> "Workflow-level field derivation" for each answer.
 
 1. **Trigger style(s)** (from Step 1a). Determines which trigger flags are `true` and what additional `parameters.*` keys are needed. Select every mode that should launch the same workflow:
-   - `ondemand` -> no extra fields.
-   - `callout` -> consider `parameters.fields[]` if the inbound POST body has a known schema. Use this for external systems or Notification bridges when **no standard Zuora event exists**. Do **not** default to Notification → Callout for processes that have a standard event (for example `BillingRunCompletion` for "after a bill run completes").
-   - `scheduled` -> requires `interval` (6-token cron preferred) and `timezone` (Rails `ActiveSupport::TimeZone` friendly name). Translate the user's natural-language schedule (e.g., "weekdays at 8 AM Pacific") into the cron string + a Rails-friendly timezone such as `"Pacific Time (US & Canada)"`.
-   - `event` -> requires `workflow.event_trigger: true`, `parameters.event_triggers[]`, and `parameters.event_parameters[]`. For "after a bill run completes", default to `BillingRunCompletion` with `Data.BillingRun.ID` (event parameter `key: "ID"`, `value: "<BillRun.ID>"`) — do not design a Notification → Callout bridge unless the user explicitly cannot use standard event triggers. Resolve the event name through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first; if not in the standard catalog, treat the user-provided name as a custom event candidate, keep that exact registered name in `event_triggers[]`, and instruct the user that the custom event must be registered (Settings -> Notifications -> Custom Events, or `POST /events/event-triggers`). Do not drop the event trigger or switch trigger styles solely because the name is tenant-custom.
-   - If multiple modes share one task graph, combine them in one workflow. Verify that any data consumed by shared tasks is available for every enabled trigger, or add defaults / a normalizer step before consuming trigger-specific data.
-2. **Entity** (multi-entity tenants only). Ask which Zuora entity the workflow should run against. Skip in single-entity tenants — `Workflow::Setup.import` auto-fills.
+ - `ondemand` -> no extra fields.
+ - `callout` -> consider `parameters.fields[]` if the inbound POST body has a known schema. Use this for external systems or Notification bridges when **no standard Zuora event exists**. Do **not** default to Notification → Callout for processes that have a standard event (for example `BillingRunCompletion` for "after a bill run completes").
+ - `scheduled` -> requires `interval` (6-token cron preferred) and `timezone` (Workflow timezone allowlist friendly name). Translate the user's natural-language schedule (e.g., "weekdays at 8 AM Pacific") into the cron string + a Workflow timezone allowlist name such as `"Pacific Time (US & Canada)"`.
+ - `event` -> requires `workflow.event_trigger: true`, `parameters.event_triggers[]`, and `parameters.event_parameters[]`. For "after a bill run completes", default to `BillingRunCompletion` with `Data.BillingRun.ID` (event parameter `key: "ID"`, `value: "<BillRun.ID>"`) — do not design a Notification → Callout bridge unless the user explicitly cannot use standard event triggers. Resolve the event name through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first; if not in the standard catalog, treat the user-provided name as a custom event candidate, keep that exact registered name in `event_triggers[]`, and instruct the user that the custom event must be registered (Settings -> Notifications -> Custom Events, or `POST /events/event-triggers`). Do not drop the event trigger or switch trigger styles solely because the name is tenant-custom.
+ - If multiple modes share one task graph, combine them in one workflow. Verify that any data consumed by shared tasks is available for every enabled trigger, or add defaults / a normalizer step before consuming trigger-specific data.
+2. **Entity** (multi-entity tenants only). Ask which Zuora entity the workflow should run against. Skip in single-entity tenants — `Workflow import` auto-fills.
 3. **`call_type`**. Default `BATCH`. Switch only on explicit need: `REALTIME` for sub-second responsiveness, `UIACTION` for an embedded UI button, `SYNC` for synchronous callouts, `DATASTREAM` for streaming. Confirm tenant prerequisites are enabled (see call_type matrix).
 4. **Notifications** (optional). Ask if the user wants email alerts on success / failure / pending. If yes, collect recipient list; emails may include Liquid templates like `{{Data.Account.WorkEmail__c}}`.
 5. **Run prompt** (`parameters.fields[]`, optional). For ondemand/callout workflows that need typed input, define each field's `object_name`, `field_name`, `datatype` (one of `JSON | Boolean | Text | Integer | Decimal | Date | DateTime-Local | File-Field`), `required`, and `default`. Ordinary workflow-level inputs MUST use `object_name: "Workflow"` so they resolve as `Data.Workflow.<field_name>`; file uploads use `object_name: "Files"`. Do not invent grouping objects such as `BillRunConfig`; only use another `object_name` when it is a real supported object available in the run-prompt dropdown.
@@ -154,10 +153,10 @@ Use `Query`, not `Export`, when a later task needs direct workflow variables suc
 
 ```text
 BillingRunCompletion (event_trigger)
-  → Export Invoice  WHERE Invoice.SourceId = '{{ Data.BillingRun.ID }}'
-  → Iterate         object = Invoice__<ExportTaskId>.csv.zip
-      → Query InvoiceItem  WHERE InvoiceId = '{{ Data.Invoice.Id }}'   (per-row; usually ≤ 2000)
-      → Callout POST       raw_body references Data.Invoice.* and Data.InvoiceItem inline
+ → Export Invoice WHERE Invoice.SourceId = '{{ Data.BillingRun.ID }}'
+ → Iterate object = Invoice__<ExportTaskId>.csv.zip
+ → Query InvoiceItem WHERE InvoiceId = '{{ Data.Invoice.Id }}' (per-row; usually ≤ 2000)
+ → Callout POST raw_body references Data.Invoice.* and Data.InvoiceItem inline
 ```
 
 **Do not design:**
@@ -183,18 +182,18 @@ Example shape for scalar context:
 
 ```sql
 WITH expired_charge AS (
-  SELECT
-    id AS expiredchargeproductrateplanchargeid,
-    productrateplanid
-  FROM productrateplancharge
-  WHERE id = '{{ Data.Workflow.ExpiredChargeProductRatePlanChargeId }}'
-  LIMIT 1
+ SELECT
+ id AS expiredchargeproductrateplanchargeid,
+ productrateplanid
+ FROM productrateplancharge
+ WHERE id = '{{ Data.Workflow.ExpiredChargeProductRatePlanChargeId }}'
+ LIMIT 1
 )
 SELECT
-  i.id AS invoiceid,
-  i.invoicenumber,
-  expired_charge.productrateplanid,
-  expired_charge.expiredchargeproductrateplanchargeid
+ i.id AS invoiceid,
+ i.invoicenumber,
+ expired_charge.productrateplanid,
+ expired_charge.expiredchargeproductrateplanchargeid
 FROM invoice i
 CROSS JOIN expired_charge
 WHERE i.balance > 0
@@ -213,11 +212,11 @@ Required reading: `workflow-data-flow.md` (especially sections 1, 2, and 9). Eve
 For each task in your design, list two things:
 
 1. **What it writes to `Data.*`** — look up its entry in `workflow-task-templates.json` → `data_contract.writes`. Resolve placeholders like `Data.{parameters.placement | self.object}` using the task's chosen `parameters.placement` (or default). Note the task's `data_contract.predictability`:
-   - **DETERMINISTIC** — both the scope and the field shape are known at design time (e.g. `Query`, `Create`, `Update`, amendments, `InvoiceGenerate`).
-   - **SEMI-DETERMINISTIC** — scope known, fields partially known (e.g. `Billing::BillRun`, `GraphQuery`, `Logic::Liquid`, `Reporting::*`, file-handling tasks).
-   - **OPAQUE** — scope known, field shape unknowable until runtime (e.g. `Callout`, `AsynchronousCallout`, `Logic::Lambda`, `Script::JavaScript`, `Logic::JSONTransform`, `Logic::XMLTransform`, `Logic::CSVTranslator`, `Logic::ResponseFormatter`, `Execute::WorkflowTask`, `Mediation::SendEvents`).
-   - **SCOPING** — no positive writes, just routes execution and/or rebinds (`If`, `Logic::Case`, `Iterate`, `Logic::Merge`, `Approval`, `Delete`, `CustomObject::Delete`).
-   - **NONE** — side-effect only, no `Data.*` writes (`Email`, SMS, Kafka, Delay, Upload::*, UI::Stop/Page/WebShare, UsageMediation::*).
+ - **DETERMINISTIC** — both the scope and the field shape are known at design time (e.g. `Query`, `Create`, `Update`, amendments, `InvoiceGenerate`).
+ - **SEMI-DETERMINISTIC** — scope known, fields partially known (e.g. `Billing::BillRun`, `GraphQuery`, `Logic::Liquid`, `Reporting::*`, file-handling tasks).
+ - **OPAQUE** — scope known, field shape unknowable until runtime (e.g. `Callout`, `AsynchronousCallout`, `Logic::Lambda`, `Script::JavaScript`, `Logic::JSONTransform`, `Logic::XMLTransform`, `Logic::CSVTranslator`, `Logic::ResponseFormatter`, `Execute::WorkflowTask`, `Mediation::SendEvents`).
+ - **SCOPING** — no positive writes, just routes execution and/or rebinds (`If`, `Logic::Case`, `Iterate`, `Logic::Merge`, `Approval`, `Delete`, `CustomObject::Delete`).
+ - **NONE** — side-effect only, no `Data.*` writes (`Email`, SMS, Kafka, Delay, Upload::*, UI::Stop/Page/WebShare, UsageMediation::*).
 
 2. **What `Data.X.Y` references it needs** — every Liquid expression in its `parameters` (URLs, body, where_clause, if_clause, case_clause, fields, headers).
 
@@ -226,14 +225,14 @@ For each task in your design, list two things:
 Build a small `available_data` table that grows as you walk down the graph. Start with the workflow seeds (see `workflow-data-flow.md` → "What's in Data before any task runs" and `workflow-enums.json` → `default_data_workflow_keys` / `trigger_seeding_rules`):
 
 ```
-Step 0 (workflow seed):    Data.Workflow.{ExecutionDate, ExecutionDateTime, ExecutionDateTimeUTC, WorkflowRunUser}
-                         + Data.<event payload keys>     (event_trigger via parameters.event_parameters[])
-                         + Data.<custom fields>          (ondemand/scheduled/callout via parameters.fields[])
-                         + Data.Callout.<inbound body>   (callout_trigger only — OPAQUE)
-Step 1 (Query Invoice):  + Data.Invoice.{Id, InvoiceNumber, Amount, AccountId}        [DETERMINISTIC]
-Step 2 (Iterate):          (no positive writes; rebinds Data.Invoice → single Hash inside For-Each)  [SCOPING]
-Step 3 (Callout):        + Data.{placement | 'Callout'}                                [OPAQUE]
-Step 4 (Email):            (no writes; just files Data.Files.<holder>)                  [NONE/file]
+Step 0 (workflow seed): Data.Workflow.{ExecutionDate, ExecutionDateTime, ExecutionDateTimeUTC, WorkflowRunUser}
+ + Data.<event payload keys> (event_trigger via parameters.event_parameters[])
+ + Data.<custom fields> (ondemand/scheduled/callout via parameters.fields[])
+ + Data.Callout.<inbound body> (callout_trigger only — OPAQUE)
+Step 1 (Query Invoice): + Data.Invoice.{Id, InvoiceNumber, Amount, AccountId} [DETERMINISTIC]
+Step 2 (Iterate): (no positive writes; rebinds Data.Invoice → single Hash inside For-Each) [SCOPING]
+Step 3 (Callout): + Data.{placement | 'Callout'} [OPAQUE]
+Step 4 (Email): (no writes; just files Data.Files.<holder>) [NONE/file]
 ```
 
 For every Liquid reference confirm:
@@ -249,7 +248,7 @@ If your design includes a `Callout`, `AsynchronousCallout`, `Logic::Lambda`, `Sc
 
 > Task `<task name>` is a `<action_type>` whose response shape we cannot statically know. You're about to reference `Data.<placement>.<field…>` downstream. Choose:
 >
-> **(a) Declare expected response schema** — list the fields you expect (e.g. `acknowledgmentId, receivedAt, errors[].code`). I'll add `parameters._expected_response_schema = { '<scope>': { ... } }` so the linter validates downstream references field-by-field.
+> **(a) Declare expected response schema** — list the fields you expect (e.g. `acknowledgmentId, receivedAt, errors[].code`). I'll add `parameters._expected_response_schema = { '<scope>': {... } }` so the linter validates downstream references field-by-field.
 >
 > **(b) Opt out** — set `parameters._opaque_trusted = "true"` to suppress all `W172` lint warnings on `Data.<scope>.*` references and trust runtime.
 >
@@ -257,7 +256,7 @@ If your design includes a `Callout`, `AsynchronousCallout`, `Logic::Lambda`, `Sc
 >
 > **(d) Don't know yet** — I'll mark the design as "needs user confirmation before build" and pause.
 
-Capture the answer in the design notes. The Build skill (Step 3e) will materialize it on the opaque task's `parameters` block. The leading underscore on the sentinel keys (`_opaque_trusted`, `_expected_response_schema`) means Rails ignores them — they're pure linter/composer metadata and never persisted server-side.
+Capture the answer in the design notes. The Build skill (Step 3e) will materialize it on the opaque task's `parameters` block. The leading underscore on the sentinel keys (`_opaque_trusted`, `_expected_response_schema`) means import ignores them — they're pure linter/composer metadata and never persisted server-side.
 
 The Build skill enforces all of the above with the topological walker (Step 3d), backed by linter rules `E170` (missing scope), `W171` (field gap on deterministic), `W172` (unconfirmed opaque), `W173` (Iterate-body shape), `W174` (branch-partial scope after Logic::Merge).
 
@@ -265,15 +264,15 @@ The Build skill enforces all of the above with the topological walker (Step 3d),
 
 Deliver a structured workflow design:
 
-- **Trigger**: chosen mode (from Step 1a), plus required config (canonical event names from `workflow-events.md`, 6-token cron + Rails-friendly timezone, callout config).
+- **Trigger**: chosen mode (from Step 1a), plus required config (canonical event names from `workflow-events.md`, 6-token cron + Workflow timezone allowlist name, callout config).
 - **Workflow-level envelope**: `call_type`, `priority`, `delete_ttl`, `notifications`, multi-entity choice, and any non-default values from Step 5b.
 - **Input parameters**: the `workflow.parameters.fields` the workflow expects at runtime (only relevant for callout/ondemand styles).
 - **Steps**: ordered list of tasks. For each:
-  - Name, `action_type`, purpose, expected inputs (from `Data.*` scope), expected outputs (where task writes per its `data_contract`).
-  - Upstream linkages (which task feeds it, which `linkage_type`).
-  - `required_at_import` values it must carry (`object`, `object_id` if applicable).
-  - Parameters with Liquid references it will need.
-  - **Data-flow notes** from Step 5c: what each task adds to `Data.*` (with `predictability`: deterministic / semi-deterministic / opaque / scoping / none) and which downstream tasks consume it. Flag every OPAQUE task (Callout / AsynchronousCallout / Logic::Lambda / Script::JavaScript / Logic::JSONTransform / Logic::XMLTransform / Logic::CSVTranslator / Logic::ResponseFormatter / Execute::WorkflowTask / Mediation::SendEvents) AND the agreed opaque-protocol choice (declare schema / opt out via `_opaque_trusted` / insert normalizer / pending user confirmation).
+ - Name, `action_type`, purpose, expected inputs (from `Data.*` scope), expected outputs (where task writes per its `data_contract`).
+ - Upstream linkages (which task feeds it, which `linkage_type`).
+ - `required_at_import` values it must carry (`object`, `object_id` if applicable).
+ - Parameters with Liquid references it will need.
+ - **Data-flow notes** from Step 5c: what each task adds to `Data.*` (with `predictability`: deterministic / semi-deterministic / opaque / scoping / none) and which downstream tasks consume it. Flag every OPAQUE task (Callout / AsynchronousCallout / Logic::Lambda / Script::JavaScript / Logic::JSONTransform / Logic::XMLTransform / Logic::CSVTranslator / Logic::ResponseFormatter / Execute::WorkflowTask / Mediation::SendEvents) AND the agreed opaque-protocol choice (declare schema / opt out via `_opaque_trusted` / insert normalizer / pending user confirmation).
 - **Decision points**: conditions for `If` / `Logic::Case` branches, including the exact `Case_N` keys when multi-way.
 - **Iteration points**: `Iterate` tasks with the collection they iterate over and whether a `Logic::Merge` is needed (reminder: no `For Each` on any path reaching a Merge).
 - **Error handling**: `Failure` branches, retry rules, fallback actions, notification on failure.

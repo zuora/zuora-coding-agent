@@ -15,8 +15,8 @@
   "$audit_fields": ["Id", "CreatedDate", "CreatedById", "UpdatedDate", "UpdatedById"],
 
   "$event_base_objects": {
-    "$description": "Mirror of app/javascript/components/WorkflowDefinitionForm.js#defaultEvents. Maps a Zuora notifications event category (the value of workflow.parameters.event_triggers[]) to the `baseObject` the notifications service uses for the default dropdown population. Linter rule E177 uses this map to validate that `workflow.parameters.event_parameters[].params[].value` tokens of the form `<BaseObject.Field>` carry a BaseObject name that actually matches the selected event.",
-    "$source": "workflow/rails/app/javascript/components/WorkflowDefinitionForm.js lines 150-218. Commented-out (inactive) events are omitted.",
+    "$description": "Maps Workflow definition-form default events. Maps a Zuora notifications event category (the value of workflow.parameters.event_triggers[]) to the `baseObject` the notifications service uses for the default dropdown population. Linter rule E177 uses this map to validate that `workflow.parameters.event_parameters[].params[].value` tokens of the form `<BaseObject.Field>` carry a BaseObject name that actually matches the selected event.",
+    "$source": "Commented-out (inactive) events are omitted.",
     "$caveat": "The base object fixes the *naming convention* for the merge-field dropdown, but the concrete keyspace that actually resolves at runtime is determined by the live /notifications/email-templates/info/selections?category={category} response for the current tenant. Always describe before committing a token.",
     "events": {
       "AmendmentProcessed": "Amendment",
@@ -56,8 +56,8 @@
   },
 
   "$event_special_tokens": {
-    "$description": "Angle-bracket tokens that are resolved by workflow/rails/app/models/business_event.rb (lines 143-185) without consulting the notifications payload keyspace. Linter rule E177 always permits these regardless of event category.",
-    "$source": "workflow/rails/app/models/business_event.rb#L143-L185",
+    "$description": "Angle-bracket tokens that are resolved by Workflow event binding without consulting the notifications payload keyspace. Linter rule E177 always permits these regardless of event category.",
+    "$source": "Workflow event binding",
     "tokens": [
       "<Event.Category>",
       "<Event.Date>",

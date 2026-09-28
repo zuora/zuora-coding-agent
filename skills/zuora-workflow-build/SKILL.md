@@ -7,7 +7,6 @@ allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__mana
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
 
-
 You are building an importable Zuora Workflow JSON from a design (produced by `/zuora-workflow-design` or provided directly).
 
 ## Input
@@ -19,21 +18,21 @@ The user's workflow design or requirement: $ARGUMENTS
 Format and semantics are non-negotiable. Defense is layered:
 
 1. **Build** with the vendored engine — the **only** legal producer of import JSON:
-   ```bash
-   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine build -i <plan>.plan.json -o output/<name>.workflow.json
-   ```
-   Input must be a validated flat `WorkflowPlan` (from `/zuora-workflow-design`). Never hand-write `workflow_definition` / `workflow` / `tasks` / `linkages`.
-   Build validates Export/Query/Create/Update `parameters.fields` against `/describe` metadata (live when `ZUORA_*` env vars are set, else cached JSON). Same triage as developer-agent: relocate, block on ambiguity, or remove invalid fields. Inspect fields with:
-   ```bash
-   ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine lookup-schema Invoice --context export
-   ```
-   Example: `Invoice.AccountId` is SOAP-only — use a separate `Account` key in multi-object Export and reference `Data.Account.Id`, not `Data.Invoice.AccountId`.
-   Callout tasks may carry `body_brief` + `body_vars` at plan time; build expands them into `raw_body` deterministically (set `raw_body` directly when you need exact payload shape).
+ ```bash
+ ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine build -i <plan>.plan.json -o output/<name>.workflow.json
+ ```
+ Input must be a validated flat `WorkflowPlan` (from `/zuora-workflow-design`). Never hand-write `workflow_definition` / `workflow` / `tasks` / `linkages`.
+ Build validates Export/Query/Create/Update `parameters.fields` against `/describe` metadata (live when `ZUORA_*` env vars are set, else cached JSON). Same triage as developer-agent: relocate, block on ambiguity, or remove invalid fields. Inspect fields with:
+ ```bash
+ ${CLAUDE_PLUGIN_ROOT}/bin/workflow-engine lookup-schema Invoice --context export
+ ```
+ Example: `Invoice.AccountId` is SOAP-only — use a separate `Account` key in multi-object Export and reference `Data.Account.Id`, not `Data.Invoice.AccountId`.
+ Callout tasks may carry `body_brief` + `body_vars` at plan time; build expands them into `raw_body` deterministically (set `raw_body` directly when you need exact payload shape).
 2. **Lint** the engine output:
-   ```bash
-   node ${CLAUDE_PLUGIN_ROOT}/scripts/lint-workflow-json.js output/<name>.workflow.json
-   ```
-   Fix errors in the **plan** and rebuild; do not patch assembled JSON by hand except for explicit user-requested post-build edits (then re-lint).
+ ```bash
+ node ${CLAUDE_PLUGIN_ROOT}/scripts/lint-workflow-json.js output/<name>.workflow.json
+ ```
+ Fix errors in the **plan** and rebuild; do not patch assembled JSON by hand except for explicit user-requested post-build edits (then re-lint).
 3. **Optional dry-run** in a sandbox: `import_workflow activate=false`, then `delete_workflow`.
 
 Legacy skeleton/template composition is fallback only when the engine is unavailable; document why and mark the artifact not ready for import.
@@ -65,7 +64,7 @@ Read these in parallel before composing:
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-events.md` — standard event catalog, name corrections, and event_parameters derivation.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-data-flow.md` — `Data.*` symbol-table model, opaque-task protocol, walker algorithm. **Required reading before Step 3d.**
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-liquid.md` — Liquid scopes.
-- `${CLAUDE_PLUGIN_ROOT}/references/workflow-liquid-filters.md` — Workflow-specific Liquid filter signatures, argument counts/types, and examples from `filters.rb`.
+- `${CLAUDE_PLUGIN_ROOT}/references/workflow-liquid-filters.md` — Workflow-specific Liquid filter signatures, argument counts/types, and examples.
 - `${CLAUDE_PLUGIN_ROOT}/references/workflow-examples.md` — annotated, lint-clean workflow JSONs.
 
 ### Step 2: Optional — check existing workflows to clone
@@ -88,80 +87,80 @@ Use the skeleton + templates composer. Do not hand-write structure.
 2. **Populate `workflow_definition`** (name, description, category, `ui_page_roles`).
 
 3. **Set trigger flags and config on `workflow`** (see Step 3b for the full envelope):
-   - At least one of `ondemand_trigger`, `callout_trigger`, `scheduled_trigger`, `event_trigger` set to `true`. Set multiple flags when the same task graph should be runnable in multiple ways, such as on-demand plus scheduled.
-   - Scheduled: `interval` (6-token Rufus/Fugit cron `SEC MIN HOUR DOM MON DOW`; bare `/N` = `*/N` step; the React UI always emits 6 tokens with `second=0`) **and** `timezone` (Rails `ActiveSupport::TimeZone` friendly name -- e.g. `"UTC"`, `"Eastern Time (US & Canada)"`, `"London"`, `"Tokyo"`). The full allowlist is in `references/rails-timezones.json`. **Never emit a bare IANA string** like `"America/New_York"` -- it fails Rails validation (`workflow/setup.rb` L32) and the linter raises `E175`. If the user gives you an IANA name, look it up in `rails-timezones.json -> iana_to_friendly_recommendations` and convert.
-   - Event: `parameters.event_triggers` (non-empty array of canonical event names) + `parameters.event_parameters` (array of `{eventName, params: [...]}`).
-   - Choose `call_type` from `workflow-enums.json` -> `workflow_call_types.user_facing` (default `BATCH`; never emit `ASYNC`/`RULE`/`UI`).
-   - Do not create two workflows with identical tasks just to support two trigger modes. Use one workflow with multiple trigger flags unless the trigger-specific inputs or branches make the task graph meaningfully different.
+ - At least one of `ondemand_trigger`, `callout_trigger`, `scheduled_trigger`, `event_trigger` set to `true`. Set multiple flags when the same task graph should be runnable in multiple ways, such as on-demand plus scheduled.
+ - Scheduled: `interval` (6-token Workflow cron `SEC MIN HOUR DOM MON DOW`; bare `/N` = `*/N` step; the React UI always emits 6 tokens with `second=0`) **and** `timezone` (Workflow timezone allowlist friendly name -- e.g. `"UTC"`, `"Eastern Time (US & Canada)"`, `"London"`, `"Tokyo"`). The full allowlist is in `references/rails-timezones.json`. **Never emit a bare IANA string** like `"America/New_York"` -- it fails Workflow validation and the linter raises `E175`. If the user gives you an IANA name, look it up in `rails-timezones.json -> iana_to_friendly_recommendations` and convert.
+ - Event: `parameters.event_triggers` (non-empty array of canonical event names) + `parameters.event_parameters` (array of `{eventName, params: [...]}`).
+ - Choose `call_type` from `workflow-enums.json` -> `workflow_call_types.user_facing` (default `BATCH`; never emit `ASYNC`/`RULE`/`UI`).
+ - Do not create two workflows with identical tasks just to support two trigger modes. Use one workflow with multiple trigger flags unless the trigger-specific inputs or branches make the task graph meaningfully different.
 
 4. **For each task** in the design:
-   a. Look up the matching `action_type` in `workflow-task-templates.json`.
-   b. Deep-copy the `template` object.
-   c. Assign a unique integer `id` (simple sequence like 100, 101, 102).
-   d. Replace every `<<REQUIRED: …>>` sentinel with a real value. Use Liquid from `Data.*`, `Credentials.zuora.*`, `GlobalConstants.*` as appropriate.
-   e. Populate every field listed under `required_at_import` with a non-empty value (top-level attrs like `object`, `object_id` that Rails validates via ActiveRecord column presence).
-   f. Guarantee `parameters` is an object, not `null` or missing. An empty task uses `"parameters": {}`.
-   g. For boolean params listed in `boolean_string_params`, always emit the STRING `"true"` or `"false"`, never JSON booleans.
-   h. For enum params listed in `param_enums`, pick one of the listed values — do not invent new ones.
-   i. **Logic::Case special handling:** pre-normalize `parameters.case_condition` keys to sequential `Case_1`, `Case_2`, … `Case_N` before emitting. This matches the server-side `before_save :validate_labels` rewrite so no linkages are destroyed.
-   j. Set `css.top`/`css.left` using the defaults in `workflow-enums.json.css_layout_defaults` (adjust for branches).
-   k. Set `task_id` to the id of the primary upstream task (for layout/dependency purposes), or `null` for the entry task.
+ a. Look up the matching `action_type` in `workflow-task-templates.json`.
+ b. Deep-copy the `template` object.
+ c. Assign a unique integer `id` (simple sequence like 100, 101, 102).
+ d. Replace every `<<REQUIRED: …>>` sentinel with a real value. Use Liquid from `Data.*`, `Credentials.zuora.*`, `GlobalConstants.*` as appropriate.
+ e. Populate every field listed under `required_at_import` with a non-empty value (top-level attrs like `object`, `object_id` required at import).
+ f. Guarantee `parameters` is an object, not `null` or missing. An empty task uses `"parameters": {}`.
+ g. For boolean params listed in `boolean_string_params`, always emit the STRING `"true"` or `"false"`, never JSON booleans.
+ h. For enum params listed in `param_enums`, pick one of the listed values — do not invent new ones.
+ i. **Logic::Case special handling:** pre-normalize `parameters.case_condition` keys to sequential `Case_1`, `Case_2`, … `Case_N` before emitting. This keeps Case linkages stable (non-sequential keys are rewritten on save and can destroy mismatched linkages).
+ j. Set `css.top`/`css.left` using the defaults in `workflow-enums.json.css_layout_defaults` (adjust for branches).
+ k. Set `task_id` to the id of the primary upstream task (for layout/dependency purposes), or `null` for the entry task.
 
-   **If task `if_clause` check:** every `If.parameters.if_clause` must wrap the condition in `{% if <condition> %}True{% else %}False{% endif %}`. Emit capitalized `True` / `False` branch literals — never lowercase `true` / `false`. Example: `{% if Data.Workflow.LateFeeEnabled == 'false' or Data.Workflow.LateFeeEnabled == false %}True{% else %}False{% endif %}`.
+ **If task `if_clause` check:** every `If.parameters.if_clause` must wrap the condition in `{% if <condition> %}True{% else %}False{% endif %}`. Emit capitalized `True` / `False` branch literals — never lowercase `true` / `false`. Example: `{% if Data.Workflow.LateFeeEnabled == 'false' or Data.Workflow.LateFeeEnabled == false %}True{% else %}False{% endif %}`.
 
-   **Export vs Query data-scope check:** if any downstream task needs direct variables like `Data.RatePlan.SubscriptionId`, the producer must be `Query` (or an `Iterate` For Each branch over an Export file), not a bare `Export`. `Export` writes file/reference metadata (`Data.Export.<object>` and `Data.Files.<file-holder>`); it does not make `Data.<object>.<field>` available until an `Iterate` consumes the file holder.
+ **Export vs Query data-scope check:** if any downstream task needs direct variables like `Data.RatePlan.SubscriptionId`, the producer must be `Query` (or an `Iterate` For Each branch over an Export file), not a bare `Export`. `Export` writes file/reference metadata (`Data.Export.<object>` and `Data.Files.<file-holder>`); it does not make `Data.<object>.<field>` available until an `Iterate` consumes the file holder.
 
-   **Data volume task selection check:** before emitting a `Query` task, estimate whether the result set can exceed 2000 rows. `Query` is synchronous SOAP object query and hard-capped at `batch_size` 2000. When the user expects more rows, or the source is a run-scoped bulk read (invoices from a bill run, payments from a payment run, journal entries from a journal run, and similar), use `Export` (ZOQL bulk CSV) or `Data::Link` / Data Query (SQL-style) instead of `Query`. Common run-scoped patterns: `Export Invoice` with `where_clause = "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"` after `BillingRunCompletion` (not `BillRunId` — not filterable; linter `W197`); `Export Payment` with a run-scoping filter confirmed via describe after `PaymentRunCompletion` or when chaining off `Data.PaymentRun.Id`. **Never emit `Query` on `Invoice` scoped to a bill run** — bill runs can produce far more than 2000 invoices; the linter flags this as `W196`. Per-row child lookups inside an `Iterate` For Each branch may still use `Query` when each parent row's child set is small (for example `InvoiceItem` per invoice). Use `Data::Aqua` only when the dataset is too large for `Export` or stateful/incremental AQuA extraction is required. Use `Data::Link` when SQL joins or Data Query table access are needed. Do not emit `Query` for run-scoped parent collections that are routinely bulk.
+ **Data volume task selection check:** before emitting a `Query` task, estimate whether the result set can exceed 2000 rows. `Query` is synchronous SOAP object query and hard-capped at `batch_size` 2000. When the user expects more rows, or the source is a run-scoped bulk read (invoices from a bill run, payments from a payment run, journal entries from a journal run, and similar), use `Export` (ZOQL bulk CSV) or `Data::Link` / Data Query (SQL-style) instead of `Query`. Common run-scoped patterns: `Export Invoice` with `where_clause = "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"` after `BillingRunCompletion` (not `BillRunId` — not filterable; linter `W197`); `Export Payment` with a run-scoping filter confirmed via describe after `PaymentRunCompletion` or when chaining off `Data.PaymentRun.Id`. **Never emit `Query` on `Invoice` scoped to a bill run** — bill runs can produce far more than 2000 invoices; the linter flags this as `W196`. Per-row child lookups inside an `Iterate` For Each branch may still use `Query` when each parent row's child set is small (for example `InvoiceItem` per invoice). Use `Data::Aqua` only when the dataset is too large for `Export` or stateful/incremental AQuA extraction is required. Use `Data::Link` when SQL joins or Data Query table access are needed. Do not emit `Query` for run-scoped parent collections that are routinely bulk.
 
-   **Bill Run task selection check:** before using `Billing::BillRun`, verify the requested filters fit the OOTB task. It supports standard bill-run fields and v1 single-account/subscription filters via `AccountId` / `SubscriptionIds`; it does not support account-number filters, batch-number filters, or APM/ProductRatePlanCharge ID filters. If the requirement needs unsupported bill-run filters, use a custom Zuora `Callout` to the modern bill run API (`{{ Credentials.zuora.rest_endpoint }}bill-runs`) with `authorization.type = "zuora"` and a raw JSON body instead of forcing `Billing::BillRun`. Do not use the legacy object CRUD endpoint `/object/bill-run` for Create a bill run; the linter flags unsupported OOTB task filters as `W185` and legacy bill-run object CRUD callouts as `W192`.
+ **Bill Run task selection check:** before using `Billing::BillRun`, verify the requested filters fit the OOTB task. It supports standard bill-run fields and v1 single-account/subscription filters via `AccountId` / `SubscriptionIds`; it does not support account-number filters, batch-number filters, or APM/ProductRatePlanCharge ID filters. If the requirement needs unsupported bill-run filters, use a custom Zuora `Callout` to the modern bill run API (`{{ Credentials.zuora.rest_endpoint }}bill-runs`) with `authorization.type = "zuora"` and a raw JSON body instead of forcing `Billing::BillRun`. Do not use the legacy object CRUD endpoint `/object/bill-run` for Create a bill run; the linter flags unsupported OOTB task filters as `W185` and legacy bill-run object CRUD callouts as `W192`.
 
-   **Async Zuora operation polling check:** when a Zuora API callout creates an async operation such as a bill run, payment run, journal run, or another job-style API, a `Success` linkage only means Zuora accepted the job. Do not chain a second async create, posting step, or dependent work directly from the create callout. Use either `AsynchronousCallout` with `polling_url`, `response_path`, and `finish_status`, or model `Callout -> status Callout -> If/Logic::Case`: the status callout checks the returned job/run id, the branch tests for a successful/completed status, the pending branch polls again (usually after a delay), and only the completed branch continues. The linter flags async create-to-create paths without a status poll plus completion decision as `W195`.
+ **Async Zuora operation polling check:** when a Zuora API callout creates an async operation such as a bill run, payment run, journal run, or another job-style API, a `Success` linkage only means Zuora accepted the job. Do not chain a second async create, posting step, or dependent work directly from the create callout. Use either `AsynchronousCallout` with `polling_url`, `response_path`, and `finish_status`, or model `Callout -> status Callout -> If/Logic::Case`: the status callout checks the returned job/run id, the branch tests for a successful/completed status, the pending branch polls again (usually after a delay), and only the completed branch continues. The linter flags async create-to-create paths without a status poll plus completion decision as `W195`.
 
-   **Subscription cancel API-stack check:** for new-stack subscription cancellation, use a Zuora `Callout` to the Orders API (`{{ Credentials.zuora.rest_endpoint }}orders`) with an `orderActions[]` entry whose `type` is `"CancelSubscription"`. Set `authorization.type = "zuora"` and ordinary headers such as `Content-Type`; do not use the SOAP `Cancel` amendment task unless the user explicitly asks for a legacy amendment workflow. The linter flags SOAP `Cancel` tasks as `W189`.
+ **Subscription cancel API-stack check:** for new-stack subscription cancellation, use a Zuora `Callout` to the Orders API (`{{ Credentials.zuora.rest_endpoint }}orders`) with an `orderActions[]` entry whose `type` is `"CancelSubscription"`. Set `authorization.type = "zuora"` and ordinary headers such as `Content-Type`; do not use the SOAP `Cancel` amendment task unless the user explicitly asks for a legacy amendment workflow. The linter flags SOAP `Cancel` tasks as `W189`.
 
-   **Zuora API Callout auth check:** when a `Callout` / `AsynchronousCallout` targets a Zuora API (`Credentials.zuora.rest_endpoint`, `Credentials.zuora.url`, a Zuora GlobalConstant base URL, or a `*.zuora.com` endpoint), set `parameters.authorization.type = "zuora"`. Do not emit `apiAccessKeyId`, `apiSecretAccessKey`, `Authorization`, or bearer-token headers for Zuora APIs; keep ordinary headers such as `Content-Type`. If a multi-entity tenant requires entity context, add the appropriate `authorization.entity_id`. The linter flags bad Zuora callout auth as `E186`.
+ **Zuora API Callout auth check:** when a `Callout` / `AsynchronousCallout` targets a Zuora API (`Credentials.zuora.rest_endpoint`, `Credentials.zuora.url`, a Zuora GlobalConstant base URL, or a `*.zuora.com` endpoint), set `parameters.authorization.type = "zuora"`. Do not emit `apiAccessKeyId`, `apiSecretAccessKey`, `Authorization`, or bearer-token headers for Zuora APIs; keep ordinary headers such as `Content-Type`. If a multi-entity tenant requires entity context, add the appropriate `authorization.entity_id`. The linter flags bad Zuora callout auth as `E186`.
 
-   **Zuora API Callout validation/response check:** for Zuora API `Callout` / `AsynchronousCallout` tasks, include `validation.replace = "true"` and `validation.zuora_call = "true"` (and the same `polling_validation.*` keys for a polling leg). Because `include_response_code` defaults to `"true"`, downstream tasks must read the body as `Data.<payload_location | 'Callout'>.ResponseBody.<field>`; set `include_response_code = "false"` only when you intentionally want direct `Data.<payload>.<field>` paths. The linter flags missing Zuora validation flags as `W190` and skipped `ResponseBody` paths as `W191`.
+ **Zuora API Callout validation/response check:** for Zuora API `Callout` / `AsynchronousCallout` tasks, include `validation.replace = "true"` and `validation.zuora_call = "true"` (and the same `polling_validation.*` keys for a polling leg). Because `include_response_code` defaults to `"true"`, downstream tasks must read the body as `Data.<payload_location | 'Callout'>.ResponseBody.<field>`; set `include_response_code = "false"` only when you intentionally want direct `Data.<payload>.<field>` paths. The linter flags missing Zuora validation flags as `W190` and skipped `ResponseBody` paths as `W191`.
 
-   **Silent callout failure check:** when a callout task's `Success` linkage only means the HTTP request was accepted but the operation may not have taken effect (async jobs, fire-and-forget patterns, or a `200` response with an unexpected/empty body), SUGGEST reading and echoing the callout `ResponseBody` (or `payload_location`) in a downstream `If` task so the silent failure surfaces in the run log. Recommend it to the user as a debugging step; do not add it without flagging it.
+ **Silent callout failure check:** when a callout task's `Success` linkage only means the HTTP request was accepted but the operation may not have taken effect (async jobs, fire-and-forget patterns, or a `200` response with an unexpected/empty body), SUGGEST reading and echoing the callout `ResponseBody` (or `payload_location`) in a downstream `If` task so the silent failure surfaces in the run log. Recommend it to the user as a debugging step; do not add it without flagging it.
 
-   **Data Query consolidation check:** before emitting more than one `Data::Link` / Data Query task, check whether the first query only resolves scalar context for the next query. If yes, use one SQL query with a CTE and `CROSS JOIN`, project the scalar columns on every result row, and have downstream `Iterate` / `Callout` tasks reference `row.<field>`. Do not emit `Data::Link -> Logic::Liquid(assign only) -> Data::Link` just to copy `Data.LinkRun.first.*` into `Data.Liquid.*`. Keep separate queries only when the first result is reused by multiple branches, must stop/fail independently, produces a non-scalar collection, or cannot be expressed in the same SQL. The linter flags the avoidable chain as `W180`.
+ **Data Query consolidation check:** before emitting more than one `Data::Link` / Data Query task, check whether the first query only resolves scalar context for the next query. If yes, use one SQL query with a CTE and `CROSS JOIN`, project the scalar columns on every result row, and have downstream `Iterate` / `Callout` tasks reference `row.<field>`. Do not emit `Data::Link -> Logic::Liquid(assign only) -> Data::Link` just to copy `Data.LinkRun.first.*` into `Data.Liquid.*`. Keep separate queries only when the first result is reused by multiple branches, must stop/fail independently, produces a non-scalar collection, or cannot be expressed in the same SQL. The linter flags the avoidable chain as `W180`.
 
-   **Workflow error summary check:** when the user asks for a workflow error summary, final error report, or workflow execution error log, emit a `Data::Link` / Data Query task that reads the `workflow_task` table for the current run, filtered by `workflow_instance_id = '{{ WorkflowInstance.id }}'` and error/failure status or non-empty error fields. Project task id/name/status/error message/timestamps from `workflow_task`, then build the email/file/upload from that query result. Do not introduce a custom object to accumulate those errors unless the user explicitly asks for a durable custom-object audit store.
+ **Workflow error summary check:** when the user asks for a workflow error summary, final error report, or workflow execution error log, emit a `Data::Link` / Data Query task that reads the `workflow_task` table for the current run, filtered by `workflow_instance_id = '{{ WorkflowInstance.id }}'` and error/failure status or non-empty error fields. Project task id/name/status/error message/timestamps from `workflow_task`, then build the email/file/upload from that query result. Do not introduce a custom object to accumulate those errors unless the user explicitly asks for a durable custom-object audit store.
 
-   **Workflow-specific Liquid filter check:** before emitting a `Logic::Liquid` task with loops or array reshaping, review `workflow-liquid.md` -> Filters and `workflow-liquid-filters.md` for exact signatures. Prefer the Workflow filters from `rails/lib/liquid/filters.rb` when they express the operation. Use `where` / `where_exp` for row selection and `group_by` / `group_by_exp` for grouping instead of manual `for` + `if` + `push` loops. Keep manual loops only when transforming rows or building a shape the built-in filters cannot express. The linter flags obvious manual selection loops as `W184`.
+ **Workflow-specific Liquid filter check:** before emitting a `Logic::Liquid` task with loops or array reshaping, review `workflow-liquid.md` -> Filters and `workflow-liquid-filters.md` for exact signatures. Prefer the Workflow Liquid filters when they express the operation. Use `where` / `where_exp` for row selection and `group_by` / `group_by_exp` for grouping instead of manual `for` + `if` + `push` loops. Keep manual loops only when transforming rows or building a shape the built-in filters cannot express. The linter flags obvious manual selection loops as `W184`.
 
-   **Liquid shim minimization check:** most Workflow task parameters are Liquid-evaluated. Do **not** add a standalone `Logic::Liquid` task when its `{% assign %}` / `{% capture %}` output is consumed by only the immediate next task — inline the expression into that consumer's own parameter instead. This applies broadly, not only to Callout payloads:
+ **Liquid shim minimization check:** most Workflow task parameters are Liquid-evaluated. Do **not** add a standalone `Logic::Liquid` task when its `{% assign %}` / `{% capture %}` output is consumed by only the immediate next task — inline the expression into that consumer's own parameter instead. This applies broadly, not only to Callout payloads:
 
-   | If the next task needs… | Inline Liquid into… |
-   | --- | --- |
-   | A filter date or predicate | `Export` / `Query` / `Data::Link` `where_clause` or date fields |
-   | A branch decision | `If` / `Logic::Case` clause |
-   | An HTTP request body, URL, or header | `Callout` / `AsynchronousCallout` `raw_body`, `url`, headers |
-   | Email content | `Email` subject/body template fields |
-   | A field value on create/update | `Create` / `Update` `parameters.fields[<object>].<Field>` |
-   | A delay or scheduled time | `Delay` parameters |
+ | If the next task needs… | Inline Liquid into… |
+ | --- | --- |
+ | A filter date or predicate | `Export` / `Query` / `Data::Link` `where_clause` or date fields |
+ | A branch decision | `If` / `Logic::Case` clause |
+ | An HTTP request body, URL, or header | `Callout` / `AsynchronousCallout` `raw_body`, `url`, headers |
+ | Email content | `Email` subject/body template fields |
+ | A field value on create/update | `Create` / `Update` `parameters.fields[<object>].<Field>` |
+ | A delay or scheduled time | `Delay` parameters |
 
-   **Anti-pattern:** `… → Logic::Liquid (assign only) → <single consumer>` — for example `Iterate → Logic::Liquid → Callout`, `Query → Logic::Liquid → Export`, or `Data::Link → Logic::Liquid → Data::Link` (scalar copy; prefer CTE — `W180`). **Preferred:** `… → <consumer>` with Liquid in the consumer's parameter, referencing `Data.*` from the current scope (including the current `Iterate` row).
+ **Anti-pattern:** `… → Logic::Liquid (assign only) → <single consumer>` — for example `Iterate → Logic::Liquid → Callout`, `Query → Logic::Liquid → Export`, or `Data::Link → Logic::Liquid → Data::Link` (scalar copy; prefer CTE — `W180`). **Preferred:** `… → <consumer>` with Liquid in the consumer's parameter, referencing `Data.*` from the current scope (including the current `Iterate` row).
 
-   Keep a separate `Logic::Liquid` task when the value is reused by multiple downstream tasks, normalizes shared workflow context, or intentionally needs independent failure/retry/review behavior. The linter flags avoidable single-consumer shims as `W187`.
+ Keep a separate `Logic::Liquid` task when the value is reused by multiple downstream tasks, normalizes shared workflow context, or intentionally needs independent failure/retry/review behavior. The linter flags avoidable single-consumer shims as `W187`.
 
-   **Custom Object opt-in check:** do not emit `CustomObject::*` tasks unless the user explicitly asks to use a custom object, an existing custom-object schema, or a durable custom-object audit/state store. Prefer standard Zuora objects, Workflow runtime data, direct queries, files, email, or callouts for ordinary workflow state and reporting. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` on each `CustomObject::*` task to document that intent. The linter flags unmarked Custom Object tasks as `W194`. Shape must match Rails: no trailing `__c` on `object` (`E187`), nested `parameters.fields[<object>]` (`E188`), top-level `object_id` not `parameters.id` (`E189`), Query uses `alternate_location` not `placement` (`E190`).
+ **Custom Object opt-in check:** do not emit `CustomObject::*` tasks unless the user explicitly asks to use a custom object, an existing custom-object schema, or a durable custom-object audit/state store. Prefer standard Zuora objects, Workflow runtime data, direct queries, files, email, or callouts for ordinary workflow state and reporting. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` on each `CustomObject::*` task to document that intent. The linter flags unmarked Custom Object tasks as `W194`. Shape must match Workflow import: no trailing `__c` on `object` (`E187`), nested `parameters.fields[<object>]` (`E188`), top-level `object_id` not `parameters.id` (`E189`), Query uses `alternate_location` not `placement` (`E190`).
 
-   **CRUD update consolidation check:** before emitting more than one `Update` task against the same object and `object_id`, check whether the tasks are only setting different fields on the same record. If yes, emit one `Update` task with all field values under `parameters.fields[<object>]`; do not create one CRUD task per field unless each update intentionally needs independent failure/retry handling, intermediate validation, or ordered side effects. ProductRatePlanCharge (PRPC) object updates are a common example, not a special-only case. The linter flags adjacent same-record per-field updates as `W183`.
+ **CRUD update consolidation check:** before emitting more than one `Update` task against the same object and `object_id`, check whether the tasks are only setting different fields on the same record. If yes, emit one `Update` task with all field values under `parameters.fields[<object>]`; do not create one CRUD task per field unless each update intentionally needs independent failure/retry handling, intermediate validation, or ordered side effects. ProductRatePlanCharge (PRPC) object updates are a common example, not a special-only case. The linter flags adjacent same-record per-field updates as `W183`.
 
-   **Zuora REST v1 URL check:** when a Callout / AsynchronousCallout uses `Credentials.zuora.rest_endpoint`, remember that the value is already the Zuora REST v1 base URL. For v1 APIs append only the resource path (`{{ Credentials.zuora.rest_endpoint }}orders`), not `/v1/orders`; do not use `replace: "/v1/", ""` plus `/v1/...`. The linter flags duplicate-v1 risks as `E182`.
+ **Zuora REST v1 URL check:** when a Callout / AsynchronousCallout uses `Credentials.zuora.rest_endpoint`, remember that the value is already the Zuora REST v1 base URL. For v1 APIs append only the resource path (`{{ Credentials.zuora.rest_endpoint }}orders`), not `/v1/orders`; do not use `replace: "/v1/", ""` plus `/v1/...`. The linter flags duplicate-v1 risks as `E182`.
 
 5. **Emit linkages**:
-   a. First linkage is the workflow entry edge: `{ "source_workflow_id": <workflow.id>, "source_task_id": null, "target_task_id": <entry_task.id>, "linkage_type": <"Start" or event name> }`. Use `linkage_type: "Start"` only for non-event workflows. For event-triggered workflows, set `linkage_type` to the event name from `parameters.event_triggers[]` (for example `BillingRunCompletion`, `InvoicePosted`) — not `"Start"`.
-   b. For every task-to-task edge in the design, add `{ "source_workflow_id": null, "source_task_id": <upstream.id>, "target_task_id": <downstream.id>, "linkage_type": <hook> }`.
-   c. `linkage_type` must be one of the upstream task's `hooks` (see the template). Use exact spelling — `"For Each"` with a space; `"Case_1"` not `"case_1"`; `"Complete"` not `"Iterate"`.
-   d. Emit `Case_N` linkages in order and ensure the keys match the pre-normalized `parameters.case_condition`. Emit `Case_Else` as a linkage (not a `case_condition` key).
-   e. Verify: tasks array non-empty, linkages array non-empty, exactly one workflow entry linkage (Start for non-event; event name for event-triggered), no `For Each` linkage on any path to a `Logic::Merge` task.
+ a. First linkage is the workflow entry edge: `{ "source_workflow_id": <workflow.id>, "source_task_id": null, "target_task_id": <entry_task.id>, "linkage_type": <"Start" or event name> }`. Use `linkage_type: "Start"` only for non-event workflows. For event-triggered workflows, set `linkage_type` to the event name from `parameters.event_triggers[]` (for example `BillingRunCompletion`, `InvoicePosted`) — not `"Start"`.
+ b. For every task-to-task edge in the design, add `{ "source_workflow_id": null, "source_task_id": <upstream.id>, "target_task_id": <downstream.id>, "linkage_type": <hook> }`.
+ c. `linkage_type` must be one of the upstream task's `hooks` (see the template). Use exact spelling — `"For Each"` with a space; `"Case_1"` not `"case_1"`; `"Complete"` not `"Iterate"`.
+ d. Emit `Case_N` linkages in order and ensure the keys match the pre-normalized `parameters.case_condition`. Emit `Case_Else` as a linkage (not a `case_condition` key).
+ e. Verify: tasks array non-empty, linkages array non-empty, exactly one workflow entry linkage (Start for non-event; event name for event-triggered), no `For Each` linkage on any path to a `Logic::Merge` task.
 
 ### Step 3a: Describe before selecting fields (HARD REQUIREMENT)
 
-**Before finalizing any field list or any `<Object.Field>` merge-field token, you MUST resolve it against the live tenant (or, at worst, the bundled catalog).** Inventing field names is the single most common way a generated workflow fails at runtime: Rails accepts the JSON on import (`validate: false`) but the task then errors out on the first SOAP/ZOQL call, or an event binding silently resolves to `nil` because the merge field does not exist in the live payload.
+**Before finalizing any field list or any `<Object.Field>` merge-field token, you MUST resolve it against the live tenant (or, at worst, the bundled catalog).** Inventing field names is the single most common way a generated workflow fails at runtime: Workflow import accepts the JSON but the task then errors out on the first SOAP/ZOQL call, or an event binding silently resolves to `nil` because the merge field does not exist in the live payload.
 
 Two describe surfaces must both be satisfied before emitting the JSON:
 
@@ -178,15 +177,15 @@ One-time OAuth exchange per session (store the token, reuse for all describes):
 
 ```bash
 ACCESS_TOKEN=$(curl -sS -X POST "$ZUORA_BASE_URL/oauth/token" \
-  --data-urlencode "grant_type=client_credentials" \
-  --data-urlencode "client_id=$ZUORA_CLIENT_ID" \
-  --data-urlencode "client_secret=$ZUORA_CLIENT_SECRET" \
-  | jq -r '.access_token')
+ --data-urlencode "grant_type=client_credentials" \
+ --data-urlencode "client_id=$ZUORA_CLIENT_ID" \
+ --data-urlencode "client_secret=$ZUORA_CLIENT_SECRET" \
+ | jq -r '.access_token')
 ```
 
 If `printenv ZUORA_BASE_URL` is empty, call `mcp__zuora-mcp__ask_zuora` instead — the MCP sub-process reads the same vars from Cursor's credential store (see `.mcp.json`).
 
-The `configuration_contract.fields[*].source` value `describe-call` (per-task) tells you which field-bearing parameters need channel 1. From `workflow-task-configuration.md`:
+The `configuration_contract.fields[*].source` value `describe-call` (per-task in `workflow-task-templates.json`) tells you which field-bearing parameters need channel 1:
 
 | Task | Describe scope | Configurable parameter |
 | --- | --- | --- |
@@ -206,20 +205,20 @@ The `configuration_contract.fields[*].source` value `describe-call` (per-task) t
 # Standard SOAP/ZOQL describe — used for Export, Query, Create, Update.
 # Response is XML; pipe through xmllint / xsltproc, or just grep for <name>.
 curl -sS "$ZUORA_BASE_URL/v1/describe/Invoice" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" \
-  -H "Accept: application/xml" \
-  | xmllint --xpath '//fields/field/name/text()' - 2>/dev/null \
-  | tr -s '[:space:]' '\n' | sort -u
+ -H "Authorization: Bearer $ACCESS_TOKEN" \
+ -H "Accept: application/xml" \
+ | xmllint --xpath '//fields/field/name/text' - 2>/dev/null \
+ | tr -s '[:space:]' '\n' | sort -u
 
 # Related-object list (second pass) — needed for Export joins like Invoice.Account.Name:
 curl -sS "$ZUORA_BASE_URL/v1/describe/Invoice" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" -H "Accept: application/xml" \
-  | xmllint --xpath '//related-objects/object/name/text()' - 2>/dev/null
+ -H "Authorization: Bearer $ACCESS_TOKEN" -H "Accept: application/xml" \
+ | xmllint --xpath '//related-objects/object/name/text' - 2>/dev/null
 
 # Custom Object describe — used for CustomObject::Query / Create / Update.
 # Replace <namespace> (e.g. "default") and <object> accordingly.
 curl -sS "$ZUORA_BASE_URL/objects/definitions/<namespace>/<object>" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.schema.properties'
+ -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.schema.properties'
 ```
 
 Cache the describe response per `(tenant, object, entity_id)` for the duration of the agent session — subsequent tasks targeting the same object should reuse the cached field list (do not re-hit the endpoint each time).
@@ -246,28 +245,28 @@ The linter rule `W177 undeclared-describe-field` enforces this — any field nam
 
 #### 3a-4. Custom Object specifics
 
-For `CustomObject::*` tasks, match the Rails models in `workflow/rails/app/models/tasks/custom_object/` — do **not** reuse SOAP `Query` / `Create` / `Update` shapes:
+For `CustomObject::*` tasks, match the Custom Object import shape — do **not** reuse SOAP `Query` / `Create` / `Update` shapes:
 
-1. **`object`** is `<namespace>__<object>` (e.g. `default__Vendor`). Never append `__c` to the object name — `__c` is a **field** suffix. Rails splits with `rpartition('__')`, so `default__Vendor__c` becomes `object_name = "c"`. Linter: `E187`.
+1. **`object`** is `<namespace>__<object>` (e.g. `default__Vendor`). Never append `__c` to the object name — `__c` is a **field** suffix. Workflow splits the object name on `__`, so `default__Vendor__c` becomes `object_name = "c"`. Linter: `E187`.
 2. **`parameters.fields` is nested**: `parameters.fields.<self.object>.<Field__c> = <value>`. A flat `parameters.fields.<Field__c>` map is silently empty at runtime. Linter: `E188`.
 3. **Update/Delete id** is top-level `object_id`, never `parameters.id`. Linter: `E189`.
 4. **Query placement** uses `parameters.alternate_location`, not `parameters.placement` (SOAP Query). Create/Update have **no** placement — output is always `Data.<self.object>`. Linter: `E190`.
 
-The Custom Object describe lives at `GET /objects/definitions/<namespace>/<object>` (origin != system). The fallback catalog never carries Custom Objects (they are tenant-specific) — if both channels fail, ask the user directly for the field map. Required `__c` fields (per the schema) MUST be supplied for Create or save fails with `Missing fields: ...`. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` (`W194`).
+The Custom Object describe lives at `GET /objects/definitions/<namespace>/<object>` (origin != system). The fallback catalog never carries Custom Objects (they are tenant-specific) — if both channels fail, ask the user directly for the field map. Required `__c` fields (per the schema) MUST be supplied for Create or save fails with `Missing fields:...`. When the user explicitly requests a custom object, set `parameters._custom_object_user_requested = "true"` (`W194`).
 
 #### 3a-5. Event merge-field describe (event_parameters values)
 
-`workflow.parameters.event_parameters[*].params[*].value` is the binding between Kafka event payload and `Data.<object>.<key>` scope. The UI picker at `WorkflowSettingsForm.js` L383-401 fetches the live merge-field list from:
+`workflow.parameters.event_parameters[*].params[*].value` is the binding between Kafka event payload and `Data.<object>.<key>` scope. The UI picker at the Workflow settings UI fetches the live merge-field list from:
 
 ```
 GET {base_url}/notifications/email-templates/info/selections?category=<category>
 ```
 
-where `category` is the event id for standard events (`event.id.length < 5`) or `${event.namespace}:${event.name}` for custom events. This endpoint returns a hash of `<object>: [<field path>, ...]` that the UI flattens into `<Object.Field>` strings (e.g. `<BillingRun.Id>`, `<Account.WorkEmail>`). The corresponding Rails method is `ZuoraConnect::AppInstance#get_custom_event_fields` (`app/models/zuora_connect/app_instance.rb` L1452-1494).
+where `category` is the event id for standard events (`event.id.length < 5`) or `${event.namespace}:${event.name}` for custom events. This endpoint returns a hash of `<object>: [<field path>,...]` that the UI flattens into `<Object.Field>` strings (e.g. `<BillingRun.Id>`, `<Account.WorkEmail>`). The corresponding API is the notifications merge-field endpoint above.
 
-At runtime, `BusinessEvent#parse_event` (`app/models/business_event.rb`) resolves these tokens in exactly two paths:
+At runtime, event parameter binding resolves these tokens in exactly two paths:
 
-1. **Special tokens** are resolved explicitly: `<Event.Category>`, `<Event.Date>`, `<Event.Timestamp>`, `<Functions.Today>`, `<Tenant.ID>`, `<Tenant.Name>` (the full list lives in `references/zuora-standard-fields.json` → `$event_special_tokens.tokens`). These always work and do not need a describe call. Tokens such as `<Event.EventName>` or `<Event.Object.Id>` are NOT special-cased by Rails; use the notifications merge-field describe flow below and choose a published payload token instead.
+1. **Special tokens** are resolved explicitly: `<Event.Category>`, `<Event.Date>`, `<Event.Timestamp>`, `<Functions.Today>`, `<Tenant.ID>`, `<Tenant.Name>` (the full list lives in `references/zuora-standard-fields.json` → `$event_special_tokens.tokens`). These always work and do not need a describe call. Tokens such as `<Event.EventName>` or `<Event.Object.Id>` are NOT special-cased; use the notifications merge-field describe flow below and choose a published payload token instead.
 2. **Everything else** has angle brackets stripped, then any `DataSource.` / `Event.` prefix stripped, then the remainder is used as a **literal key** into the event payload. `<BillingRun.Id>` becomes the payload key `BillingRun.Id`; if that key is not present in the payload, the binding resolves to `nil` with no error. This is why you cannot invent tokens.
 
 **Required flow per event:**
@@ -275,30 +274,30 @@ At runtime, `BusinessEvent#parse_event` (`app/models/business_event.rb`) resolve
 1. Resolve the canonical event name (via `workflow-enums.json` → `standard_events.$canonical_name_corrections`). Confirm it exists in `standard_events.events` or via `/events/event-triggers` (see Step 3c).
 2. Fetch the merge-field list for the event category using either channel:
 
-   **Direct HTTP (preferred):**
+ **Direct HTTP (preferred):**
 
-   ```bash
-   # Standard event: category is the 4-char numeric event id (look up in
-   # workflow-enums.json -> standard_events.events[*].id).
-   # Example: BillingRunCompletion -> category=1410.
-   curl -sS "$ZUORA_BASE_URL/notifications/email-templates/info/selections?category=1410" \
-     -H "Authorization: Bearer $ACCESS_TOKEN" | jq
+ ```bash
+ # Standard event: category is the 4-char numeric event id (look up in
+ # workflow-enums.json -> standard_events.events[*].id).
+ # Example: BillingRunCompletion -> category=1410.
+ curl -sS "$ZUORA_BASE_URL/notifications/email-templates/info/selections?category=1410" \
+ -H "Authorization: Bearer $ACCESS_TOKEN" | jq
 
-   # Custom event: category is "<namespace>:<name>".
-   curl -sS "$ZUORA_BASE_URL/notifications/email-templates/info/selections?category=user.notification:MyCustomEvent" \
-     -H "Authorization: Bearer $ACCESS_TOKEN" | jq
-   ```
+ # Custom event: category is "<namespace>:<name>".
+ curl -sS "$ZUORA_BASE_URL/notifications/email-templates/info/selections?category=user.notification:MyCustomEvent" \
+ -H "Authorization: Bearer $ACCESS_TOKEN" | jq
+ ```
 
-   Apply the UI's filter (`WorkflowSettingsForm.js` L388-400): for **standard** events drop every path containing `DataSource`; for **custom** events keep only paths containing `DataSource` OR matching `.<baseObject>.`.
+ Apply the UI's filter: for **standard** events drop every path containing `DataSource`; for **custom** events keep only paths containing `DataSource` OR matching `.<baseObject>.`.
 
-   **MCP fallback:** call `mcp__zuora-mcp__ask_zuora` with:
+ **MCP fallback:** call `mcp__zuora-mcp__ask_zuora` with:
 
-   > For the Zuora event category `<event.id-or-namespaced-name>`, call `GET {base_url}/notifications/email-templates/info/selections?category=<category>` and return the raw JSON. For a `Standard` event (id < 5 chars) I want the list **excluding** any field that contains `DataSource`. For a custom event I want only fields that contain `DataSource` OR whose path matches `.<baseObject>.`.
+ > For the Zuora event category `<event.id-or-namespaced-name>`, call `GET {base_url}/notifications/email-templates/info/selections?category=<category>` and return the raw JSON. For a `Standard` event (id < 5 chars) I want the list **excluding** any field that contains `DataSource`. For a custom event I want only fields that contain `DataSource` OR whose path matches `.<baseObject>.`.
 
 3. Pick the `<Object.Field>` strings you need from the returned list. Every `value` you emit must be one of:
-   - A special token from `$event_special_tokens.tokens`, OR
-   - A `<BaseObject.Field>` string where `BaseObject` matches the event's declared `baseObject` (from `references/zuora-standard-fields.json` → `$event_base_objects.events`) AND `Field` appears in the fetched merge-field payload, OR
-   - A `<DataSource.Foo.Bar>` string (custom events only) confirmed by the endpoint response.
+ - A special token from `$event_special_tokens.tokens`, OR
+ - A `<BaseObject.Field>` string where `BaseObject` matches the event's declared `baseObject` (from `references/zuora-standard-fields.json` → `$event_base_objects.events`) AND `Field` appears in the fetched merge-field payload, OR
+ - A `<DataSource.Foo.Bar>` string (custom events only) confirmed by the endpoint response.
 4. If both describe channels fail, fall back to `references/zuora-standard-fields.json` for well-known base objects (the catalog lists `Id`, core status/amount fields, etc.), **and** tell the user the token list is unverified — the linter will emit `W179 unverifiable-event-parameter-value` so the user can decide whether to proceed.
 
 **Linter gates:**
@@ -319,17 +318,17 @@ After tasks and linkages are in place, fill out the rest of `workflow.*`. Use `w
 7. **Trigger flags**: set at least one to `true`; multiple trigger flags are valid when they launch the same task graph (for example, on-demand plus scheduled). NEVER set `ui_trigger` (it is not a column on the `workflows` table and is silently dropped).
 8. **`workflow.interval`** + **`workflow.timezone`**: required IFF `scheduled_trigger == true`. Use `interval_schema.examples` and `interval_schema.timezone.examples` from `workflow-enums.json`.
 9. **`workflow.parameters`** — start from the skeleton's seven always-present keys (`fields`, `entity_name`, `entity_id`, `skipping_check: "db"`, `file_encryption: "false"`, `secure_error_msgs: "false"`, `show_run_prompt`, `callout_response`). Then layer in:
-   - **For event triggers**: set `workflow.event_trigger: true`, append `event_triggers: ["<canonical or registered custom name>"]`, and append matching `event_parameters: [{eventName, params: [...]}]`. Resolve the user's intent through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first. If the name is not standard and not a correction, treat the user-provided name as a custom event candidate; keep the exact registered custom event name in `event_triggers[]` instead of omitting the trigger. Emit BOTH `event_parameters` AND each `params` value as JSON arrays (not Hashes).
-   - **For callout triggers**: populate `parameters.fields[]` with the inbound payload schema if known.
-   - **For workflow-level run prompts**: set each ordinary input field to `object_name: "Workflow"` and reference it as `Data.Workflow.<field_name>`. Use `object_name: "Files"` only for `File-Field` uploads, and use another `object_name` only when it is a real supported Zuora object from the run-prompt dropdown. NEVER create semantic grouping objects such as `BillRunConfig`, `RequestParams`, or `InputConfig`.
-   - **For run-prompt/callout JSON fields**: never emit `default: null` when `datatype` is `"JSON"`. `Workflow::Setup` validates JSON field size with `field['default'].size`, so null/boolean/number defaults crash import. Use `[]` for array inputs, `{}` for object/map inputs, or a valid JSON string/default when the user supplied one.
-   - **For multi-entity tenants**: set `parameters.entity_id` and `parameters.entity_name` if the user named an entity. Otherwise leave `null` and let the server default.
-   - **NEVER emit** `parameters.merge_task_ids` — `Workflow::Setup.import` deletes it on save.
+ - **For event triggers**: set `workflow.event_trigger: true`, append `event_triggers: ["<canonical or registered custom name>"]`, and append matching `event_parameters: [{eventName, params: [...]}]`. Resolve the user's intent through `workflow-enums.json` -> `standard_events.$canonical_name_corrections` first. If the name is not standard and not a correction, treat the user-provided name as a custom event candidate; keep the exact registered custom event name in `event_triggers[]` instead of omitting the trigger. Emit BOTH `event_parameters` AND each `params` value as JSON arrays (not Hashes).
+ - **For callout triggers**: populate `parameters.fields[]` with the inbound payload schema if known.
+ - **For workflow-level run prompts**: set each ordinary input field to `object_name: "Workflow"` and reference it as `Data.Workflow.<field_name>`. Use `object_name: "Files"` only for `File-Field` uploads, and use another `object_name` only when it is a real supported Zuora object from the run-prompt dropdown. NEVER create semantic grouping objects such as `BillRunConfig`, `RequestParams`, or `InputConfig`.
+ - **For run-prompt/callout JSON fields**: never emit `default: null` when `datatype` is `"JSON"`. Workflow import validates JSON field defaults by size, so null/boolean/number defaults crash import. Use `[]` for array inputs, `{}` for object/map inputs, or a valid JSON string/default when the user supplied one.
+ - **For multi-entity tenants**: set `parameters.entity_id` and `parameters.entity_name` if the user named an entity. Otherwise leave `null` and let the server default.
+ - **NEVER emit** `parameters.merge_task_ids` — `Workflow import` deletes it on save.
 10. **`workflow.notifications`** — keep skeleton default unless the user requested email alerts. If they did:
-    - Populate `emails: ["alice@example.com", "{{Data.Account.WorkEmail__c}}", ...]`.
-    - Set the relevant booleans (`failure`, `success`, `pending`, `skipped_scheduled_run`).
-    - Optional `error_ignore`: a Ruby regex string. Validated by `Regexp.new` at import — invalid patterns reject the workflow.
-    - At least one boolean must be `true` if `emails[]` is non-empty (and vice versa).
+ - Populate `emails: ["alice@example.com", "{{Data.Account.WorkEmail__c}}",...]`.
+ - Set the relevant booleans (`failure`, `success`, `pending`, `skipped_scheduled_run`).
+ - Optional `error_ignore`: a regex string. Invalid patterns reject the workflow at import.
+ - At least one boolean must be `true` if `emails[]` is non-empty (and vice versa).
 11. **`workflow.call_type`** — default `"BATCH"`. Validate against `workflow_call_types.user_facing[*].value`. If the user requested `UIACTION` or `SYNC_UI_ACTION`, jump to step 12.
 12. **`workflow.ui_pages`** — `{}` for non-UIACTION call types. For `UIACTION` / `SYNC_UI_ACTION`: exactly one entry from `supported_ui_pages.pages`, shape `{ "<value>": { "label": "<button label>" } }`.
 13. **`workflow.priority`**: default `"Medium"`; `"High"` for time-critical event workflows; `"Low"` for low-priority background work.
@@ -346,21 +345,21 @@ Try this lookup once, in order:
 
 1. **Direct HTTP (preferred):**
 
-   ```bash
-   curl -sS "$ZUORA_BASE_URL/events/event-triggers" \
-     -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.data[] | .eventType.name'
-   curl -sS "$ZUORA_BASE_URL/events/scheduled-events" \
-     -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.data[] | .name'
-   ```
+ ```bash
+ curl -sS "$ZUORA_BASE_URL/events/event-triggers" \
+ -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.data[] |.eventType.name'
+ curl -sS "$ZUORA_BASE_URL/events/scheduled-events" \
+ -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.data[] |.name'
+ ```
 
-   Both endpoints are paginated (`body.next`); follow cursors until you exhaust the list or confirm the event name.
+ Both endpoints are paginated (`body.next`); follow cursors until you exhaust the list or confirm the event name.
 
 2. **MCP fallback:** call `mcp__zuora-mcp__ask_zuora` with prompt: `List event triggers from /events/event-triggers and tell me whether an event named "<name>" is registered. Also list event triggers from /events/scheduled-events.`
 3. If the event exists, proceed.
 4. If the event is NOT registered (or the list is empty), tell the user the event must be registered first, and offer:
-   - Manual: Settings -> Notifications -> Custom Events.
-   - API: `POST /events/event-triggers` with `{baseObject, condition, eventType: {name, displayName, description}}`.
-   - Alternative design: switch to `callout_trigger` and configure a standard Zuora Notification to hit the workflow's callout URL — this avoids needing a custom event.
+ - Manual: Settings -> Notifications -> Custom Events.
+ - API: `POST /events/event-triggers` with `{baseObject, condition, eventType: {name, displayName, description}}`.
+ - Alternative design: switch to `callout_trigger` and configure a standard Zuora Notification to hit the workflow's callout URL — this avoids needing a custom event.
 5. If both channels fail (no credentials in env AND MCP unavailable), the linter will surface `W121` for the unconfirmed event name; carry on but flag the warning to the user.
 
 This step is OPTIONAL by design — never block emission if neither channel can reach the tenant.
@@ -374,32 +373,32 @@ Required reading: `workflow-data-flow.md` (sections 1-3 + 10) and `workflow-enum
 Algorithm:
 
 1. **Seed `available_data`** with the workflow-level inputs:
-   - Always: `{ Workflow: [ExecutionDate, ExecutionDateTime, ExecutionDateTimeUTC, WorkflowRunUser] }`.
-   - For each `workflow.parameters.fields[]`: union `{ <object_name>: [<field_name>] }`. Ordinary user-entered filters, dates, IDs, and JSON maps belong under `object_name: "Workflow"`; do not use invented object names to group them.
-   - For each `workflow.parameters.event_parameters[*].params[*]`: union `{ <param.object>: [<param.key>] }`.
-   - For **callout-trigger** workflows: `{ Callout: OPAQUE }` (the inbound POST body — treat as opaque unless the workflow carries `parameters._expected_response_schema` or `parameters._opaque_trusted`).
+ - Always: `{ Workflow: [ExecutionDate, ExecutionDateTime, ExecutionDateTimeUTC, WorkflowRunUser] }`.
+ - For each `workflow.parameters.fields[]`: union `{ <object_name>: [<field_name>] }`. Ordinary user-entered filters, dates, IDs, and JSON maps belong under `object_name: "Workflow"`; do not use invented object names to group them.
+ - For each `workflow.parameters.event_parameters[*].params[*]`: union `{ <param.object>: [<param.key>] }`.
+ - For **callout-trigger** workflows: `{ Callout: OPAQUE }` (the inbound POST body — treat as opaque unless the workflow carries `parameters._expected_response_schema` or `parameters._opaque_trusted`).
 
 2. **Topological sort** the tasks via linkages from the Start (`source_task_id == null`). Each task inherits the union of its predecessors' final `available_data`.
 
 3. **For each task in topological order:**
-   a. Look up the task's `data_contract` block in `workflow-task-templates.json` (fall back to `$default_data_contract` if absent — treats it as opaque).
-   b. **Validate reads**: scan every value in `task.parameters` (recursively) for `{{ Data.X[.Y…] }}` and `{% if/elsif/case Data.X… %}` patterns. For each reference:
-      - If `Data.X` scope is **not in `available_data`**: emit `E170` and STOP (must fix). Suggest closest match if one exists.
-      - If inside an Iterate For-Each branch and `Data.X` is the iterated key, treat as single-Hash mode. References like `Data.X.Field` are OK; `Data.X[0].Field` or `Data.X | size` trigger `W173`.
-      - If `Data.X` came from a `Logic::Case` branch (one of `Case_1`, `Case_2`, …, `Case_Else`) and the current task is downstream of a `Logic::Merge`, AND `X` is in the union but not the intersection of branch contributions: emit `W174`.
-      - If the producing task is **OPAQUE** (predictability=opaque) AND has neither `parameters._opaque_trusted="true"` nor `parameters._expected_response_schema.<X>`: emit `W172`.
-      - If the producing task is OPAQUE AND has `parameters._expected_response_schema.<X>` declared: validate `Y` against the declared field set; emit `W171`-equivalent if missing.
-      - If the producing task is **DETERMINISTIC** and `Y` is not in `data_contract.writes[].fields` (or `parameters.fields[X][]` for Query/Export/Create/Update/CustomObject::Query): emit `W171`.
-      - If the producing task is **SEMI-DETERMINISTIC** and `fields_partial_known: true`: scope-level only (no `W171`).
-   c. **Apply writes** from the task's contract to compute the contribution to downstream `available_data`:
-      - Resolve `scope_template` placeholders against the task's `parameters` and `object` (e.g. `Data.{parameters.placement | self.object}` → `Data.InvoicesFromBR`).
-      - Resolve `fields` strings (`from_param:fields[<obj>]` → read the actual params; `LIQUID_SCOPE` → scan `parameters.code` for `{% assign %}` / `{% capture %}` names; `OPAQUE` → mark key opaque).
-      - For `Logic::Liquid` with `parameters.placement` set, scope is `Data.<placement>` not `Data.Liquid`.
-   d. **Iterate special case**: when this task is `Iterate(object='X')`, for tasks reachable via `For Each` linkage, mark `Data.X` as "single-Hash mode". For tasks reached via `Complete`, restore the array binding (or whatever the inner-loop tasks rebound).
-   e. **Logic::Case branch partitioning**: each `Case_N` linkage's downstream subtree contributes its writes only to that branch. When two branches converge at a `Logic::Merge`, the post-merge `available_data` is the **intersection** of per-branch contributions; scopes only in the union (not the intersection) are flagged as `branch_partial` so downstream references emit `W174`.
-   f. **Logic::Merge** itself is a no-op for writes.
+ a. Look up the task's `data_contract` block in `workflow-task-templates.json` (fall back to `$default_data_contract` if absent — treats it as opaque).
+ b. **Validate reads**: scan every value in `task.parameters` (recursively) for `{{ Data.X[.Y…] }}` and `{% if/elsif/case Data.X… %}` patterns. For each reference:
+ - If `Data.X` scope is **not in `available_data`**: emit `E170` and STOP (must fix). Suggest closest match if one exists.
+ - If inside an Iterate For-Each branch and `Data.X` is the iterated key, treat as single-Hash mode. References like `Data.X.Field` are OK; `Data.X[0].Field` or `Data.X | size` trigger `W173`.
+ - If `Data.X` came from a `Logic::Case` branch (one of `Case_1`, `Case_2`, …, `Case_Else`) and the current task is downstream of a `Logic::Merge`, AND `X` is in the union but not the intersection of branch contributions: emit `W174`.
+ - If the producing task is **OPAQUE** (predictability=opaque) AND has neither `parameters._opaque_trusted="true"` nor `parameters._expected_response_schema.<X>`: emit `W172`.
+ - If the producing task is OPAQUE AND has `parameters._expected_response_schema.<X>` declared: validate `Y` against the declared field set; emit `W171`-equivalent if missing.
+ - If the producing task is **DETERMINISTIC** and `Y` is not in `data_contract.writes[].fields` (or `parameters.fields[X][]` for Query/Export/Create/Update/CustomObject::Query): emit `W171`.
+ - If the producing task is **SEMI-DETERMINISTIC** and `fields_partial_known: true`: scope-level only (no `W171`).
+ c. **Apply writes** from the task's contract to compute the contribution to downstream `available_data`:
+ - Resolve `scope_template` placeholders against the task's `parameters` and `object` (e.g. `Data.{parameters.placement | self.object}` → `Data.InvoicesFromBR`).
+ - Resolve `fields` strings (`from_param:fields[<obj>]` → read the actual params; `LIQUID_SCOPE` → scan `parameters.code` for `{% assign %}` / `{% capture %}` names; `OPAQUE` → mark key opaque).
+ - For `Logic::Liquid` with `parameters.placement` set, scope is `Data.<placement>` not `Data.Liquid`.
+ d. **Iterate special case**: when this task is `Iterate(object='X')`, for tasks reachable via `For Each` linkage, mark `Data.X` as "single-Hash mode". For tasks reached via `Complete`, restore the array binding (or whatever the inner-loop tasks rebound).
+ e. **Logic::Case branch partitioning**: each `Case_N` linkage's downstream subtree contributes its writes only to that branch. When two branches converge at a `Logic::Merge`, the post-merge `available_data` is the **intersection** of per-branch contributions; scopes only in the union (not the intersection) are flagged as `branch_partial` so downstream references emit `W174`.
+ f. **Logic::Merge** itself is a no-op for writes.
 
-4. **Output**: a small report listing, per task, what it consumes from `Data.*` and what it adds. Include the report in the design notes / commit message so reviewers can audit the data flow at a glance. The linter (`scripts/lint-workflow-json.js`, rules `E170`/`W171`/`W172`/`W173`/`W174`) is the final authority — never bypass it.
+4. **Output**: a small report listing, per task, what it consumes from `Data.*` and what it adds. Include the report in the design notes / commit message so reviewers can audit the data flow at a glance. The linter (`Workflow UI`, rules `E170`/`W171`/`W172`/`W173`/`W174`) is the final authority — never bypass it.
 
 ### Step 3e: Opaque-task confirmation (three-option prompt)
 
@@ -411,14 +410,14 @@ While running Step 3d, the moment you encounter the FIRST downstream reference t
 >
 > ```jsonc
 > "parameters": {
->   ...,
->   "_expected_response_schema": {
->     "<scope>": {
->       "acknowledgmentId": "string",
->       "receivedAt": "string",
->       "errors": [{ "code": "string", "message": "string" }]
->     }
->   }
+>...,
+> "_expected_response_schema": {
+> "<scope>": {
+> "acknowledgmentId": "string",
+> "receivedAt": "string",
+> "errors": [{ "code": "string", "message": "string" }]
+> }
+> }
 > }
 > ```
 >
@@ -432,7 +431,7 @@ While running Step 3d, the moment you encounter the FIRST downstream reference t
 
 Apply the user's choice immediately, then continue Step 3d. Encode the choice as follows:
 
-- **(a)** add `parameters._expected_response_schema = { "<scope>": { ...field declarations... } }` to the opaque task. The leading `_` prevents Rails from persisting it (unknown keys in `parameters` JSONB are accepted but no Ruby code reads `_`-prefixed keys).
+- **(a)** add `parameters._expected_response_schema = { "<scope>": {...field declarations... } }` to the opaque task. The leading `_` marks composer/linter metadata that is safe on import.
 - **(b)** add `parameters._opaque_trusted = "true"` (string, not boolean — matches the `boolean_string_params` convention).
 - **(c)** insert the normalizer task with its own `_expected_response_schema` declaring the normalized scope. Wire linkages: `<opaque task> --Success--> <normalizer> --Success--> <original downstream task>`. Update downstream Liquid references to use `Data.<normalized scope>` instead of `Data.<opaque scope>`.
 - **(d)** persist the workflow with W172 warnings; report to the user; do NOT proceed to Step 5 (lint) until the user picks (a)/(b)/(c).
@@ -444,10 +443,10 @@ This step is a **hard gate** for OPAQUE tasks with downstream consumers. Skippin
 Before writing to disk, confirm every item:
 
 - [ ] **Describe gate (hard pre-condition):**
-  - [ ] For every `Export`/`Query`/`Create`/`Update`/`CustomObject::*` task emitted, one of these held: (a) a `curl $ZUORA_BASE_URL/v1/describe/<object>` (or Custom Object endpoint) call was made and cached, (b) `mcp__zuora-mcp__ask_zuora` was called with the Step 3a-1 prompt, (c) the object is in `references/zuora-standard-fields.json`, or (d) the user confirmed the field list explicitly.
-  - [ ] Every field in `parameters.fields[<object>]` and every field referenced inside `parameters.where_clause` is present in that describe response (or the fallback catalog, or user-confirmed).
-  - [ ] For every event in `parameters.event_triggers[]`, the merge-field list from `GET /notifications/email-templates/info/selections?category=<category>` was fetched via `curl` or MCP (Step 3a-5), OR the only tokens used are recognised special tokens (`$event_special_tokens.tokens`).
-  - [ ] Every `parameters.event_parameters[*].params[*].value` is either a special token OR a `<BaseObject.Field>` whose `BaseObject` matches the event's declared `baseObject` (`$event_base_objects.events`) AND whose `Field` appeared in the fetched merge-field payload.
+ - [ ] For every `Export`/`Query`/`Create`/`Update`/`CustomObject::*` task emitted, one of these held: (a) a `curl $ZUORA_BASE_URL/v1/describe/<object>` (or Custom Object endpoint) call was made and cached, (b) `mcp__zuora-mcp__ask_zuora` was called with the Step 3a-1 prompt, (c) the object is in `references/zuora-standard-fields.json`, or (d) the user confirmed the field list explicitly.
+ - [ ] Every field in `parameters.fields[<object>]` and every field referenced inside `parameters.where_clause` is present in that describe response (or the fallback catalog, or user-confirmed).
+ - [ ] For every event in `parameters.event_triggers[]`, the merge-field list from `GET /notifications/email-templates/info/selections?category=<category>` was fetched via `curl` or MCP (Step 3a-5), OR the only tokens used are recognised special tokens (`$event_special_tokens.tokens`).
+ - [ ] Every `parameters.event_parameters[*].params[*].value` is either a special token OR a `<BaseObject.Field>` whose `BaseObject` matches the event's declared `baseObject` (`$event_base_objects.events`) AND whose `Field` appeared in the fetched merge-field payload.
 - [ ] Deep-copied `workflow-skeleton.json` as the base.
 - [ ] At least one trigger flag set; multiple flags combined when the same task graph should run through more than one trigger mode.
 - [ ] If multiple trigger flags are true, shared tasks only consume data available for every enabled trigger, or a default / normalizer step supplies the missing trigger-specific data.
@@ -455,12 +454,12 @@ Before writing to disk, confirm every item:
 - [ ] `workflow.id === 1` and the Start linkage's `source_workflow_id === 1`.
 - [ ] `workflow.data === {}`, `workflow.status === "Inactive"`, `workflow.css` matches the skeleton default.
 - [ ] No `ui_trigger` key anywhere in `workflow` (it is not a column and is silently dropped).
-- [ ] No `parameters.merge_task_ids` key (auto-derived by Rails; deleted on save).
+- [ ] No `parameters.merge_task_ids` key (auto-derived; deleted on import/save).
 - [ ] `workflow.parameters` carries the seven always-present keys (`fields`, `entity_name`, `entity_id`, `skipping_check`, `file_encryption`, `secure_error_msgs`, `show_run_prompt`, `callout_response`).
 - [ ] `workflow.call_type` is one of `workflow-enums.json` -> `workflow_call_types.user_facing[*].value` (no `ASYNC`/`RULE`/`UI`).
 - [ ] `workflow.version` matches `^\d+(?:\.\d+)?(?:\.\d+)?$`.
 - [ ] If `event_trigger == true`: `parameters.event_triggers[]` non-empty AND every entry in `parameters.event_parameters[*].eventName` matches one of those names; both `event_parameters` and inner `params` are JSON arrays.
-- [ ] If `scheduled_trigger == true`: `interval` is a 6-token cron string (5-token Unix cron is tolerated by Rufus but not emitted by the UI) and `timezone` is a Rails `ActiveSupport::TimeZone` friendly name, not a bare IANA name.
+- [ ] If `scheduled_trigger == true`: `interval` is a 6-token cron string (5-token Unix cron is tolerated by Workflow cron but not emitted by the UI) and `timezone` is a Workflow timezone allowlist friendly name, not a bare IANA name.
 - [ ] If `scheduled_trigger == true`: every required workflow input in `parameters.fields[]` has a non-blank default because scheduled runs cannot prompt a user.
 - [ ] If `notifications.{failure|success|pending|skipped_scheduled_run}` includes any `true`: `notifications.emails[]` is non-empty.
 - [ ] If `call_type == "UIACTION"` or `"SYNC_UI_ACTION"`: `ui_pages` has exactly one entry from `supported_ui_pages.pages`.
@@ -473,7 +472,7 @@ Before writing to disk, confirm every item:
 - [ ] Every boolean in a `boolean_string_params` list is emitted as `"true"` / `"false"`.
 - [ ] Enum params use values from `param_enums`.
 - [ ] `Logic::Case.parameters.case_condition` keys are sequential `Case_1`, `Case_2`, … and the linkages use the same keys.
-- [ ] Every `If.parameters.if_clause` uses capitalized `True` / `False` branch literals (`{% if ... %}True{% else %}False{% endif %}`), not lowercase `true` / `false`.
+- [ ] Every `If.parameters.if_clause` uses capitalized `True` / `False` branch literals (`{% if... %}True{% else %}False{% endif %}`), not lowercase `true` / `false`.
 - [ ] Exactly one `Start` linkage with `source_workflow_id = workflow.id`, `source_task_id = null`.
 - [ ] Every non-Start linkage has `source_workflow_id = null` and non-null `source_task_id`.
 - [ ] `linkage_type` values match upstream task hooks (see `workflow-task-templates.json.hooks`).
@@ -493,9 +492,9 @@ Before writing to disk, confirm every item:
 - [ ] **Custom Object shape check ran clean**: every `CustomObject::*` task uses `<namespace>__<object>` without trailing `__c` (`E187`), nests Create/Update fields under `parameters.fields[<object>]` (`E188`), puts Update/Delete ids on top-level `object_id` not `parameters.id` (`E189`), and uses Query `alternate_location` not `placement` (`E190`). Unmarked Custom Object tasks still warn as `W194`.
 - [ ] **Zuora REST v1 URL check ran clean**: Callout / AsynchronousCallout URLs that use `Credentials.zuora.rest_endpoint` append resource paths only (`orders`, `subscriptions/...`), never `/v1/...` (`E182`).
 - [ ] **Opaque-task confirmation (Step 3e) completed for every OPAQUE task with downstream consumers**: each `Callout` / `AsynchronousCallout` / `Logic::Lambda` / `Script::JavaScript` / `Logic::JSONTransform` / `Logic::XMLTransform` / `Logic::CSVTranslator` / `Logic::ResponseFormatter` / `Execute::WorkflowTask` / `Mediation::SendEvents` whose output is referenced downstream carries either:
-  - `parameters._expected_response_schema = { "<scope>": { ... } }`, OR
-  - `parameters._opaque_trusted = "true"`, OR
-  - a downstream normalizer task (`Logic::JSONTransform` / `Logic::ResponseFormatter`) that rebinds the response into a deterministic scope.
+ - `parameters._expected_response_schema = { "<scope>": {... } }`, OR
+ - `parameters._opaque_trusted = "true"`, OR
+ - a downstream normalizer task (`Logic::JSONTransform` / `Logic::ResponseFormatter`) that rebinds the response into a deterministic scope.
 - [ ] Inside any `Iterate(object=X)` For-Each branch, downstream references use `Data.X.Field` (single-record form), NOT `Data.X[0].Field` or `Data.X | size` (array forms — would trigger `W173`).
 - [ ] After a `Logic::Merge` following a `Logic::Case`, downstream references only use scopes produced on **all** branches (or `W174` will surface for branch-partial scopes).
 

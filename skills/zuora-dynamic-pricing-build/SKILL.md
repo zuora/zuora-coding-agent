@@ -24,6 +24,8 @@ This could be:
 
 If the input is a raw business requirement (not a confirmed design artifact), **stop and ask the user to run `/zuora-dynamic-pricing-design` first** so the design can be reviewed and approved before any catalog mutations occur. Only proceed directly when the user supplies a previously approved design or gives explicit, self-contained build instructions.
 
+**CSV / spreadsheets:** Do not invent catalog structure directly from a CSV in this skill. If the user only provides a price file, send them to `/zuora-dynamic-pricing-design` (which maps arbitrary CSV columns → design). Build only from an approved design that already resolved column roles, charge model (`tiered` vs `volume`), attributes, and tier `upTo` chains.
+
 ## Tool routing
 
 - `manage_commerce_context_attributes` — create/update context attributes
@@ -267,6 +269,120 @@ chargeJson: {
 }
 ```
 
+**Tiered / volume with dynamic pricing (tiers inside each rate card):**
+
+`RateCard.pricing` uses the same `Pricing` object as charge-level default pricing. For `chargeModel` `tiered` or `volume`, put `tierMode` + `tiers` on **both** the charge default and each rate card row. Do **not** encode quantity bands as rate-card attributes.
+
+`tierMode` values: `tier_mode_tiered` (progressive), `tier_mode_volume` (all units at landed band), `tier_mode_tiered_with_overage`.
+Per-tier `priceFormat`: `price_format_per_unit` or `price_format_flat_fee` (defaults to per-unit when omitted).
+Amounts are currency maps on the tier (`unitAmounts` / `flatAmounts`), not a V1-style single `price` / `startingUnit` / `endingUnit` field.
+
+**Tier boundary rules (critical):**
+- Prefer an **`upTo`-only chain** — omit `from`. Each tier is "quantity up to N"; the last open-ended tier **omits `upTo`**.
+- Exception: `tiered_overage` requires `upTo` on **every** tier, plus charge-level overage `pricing.unitAmounts`.
+- If you set `from`, ranges must not overlap (after `upTo: 10`, next `from` must be `11+`, not `10`).
+- Confirm `tiered` vs `volume` with the user; do not infer from price shape alone.
+
+```
+Tool: manage_commerce_charges
+operation: create_charge
+chargeJson: {
+  "charge": {
+    "name": "Dynamic Tiered Charge",
+    "chargeType": "recurring",
+    "chargeModel": "tiered",
+    "productRatePlanId": "<plan-id>",
+    "billCycle": {
+      "type": "default_from_customer",
+      "period": "bill_cycle_period_month",
+      "periodAlignment": "align_to_charge",
+      "timing": "in_advance"
+    },
+    "triggerEvent": "contract_effective",
+    "endDateCondition": "subscription_end",
+    "unitOfMeasure": "device",
+    "pricing": {
+      "tierMode": "tier_mode_tiered",
+      "tiers": [
+        {
+          "upTo": 100,
+          "priceFormat": "price_format_per_unit",
+          "unitAmounts": {"USD": 10.00}
+        },
+        {
+          "upTo": 500,
+          "priceFormat": "price_format_per_unit",
+          "unitAmounts": {"USD": 8.00}
+        },
+        {
+          "priceFormat": "price_format_per_unit",
+          "unitAmounts": {"USD": 6.00}
+        }
+      ]
+    },
+    "attributes": [
+      {
+        "name": "Region",
+        "type": "String",
+        "mapping": {"object": "account", "field": "Region__c"}
+      }
+    ],
+    "rateCards": [
+      {
+        "attributes": [
+          {"name": "Region", "operator": "==", "value": {"stringValue": "US"}}
+        ],
+        "pricing": {
+          "tierMode": "tier_mode_tiered",
+          "tiers": [
+            {
+              "upTo": 100,
+              "priceFormat": "price_format_per_unit",
+              "unitAmounts": {"USD": 10.00}
+            },
+            {
+              "upTo": 500,
+              "priceFormat": "price_format_per_unit",
+              "unitAmounts": {"USD": 8.00}
+            },
+            {
+              "priceFormat": "price_format_per_unit",
+              "unitAmounts": {"USD": 6.00}
+            }
+          ]
+        }
+      },
+      {
+        "attributes": [
+          {"name": "Region", "operator": "==", "value": {"stringValue": "EU"}}
+        ],
+        "pricing": {
+          "tierMode": "tier_mode_tiered",
+          "tiers": [
+            {
+              "upTo": 100,
+              "priceFormat": "price_format_per_unit",
+              "unitAmounts": {"USD": 8.00}
+            },
+            {
+              "upTo": 500,
+              "priceFormat": "price_format_per_unit",
+              "unitAmounts": {"USD": 6.00}
+            },
+            {
+              "priceFormat": "price_format_per_unit",
+              "unitAmounts": {"USD": 5.00}
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+For `volume`, use `"chargeModel": "volume"` and `"tierMode": "tier_mode_volume"` with the same `upTo`-chain `tiers` shape. When scheduling a future change for tiered/volume, add a new rate card row for the same business attributes with a later `EffectiveDate` and a **complete** replacement `pricing.tiers` table — do not use `update_tier_price` for effective-dated or per-dimension tier tables.
+
 **Attribute declaration:**
 - `name` — attribute display name
 - `type` — `String`, `Integer`, `Double` (NOT Decimal), `Boolean`, `Date`, `Datetime`
@@ -425,9 +541,12 @@ To change the price of an EXISTING attribute combination on a schedule (rather t
 ## Critical constraints
 
 - `pricing.flatAmounts` is a map `{"USD": 99.99}`, NOT an array
-- Tiered: ranges must not overlap; last tier omits `upTo` — EXCEPT `tiered_overage` where ALL tiers require `upTo`
+- Tiered/volume: prefer `upTo`-only chains; last tier omits `upTo` — EXCEPT `tiered_overage` where ALL tiers require `upTo`. If `from` is set, ranges must not overlap.
+- For `tiered` / `volume` dynamic pricing, each `rateCards[]` entry must include `pricing.tierMode` and `pricing.tiers` (same `Pricing` shape as charge default). Quantity bands are not rate-card attributes.
+- Tier amounts use `unitAmounts` / `flatAmounts` maps + optional `priceFormat` on each tier (`upTo`, optional `from`), not V1 `startingUnit` / `endingUnit` / `price`
 - Cannot change `productRatePlanId` after charge creation
 - Tier IDs NOT returned in charge create/query — must use `query_objects` on `ProductRatePlanChargeTier`
+- Use `update_tier_price` only for in-place price edits on an existing tier ID; for per-dimension or effective-dated tier table changes, submit full `rateCards[]` with complete `pricing.tiers`
 - `billCycle.timing`: include for recurring/one_time (`in_advance` or `in_arrears`), OMIT for usage
 - `billCycle.periodAlignment`: use `align_to_charge`
 - `endDateCondition`: required, typically `subscription_end`

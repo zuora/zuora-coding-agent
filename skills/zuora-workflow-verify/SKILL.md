@@ -7,7 +7,6 @@ allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, mcp
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
 
-
 You verify a Zuora Workflow end-to-end in the tenant: import → run → poll → diagnose failures → fix at the **plan** layer → rebuild → relint → retry until success or `max_fix_retries` is exhausted.
 
 ## Input
@@ -24,11 +23,11 @@ Stop and explain what is missing if any gate fails:
 4. **Tenant target** — default assumption: sandbox/non-production. Do not verify against production unless the user explicitly names production and acknowledges impact.
 5. **User confirmation (hard gate)** — see **Step 2e** below. Never call `import_workflow` or `run_workflow` without explicit approval.
 6. **Runnable trigger** — classify before run (see **Event-triggered workflows** below):
-   - **On-demand** (`ondemand_trigger`) — run with `parameters.fields[]` / plan `input_fields`.
-   - **Event + BATCH** (`event_trigger` + `ondemand_trigger` + `call_type: BATCH`) — runnable on-demand **only after event context is seeded** (mirror fields + `query_objects`, or user-supplied ids). Do not run until `Data.<EventObject>.<key>` values are resolved.
-   - **Callout-triggered** (`callout_trigger`) — supply a test POST body matching `parameters.fields[]`.
-   - **Scheduled** — only if every required `parameters.fields[]` entry has a non-blank default.
-   - **Event-only** (`event_trigger` with no `ondemand_trigger` and no `callout_trigger` — typical for `REALTIME` / `UIACTION`) — **import + lint only**; stop before `run_workflow` and offer real-event verification or a plan redesign with mirror test inputs. Do not pretend to auto-run.
+ - **On-demand** (`ondemand_trigger`) — run with `parameters.fields[]` / plan `input_fields`.
+ - **Event + BATCH** (`event_trigger` + `ondemand_trigger` + `call_type: BATCH`) — runnable on-demand **only after event context is seeded** (mirror fields + `query_objects`, or user-supplied ids). Do not run until `Data.<EventObject>.<key>` values are resolved.
+ - **Callout-triggered** (`callout_trigger`) — supply a test POST body matching `parameters.fields[]`.
+ - **Scheduled** — only if every required `parameters.fields[]` entry has a non-blank default.
+ - **Event-only** (`event_trigger` with no `ondemand_trigger` and no `callout_trigger` — typical for `REALTIME` / `UIACTION`) — **import + lint only**; stop before `run_workflow` and offer real-event verification or a plan redesign with mirror test inputs. Do not pretend to auto-run.
 
 ## User confirmation (hard gate)
 
@@ -74,8 +73,8 @@ Record the user's choice in `.verify.json` → `user_confirmed_import`, `user_co
 Before import, call **both** in parallel:
 
 ```
-mcp__zuora-mcp__manage_workflows       { "operation": "workflow_guidance" }
-mcp__zuora-mcp__manage_workflow_runs   { "operation": "run_guidance" }
+mcp__zuora-mcp__manage_workflows { "operation": "workflow_guidance" }
+mcp__zuora-mcp__manage_workflow_runs { "operation": "run_guidance" }
 ```
 
 Use the live guidance responses as the authoritative map for `import_workflow`, `delete_workflow`, `run_workflow`, `get_run_status`, and related operations. Do not rely on stale parameter names.
@@ -97,21 +96,21 @@ Write a running log to `${CLAUDE_PLUGIN_ROOT}/output/<name>.verify.json` (create
 
 ```jsonc
 {
-  "workflow_json": "output/<name>.workflow.json",
-  "plan_json": "output/<name>.plan.json",
-  "attempt": 1,
-  "max_fix_retries": 3,
-  "import_name": "agent-verify-<name>-<timestamp>",
-  "workflow_id": null,
-  "run_id": null,
-  "status": "running",
-  "trigger_class": "ondemand | event_batch_runnable | event_only | callout | scheduled",
-  "event_context_required": [],
-  "event_context_resolved": {},
-  "mirror_input_fields_added": false,
-  "user_confirmed_import": false,
-  "user_confirmed_run": false,
-  "history": []
+ "workflow_json": "output/<name>.workflow.json",
+ "plan_json": "output/<name>.plan.json",
+ "attempt": 1,
+ "max_fix_retries": 3,
+ "import_name": "agent-verify-<name>-<timestamp>",
+ "workflow_id": null,
+ "run_id": null,
+ "status": "running",
+ "trigger_class": "ondemand | event_batch_runnable | event_only | callout | scheduled",
+ "event_context_required": [],
+ "event_context_resolved": {},
+ "mirror_input_fields_added": false,
+ "user_confirmed_import": false,
+ "user_confirmed_run": false,
+ "history": []
 }
 ```
 
@@ -182,11 +181,11 @@ If missing, **append mirror fields to the plan** (then rebuild + relint before i
 
 ```jsonc
 {
-  "field_name": "ID",
-  "object_name": "BillingRun",
-  "datatype": "String",
-  "required": false,
-  "default": ""
+ "field_name": "ID",
+ "object_name": "BillingRun",
+ "datatype": "String",
+ "required": false,
+ "default": ""
 }
 ```
 
@@ -212,9 +211,9 @@ Example for `BillingRun.ID`:
 
 ```jsonc
 "test_inputs": {
-  "fields": [
-    { "object_name": "BillingRun", "field_name": "ID", "value": "<discovered-bill-run-id>" }
-  ]
+ "fields": [
+ { "object_name": "BillingRun", "field_name": "ID", "value": "<discovered-bill-run-id>" }
+ ]
 }
 ```
 

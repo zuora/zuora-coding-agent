@@ -67,7 +67,6 @@ from workflow_engine.workflow_reference.task_templates import (
 
 _ENGINE = TaskTemplateEngine()
 
-
 # Per-action_type allow-list of parameter keys that Rails dereferences
 # **without** a nil-guard, but our generated Pydantic model declares with
 # a ``None`` default. ``model_dump(exclude_none=False)`` would emit them
@@ -79,7 +78,7 @@ _ENGINE = TaskTemplateEngine()
 #
 # Confirmed crashes / citations:
 #   * Callout / AsynchronousCallout — ``parameters['validation']``
-#     crashes ``app/models/tasks/callout.rb:719`` in
+#     crashes in
 #     ``Callout#validation`` (called from ``task_setup_validation``):
 #         self.parameters.fetch('validation', {}).reverse_merge({...})
 #     Pydantic default: ``CalloutTaskParameters.validation = None``.
@@ -88,7 +87,7 @@ _ENGINE = TaskTemplateEngine()
 #
 #   * File::CustomPDF::CustomDocument /
 #     Billing::CustomBillingDocument — ``parameters['advanced']``
-#     crashes ``app/models/tasks/file/custom_pdf.rb:130`` in
+#     crashes in
 #     ``File::CustomPDF#advanced_settings``:
 #         self.parameters.fetch('advanced', {}).reverse_merge!({...})
 #     This is invoked at *runtime* (``task_process`` → ``generate_pdf``)
@@ -118,7 +117,6 @@ _RAILS_NIL_FRAGILE_PARAMETERS: dict[str, frozenset[str]] = {
     "Billing::CustomBillingDocument": frozenset({"advanced"}),
 }
 
-
 def _strip_rails_nil_fragile_keys(action_type: str, params: dict[str, Any]) -> None:
     """Drop ``None`` values from ``params`` for keys Rails can't tolerate as ``null``.
 
@@ -132,7 +130,6 @@ def _strip_rails_nil_fragile_keys(action_type: str, params: dict[str, Any]) -> N
     for key in fragile:
         if key in params and params[key] is None:
             del params[key]
-
 
 def _validate_required_strings_nonblank(
     instance: BaseModel,
@@ -154,7 +151,7 @@ def _validate_required_strings_nonblank(
 
     Rather than enumerate per-task-type rules (which would drift
     against upstream changes), we walk the validated instance, find
-    every field marked ``is_required()`` whose value is a string, and
+    every field marked ``is_required`` whose value is a string, and
     fail fast if it strips to empty. The same pass also recurses into
     nested ``BaseModel`` children (e.g. ``EmailTaskEmail`` inside
     ``EmailTaskParameters``) and into items of ``list[BaseModel]``
@@ -244,7 +241,6 @@ def _validate_required_strings_nonblank(
     _walk(instance, base_path)
     return errors
 
-
 def _format_pydantic_error(err: dict[str, Any]) -> dict[str, Any]:
     """Translate a ``ValidationError`` entry into the agent's envelope."""
     loc = [p for p in err.get("loc", []) if p != "__root__"]
@@ -259,7 +255,6 @@ def _format_pydantic_error(err: dict[str, Any]) -> dict[str, Any]:
         "fix_hint": _pydantic_fix_hint(path, message, err_type),
     }
 
-
 def _pydantic_fix_hint(path: str, msg: str, err_type: str) -> str:
     lower = msg.lower()
     if err_type == "missing" or "missing" in lower or "field required" in lower:
@@ -273,7 +268,6 @@ def _pydantic_fix_hint(path: str, msg: str, err_type: str) -> str:
     if "type" in err_type or "str type" in lower:
         return f"Field `{path}` has the wrong type. " "Check the task schema and convert the value."
     return "Fix the parameters to match the task's JSON schema, then retry."
-
 
 def build_task_request_body(
     *,
@@ -432,7 +426,7 @@ def build_task_request_body(
     )
 
     # Targeted post-dump scrub of keys Rails dereferences without a
-    # nil-guard (e.g. ``Callout.validation`` → ``callout.rb:719``). The
+    # nil-guard (e.g. ``Callout.validation`` → ``). The
     # surrounding ``exclude_none=False`` behaviour stays — Rails callbacks
     # like ``Email#cast`` rely on those keys being present-with-null.
     # Only the explicitly-listed fields are dropped.
@@ -505,7 +499,6 @@ def build_task_request_body(
     if object_id is not None:
         body["object_id"] = object_id
     return body, []
-
 
 def render_validation_errors(errors: list[dict[str, Any]]) -> str:
     """Format a list of validation errors as a markdown bullet list for

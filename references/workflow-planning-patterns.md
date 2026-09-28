@@ -22,10 +22,10 @@ Named composition patterns for `/zuora-workflow-design` and `/zuora-workflow-bui
 
 ```text
 BillingRunCompletion
-  → Export Invoice (SourceId filter; Account + BillToContact on same export)
-  → Iterate
-      → Query InvoiceItem
-      → Callout POST
+ → Export Invoice (SourceId filter; Account + BillToContact on same export)
+ → Iterate
+ → Query InvoiceItem
+ → Callout POST
 ```
 
 **Do not:** Notification → Callout bridge when `BillingRunCompletion` is available; `Query Invoice` scoped to a bill run (`W196`); invented scopes like `Data.BillRun.*` or `Data.CurrentInvoice.*`.
@@ -61,8 +61,8 @@ See `workflow-patterns.md` for the canonical bill-run → external system patter
 
 1. Upstream task produces the collection (file or array).
 2. `Iterate.object`:
-   - After **`Export` / `Data::Link` / `Data::Aqua`**: file holder name (`Invoice__101.csv.zip`) — **not** bare `Invoice` (`E176`).
-   - After **`Query` / `GraphQuery`**: object name (`Invoice`).
+ - After **`Export` / `Data::Link` / `Data::Aqua`**: file holder name (`Invoice__101.csv.zip`) — **not** bare `Invoice` (`E176`).
+ - After **`Query` / `GraphQuery`**: object name (`Invoice`).
 3. Link predecessor `Success` → `Iterate`; per-record children use linkage `For Each`; after-loop uses `Complete`.
 4. Inside the loop: `Data.<Object>.<Field>` (single row) — not `Data.Invoice[0].Id` (`W173`).
 

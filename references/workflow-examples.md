@@ -2,7 +2,7 @@
 
 Five end-to-end, lint-clean workflow JSONs for the canonical use cases. Each example is annotated with the design decisions and the patterns the linter looks for. Use them as fixtures when composing a new workflow.
 
-These JSONs double as regression fixtures for `scripts/lint-workflow-json.js`. Keep them lint-clean.
+These JSONs double as regression fixtures for `Workflow UI`. Keep them lint-clean.
 
 ## Use Case 1 — Event-triggered invoice export to external ERP
 
@@ -12,76 +12,76 @@ These JSONs double as regression fixtures for `scripts/lint-workflow-json.js`. K
 
 ```json
 {
-  "workflow_definition": {
-    "name": "ERP Invoice Export",
-    "description": "Push newly-posted invoices to the ERP.",
-    "category": "Default",
-    "ui_page_roles": []
-  },
-  "workflow": {
-    "id": 1,
-    "name": "ERP Invoice Export",
-    "description": "Event-triggered export to external ERP on InvoicePosted.",
-    "parameters": {
-      "event_triggers": ["InvoicePosted"],
-      "event_parameters": [
-        {
-          "eventName": "InvoicePosted",
-          "params": [
-            { "object": "Invoice", "key": "Id",        "value": "<Invoice.Id>" },
-            { "object": "Invoice", "key": "AccountId", "value": "<Invoice.AccountId>" }
-          ]
-        }
-      ]
-    },
-    "data": {},
-    "type": "Workflow::Setup",
-    "ondemand_trigger": false,
-    "callout_trigger": false,
-    "scheduled_trigger": false,
-    "event_trigger": true,
-    "interval": null,
-    "timezone": null,
-    "status": "Inactive",
-    "css": { "top": "40px", "left": "35px" },
-    "notifications": {},
-    "call_type": "BATCH",
-    "priority": "Medium",
-    "delete_ttl": 30
-  },
-  "tasks": [
-    {
-      "id": 101,
-      "name": "Export Invoice to ERP",
-      "parameters": {
-        "url": "{{ GlobalConstants.ERP_BASE_URL }}/invoices",
-        "method": "POST",
-        "body_type": "raw",
-        "raw_body": "{\n  \"zuora_invoice_id\": \"{{ Data.Invoice.Id }}\",\n  \"account_id\": \"{{ Data.Invoice.AccountId }}\"\n}",
-        "headers": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "X-API-Key",    "value": "{{ GlobalConstants.ERP_API_KEY }}" }
-        ],
-        "authorization": { "type": "none" },
-        "validation": { "status_codes": ["200", "201", "202"] },
-        "retry_rules": { "retry_count": "3", "retry_window": "30" },
-        "strict_variables": "true"
-      },
-      "action_type": "Callout",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": null,
-      "css": { "top": "40px", "left": "350px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    }
-  ],
-  "linkages": [
-    { "source_workflow_id": 1, "source_task_id": null, "target_task_id": 101, "linkage_type": "InvoicePosted" }
-  ]
+ "workflow_definition": {
+ "name": "ERP Invoice Export",
+ "description": "Push newly-posted invoices to the ERP.",
+ "category": "Default",
+ "ui_page_roles": []
+ },
+ "workflow": {
+ "id": 1,
+ "name": "ERP Invoice Export",
+ "description": "Event-triggered export to external ERP on InvoicePosted.",
+ "parameters": {
+ "event_triggers": ["InvoicePosted"],
+ "event_parameters": [
+ {
+ "eventName": "InvoicePosted",
+ "params": [
+ { "object": "Invoice", "key": "Id", "value": "<Invoice.Id>" },
+ { "object": "Invoice", "key": "AccountId", "value": "<Invoice.AccountId>" }
+ ]
+ }
+ ]
+ },
+ "data": {},
+ "type": "Workflow::Setup",
+ "ondemand_trigger": false,
+ "callout_trigger": false,
+ "scheduled_trigger": false,
+ "event_trigger": true,
+ "interval": null,
+ "timezone": null,
+ "status": "Inactive",
+ "css": { "top": "40px", "left": "35px" },
+ "notifications": {},
+ "call_type": "BATCH",
+ "priority": "Medium",
+ "delete_ttl": 30
+ },
+ "tasks": [
+ {
+ "id": 101,
+ "name": "Export Invoice to ERP",
+ "parameters": {
+ "url": "{{ GlobalConstants.ERP_BASE_URL }}/invoices",
+ "method": "POST",
+ "body_type": "raw",
+ "raw_body": "{\n \"zuora_invoice_id\": \"{{ Data.Invoice.Id }}\",\n \"account_id\": \"{{ Data.Invoice.AccountId }}\"\n}",
+ "headers": [
+ { "key": "Content-Type", "value": "application/json" },
+ { "key": "X-API-Key", "value": "{{ GlobalConstants.ERP_API_KEY }}" }
+ ],
+ "authorization": { "type": "none" },
+ "validation": { "status_codes": ["200", "201", "202"] },
+ "retry_rules": { "retry_count": "3", "retry_window": "30" },
+ "strict_variables": "true"
+ },
+ "action_type": "Callout",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": null,
+ "css": { "top": "40px", "left": "350px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ }
+ ],
+ "linkages": [
+ { "source_workflow_id": 1, "source_task_id": null, "target_task_id": 101, "linkage_type": "InvoicePosted" }
+ ]
 }
 ```
 
@@ -103,216 +103,216 @@ Checklist highlights:
 
 ```json
 {
-  "workflow_definition": {
-    "name": "Daily Dunning Escalation",
-    "description": "Triages overdue invoices into gentle / firm / collections.",
-    "category": "Collections",
-    "ui_page_roles": []
-  },
-  "workflow": {
-    "id": 2,
-    "name": "Daily Dunning Escalation",
-    "description": "Scheduled daily at 08:00 UTC.",
-    "parameters": {},
-    "data": {},
-    "type": "Workflow::Setup",
-    "ondemand_trigger": false,
-    "callout_trigger": false,
-    "scheduled_trigger": true,
-    "event_trigger": false,
-    "interval": "0 8 * * *",
-    "timezone": "UTC",
-    "status": "Inactive",
-    "css": { "top": "40px", "left": "35px" },
-    "notifications": {},
-    "call_type": "BATCH",
-    "priority": "Medium",
-    "delete_ttl": 30
-  },
-  "tasks": [
-    {
-      "id": 201,
-      "name": "Query Overdue Invoices",
-      "parameters": {
-        "fields": { "Invoice": { "Id": "true", "AccountId": "true", "Balance": "true", "DueDate": "true" } },
-        "where_clause": "Status = 'Posted' AND Balance > 0 AND DueDate < '{{ 'now' | date: \"%Y-%m-%d\" }}'",
-        "placement": "",
-        "zero_query_proceed": "false",
-        "strict_variables": "true"
-      },
-      "action_type": "Query",
-      "object": "Invoice",
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": null,
-      "css": { "top": "40px", "left": "350px" },
-      "concurrent_limit": 5,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 202,
-      "name": "Iterate Over Invoices",
-      "parameters": { "file_type": "CSV", "fetched_data_is_array": "true", "strict_variables": "true" },
-      "action_type": "Iterate",
-      "object": "Invoice",
-      "object_id": null,
-      "call_type": "BATCH",
-      "task_id": 201,
-      "css": { "top": "40px", "left": "700px" },
-      "concurrent_limit": 150,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 207,
-      "name": "Query Invoice Account",
-      "parameters": {
-        "fields": {
-          "Account":       { "Id": "true", "AccountNumber": "true" },
-          "BillToContact": { "WorkEmail": "true", "FirstName": "true", "LastName": "true" }
-        },
-        "where_clause": "Account.Id = '{{ Data.Invoice.AccountId }}'",
-        "placement": "",
-        "zero_query_proceed": "false",
-        "strict_variables": "true"
-      },
-      "action_type": "Query",
-      "object": "Account",
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 202,
-      "css": { "top": "40px", "left": "900px" },
-      "concurrent_limit": 5,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 203,
-      "name": "Classify Overdue Days",
-      "parameters": {
-        "case_clause": "{% assign today = 'now' | date: '%s' | plus: 0 %}{% assign due = Data.Invoice.DueDate | date: '%s' | plus: 0 %}{% assign days = today | minus: due | divided_by: 86400 %}{% if days <= 14 %}gentle{% elsif days <= 30 %}firm{% else %}collections{% endif %}",
-        "case_condition": {
-          "Case_1": "gentle",
-          "Case_2": "firm"
-        },
-        "disable_regex": "true",
-        "strict_variables": "true",
-        "disable_validation": "false"
-      },
-      "action_type": "Logic::Case",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 207,
-      "css": { "top": "40px", "left": "1050px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 204,
-      "name": "Gentle Reminder Email",
-      "parameters": {
-        "email": {
-          "to": ["{{ Data.Account.BillToContact.WorkEmail }}"],
-          "cc": [], "bcc": [],
-          "from": "dunning@zuora.com",
-          "reply_to": "", "name": "",
-          "subject": "Friendly reminder: invoice {{ Data.Invoice.Id }} is past due",
-          "template": "<p>Hi,</p><p>Invoice {{ Data.Invoice.Id }} with balance {{ Data.Invoice.Balance | money }} is past its due date. We appreciate prompt payment. Thank you.</p>",
-          "attachments": { "invoices": "false" },
-          "preview_only": "false",
-          "disable_editor": "false"
-        },
-        "files": {},
-        "strict_variables": "true"
-      },
-      "action_type": "Email",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 203,
-      "css": { "top": "-80px", "left": "1400px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 205,
-      "name": "Firm Warning Email",
-      "parameters": {
-        "email": {
-          "to": ["{{ Data.Account.BillToContact.WorkEmail }}"],
-          "cc": ["collections@zuora.com"], "bcc": [],
-          "from": "dunning@zuora.com",
-          "reply_to": "", "name": "",
-          "subject": "URGENT: invoice {{ Data.Invoice.Id }} is {{ Data.Invoice.Balance | money }} overdue",
-          "template": "<p>Your invoice {{ Data.Invoice.Id }} is significantly past due. Please remit payment within 7 business days to avoid escalation.</p>",
-          "attachments": { "invoices": "true" },
-          "preview_only": "false",
-          "disable_editor": "false"
-        },
-        "files": {},
-        "strict_variables": "true"
-      },
-      "action_type": "Email",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 203,
-      "css": { "top": "40px", "left": "1400px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 206,
-      "name": "Handoff to Collections System",
-      "parameters": {
-        "url": "{{ GlobalConstants.COLLECTIONS_WEBHOOK }}",
-        "method": "POST",
-        "body_type": "raw",
-        "raw_body": "{\n  \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n  \"account_id\": \"{{ Data.Invoice.AccountId }}\",\n  \"balance\": \"{{ Data.Invoice.Balance }}\"\n}",
-        "headers": [{ "key": "Content-Type", "value": "application/json" }],
-        "authorization": { "type": "none" },
-        "validation": { "status_codes": ["200", "201", "202"] },
-        "retry_rules": { "retry_count": "3", "retry_window": "30" },
-        "strict_variables": "true"
-      },
-      "action_type": "Callout",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 203,
-      "css": { "top": "160px", "left": "1400px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    }
-  ],
-  "linkages": [
-    { "source_workflow_id": 2,    "source_task_id": null, "target_task_id": 201, "linkage_type": "Start" },
-    { "source_workflow_id": null, "source_task_id": 201,  "target_task_id": 202, "linkage_type": "Success" },
-    { "source_workflow_id": null, "source_task_id": 202,  "target_task_id": 207, "linkage_type": "For Each" },
-    { "source_workflow_id": null, "source_task_id": 207,  "target_task_id": 203, "linkage_type": "Success" },
-    { "source_workflow_id": null, "source_task_id": 203,  "target_task_id": 204, "linkage_type": "Case_1" },
-    { "source_workflow_id": null, "source_task_id": 203,  "target_task_id": 205, "linkage_type": "Case_2" },
-    { "source_workflow_id": null, "source_task_id": 203,  "target_task_id": 206, "linkage_type": "Case_Else" }
-  ]
+ "workflow_definition": {
+ "name": "Daily Dunning Escalation",
+ "description": "Triages overdue invoices into gentle / firm / collections.",
+ "category": "Collections",
+ "ui_page_roles": []
+ },
+ "workflow": {
+ "id": 2,
+ "name": "Daily Dunning Escalation",
+ "description": "Scheduled daily at 08:00 UTC.",
+ "parameters": {},
+ "data": {},
+ "type": "Workflow::Setup",
+ "ondemand_trigger": false,
+ "callout_trigger": false,
+ "scheduled_trigger": true,
+ "event_trigger": false,
+ "interval": "0 8 * * *",
+ "timezone": "UTC",
+ "status": "Inactive",
+ "css": { "top": "40px", "left": "35px" },
+ "notifications": {},
+ "call_type": "BATCH",
+ "priority": "Medium",
+ "delete_ttl": 30
+ },
+ "tasks": [
+ {
+ "id": 201,
+ "name": "Query Overdue Invoices",
+ "parameters": {
+ "fields": { "Invoice": { "Id": "true", "AccountId": "true", "Balance": "true", "DueDate": "true" } },
+ "where_clause": "Status = 'Posted' AND Balance > 0 AND DueDate < '{{ 'now' | date: \"%Y-%m-%d\" }}'",
+ "placement": "",
+ "zero_query_proceed": "false",
+ "strict_variables": "true"
+ },
+ "action_type": "Query",
+ "object": "Invoice",
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": null,
+ "css": { "top": "40px", "left": "350px" },
+ "concurrent_limit": 5,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 202,
+ "name": "Iterate Over Invoices",
+ "parameters": { "file_type": "CSV", "fetched_data_is_array": "true", "strict_variables": "true" },
+ "action_type": "Iterate",
+ "object": "Invoice",
+ "object_id": null,
+ "call_type": "BATCH",
+ "task_id": 201,
+ "css": { "top": "40px", "left": "700px" },
+ "concurrent_limit": 150,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 207,
+ "name": "Query Invoice Account",
+ "parameters": {
+ "fields": {
+ "Account": { "Id": "true", "AccountNumber": "true" },
+ "BillToContact": { "WorkEmail": "true", "FirstName": "true", "LastName": "true" }
+ },
+ "where_clause": "Account.Id = '{{ Data.Invoice.AccountId }}'",
+ "placement": "",
+ "zero_query_proceed": "false",
+ "strict_variables": "true"
+ },
+ "action_type": "Query",
+ "object": "Account",
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 202,
+ "css": { "top": "40px", "left": "900px" },
+ "concurrent_limit": 5,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 203,
+ "name": "Classify Overdue Days",
+ "parameters": {
+ "case_clause": "{% assign today = 'now' | date: '%s' | plus: 0 %}{% assign due = Data.Invoice.DueDate | date: '%s' | plus: 0 %}{% assign days = today | minus: due | divided_by: 86400 %}{% if days <= 14 %}gentle{% elsif days <= 30 %}firm{% else %}collections{% endif %}",
+ "case_condition": {
+ "Case_1": "gentle",
+ "Case_2": "firm"
+ },
+ "disable_regex": "true",
+ "strict_variables": "true",
+ "disable_validation": "false"
+ },
+ "action_type": "Logic::Case",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 207,
+ "css": { "top": "40px", "left": "1050px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 204,
+ "name": "Gentle Reminder Email",
+ "parameters": {
+ "email": {
+ "to": ["{{ Data.Account.BillToContact.WorkEmail }}"],
+ "cc": [], "bcc": [],
+ "from": "dunning@zuora.com",
+ "reply_to": "", "name": "",
+ "subject": "Friendly reminder: invoice {{ Data.Invoice.Id }} is past due",
+ "template": "<p>Hi,</p><p>Invoice {{ Data.Invoice.Id }} with balance {{ Data.Invoice.Balance | money }} is past its due date. We appreciate prompt payment. Thank you.</p>",
+ "attachments": { "invoices": "false" },
+ "preview_only": "false",
+ "disable_editor": "false"
+ },
+ "files": {},
+ "strict_variables": "true"
+ },
+ "action_type": "Email",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 203,
+ "css": { "top": "-80px", "left": "1400px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 205,
+ "name": "Firm Warning Email",
+ "parameters": {
+ "email": {
+ "to": ["{{ Data.Account.BillToContact.WorkEmail }}"],
+ "cc": ["collections@zuora.com"], "bcc": [],
+ "from": "dunning@zuora.com",
+ "reply_to": "", "name": "",
+ "subject": "URGENT: invoice {{ Data.Invoice.Id }} is {{ Data.Invoice.Balance | money }} overdue",
+ "template": "<p>Your invoice {{ Data.Invoice.Id }} is significantly past due. Please remit payment within 7 business days to avoid escalation.</p>",
+ "attachments": { "invoices": "true" },
+ "preview_only": "false",
+ "disable_editor": "false"
+ },
+ "files": {},
+ "strict_variables": "true"
+ },
+ "action_type": "Email",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 203,
+ "css": { "top": "40px", "left": "1400px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 206,
+ "name": "Handoff to Collections System",
+ "parameters": {
+ "url": "{{ GlobalConstants.COLLECTIONS_WEBHOOK }}",
+ "method": "POST",
+ "body_type": "raw",
+ "raw_body": "{\n \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n \"account_id\": \"{{ Data.Invoice.AccountId }}\",\n \"balance\": \"{{ Data.Invoice.Balance }}\"\n}",
+ "headers": [{ "key": "Content-Type", "value": "application/json" }],
+ "authorization": { "type": "none" },
+ "validation": { "status_codes": ["200", "201", "202"] },
+ "retry_rules": { "retry_count": "3", "retry_window": "30" },
+ "strict_variables": "true"
+ },
+ "action_type": "Callout",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 203,
+ "css": { "top": "160px", "left": "1400px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ }
+ ],
+ "linkages": [
+ { "source_workflow_id": 2, "source_task_id": null, "target_task_id": 201, "linkage_type": "Start" },
+ { "source_workflow_id": null, "source_task_id": 201, "target_task_id": 202, "linkage_type": "Success" },
+ { "source_workflow_id": null, "source_task_id": 202, "target_task_id": 207, "linkage_type": "For Each" },
+ { "source_workflow_id": null, "source_task_id": 207, "target_task_id": 203, "linkage_type": "Success" },
+ { "source_workflow_id": null, "source_task_id": 203, "target_task_id": 204, "linkage_type": "Case_1" },
+ { "source_workflow_id": null, "source_task_id": 203, "target_task_id": 205, "linkage_type": "Case_2" },
+ { "source_workflow_id": null, "source_task_id": 203, "target_task_id": 206, "linkage_type": "Case_Else" }
+ ]
 }
 ```
 
 Checklist highlights:
 
-- `scheduled_trigger: true`; `interval` is a 5- or 6-token Rufus cron string; `timezone` is a Rails ActiveSupport friendly name (e.g. `"UTC"`, `"Eastern Time (US & Canada)"`, `"London"`, `"Tokyo"`) — see `references/rails-timezones.json`. Bare IANA names like `"America/New_York"` fail server validation.
+- `scheduled_trigger: true`; `interval` is a 5- or 6-token Workflow cron string; `timezone` is a Workflow timezone allowlist friendly name (e.g. `"UTC"`, `"Eastern Time (US & Canada)"`, `"London"`, `"Tokyo"`) — see `references/rails-timezones.json`. Bare IANA names like `"America/New_York"` fail server validation.
 - `Logic::Case.parameters.case_condition` keys are pre-normalized to `Case_1`, `Case_2`.
 - `Case_Else` is emitted as a linkage, not a `case_condition` key (the fall-through is implicit).
 - `For Each` linkage has the space — matches `Iterate`'s published hook.
@@ -328,103 +328,103 @@ Checklist highlights:
 
 ```json
 {
-  "workflow_definition": {
-    "name": "Payment Confirmation Email",
-    "description": "Email customer when a payment is processed.",
-    "category": "Default",
-    "ui_page_roles": []
-  },
-  "workflow": {
-    "id": 3,
-    "name": "Payment Confirmation Email",
-    "description": "Event-triggered on PaymentProcessed.",
-    "parameters": {
-      "event_triggers": ["PaymentProcessed"],
-      "event_parameters": [
-        {
-          "eventName": "PaymentProcessed",
-          "params": [
-            { "object": "Payment", "key": "Id",        "value": "<Payment.Id>" },
-            { "object": "Payment", "key": "AccountId", "value": "<Payment.AccountId>" },
-            { "object": "Payment", "key": "Amount",    "value": "<Payment.Amount>" }
-          ]
-        }
-      ]
-    },
-    "data": {},
-    "type": "Workflow::Setup",
-    "ondemand_trigger": false,
-    "callout_trigger": false,
-    "scheduled_trigger": false,
-    "event_trigger": true,
-    "interval": null,
-    "timezone": null,
-    "status": "Inactive",
-    "css": { "top": "40px", "left": "35px" },
-    "notifications": {},
-    "call_type": "BATCH",
-    "priority": "Medium",
-    "delete_ttl": 30
-  },
-  "tasks": [
-    {
-      "id": 301,
-      "name": "Query Account Contact",
-      "parameters": {
-        "fields": {
-          "Account":        { "Id": "true", "Name": "true", "AccountNumber": "true" },
-          "BillToContact":  { "WorkEmail": "true", "FirstName": "true", "LastName": "true" }
-        },
-        "where_clause": "Account.Id = '{{ Data.Payment.AccountId }}'",
-        "placement": "",
-        "zero_query_proceed": "false",
-        "strict_variables": "true"
-      },
-      "action_type": "Query",
-      "object": "Account",
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": null,
-      "css": { "top": "40px", "left": "350px" },
-      "concurrent_limit": 5,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 302,
-      "name": "Send Confirmation Email",
-      "parameters": {
-        "email": {
-          "to": ["{{ Data.Account.BillToContact.WorkEmail }}"],
-          "cc": [], "bcc": [],
-          "from": "billing@zuora.com",
-          "reply_to": "", "name": "",
-          "subject": "Payment received - thank you",
-          "template": "<p>Hi {{ Data.Account.BillToContact.FirstName }},</p><p>Thank you. We've received your payment of {{ Data.Payment.Amount | money }} for account {{ Data.Account.AccountNumber }}.</p><p>Regards,<br>Zuora Billing</p>",
-          "attachments": { "invoices": "false" },
-          "preview_only": "false",
-          "disable_editor": "false"
-        },
-        "files": {},
-        "strict_variables": "true"
-      },
-      "action_type": "Email",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 301,
-      "css": { "top": "40px", "left": "700px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    }
-  ],
-  "linkages": [
-    { "source_workflow_id": 3,    "source_task_id": null, "target_task_id": 301, "linkage_type": "PaymentProcessed" },
-    { "source_workflow_id": null, "source_task_id": 301,  "target_task_id": 302, "linkage_type": "Success" }
-  ]
+ "workflow_definition": {
+ "name": "Payment Confirmation Email",
+ "description": "Email customer when a payment is processed.",
+ "category": "Default",
+ "ui_page_roles": []
+ },
+ "workflow": {
+ "id": 3,
+ "name": "Payment Confirmation Email",
+ "description": "Event-triggered on PaymentProcessed.",
+ "parameters": {
+ "event_triggers": ["PaymentProcessed"],
+ "event_parameters": [
+ {
+ "eventName": "PaymentProcessed",
+ "params": [
+ { "object": "Payment", "key": "Id", "value": "<Payment.Id>" },
+ { "object": "Payment", "key": "AccountId", "value": "<Payment.AccountId>" },
+ { "object": "Payment", "key": "Amount", "value": "<Payment.Amount>" }
+ ]
+ }
+ ]
+ },
+ "data": {},
+ "type": "Workflow::Setup",
+ "ondemand_trigger": false,
+ "callout_trigger": false,
+ "scheduled_trigger": false,
+ "event_trigger": true,
+ "interval": null,
+ "timezone": null,
+ "status": "Inactive",
+ "css": { "top": "40px", "left": "35px" },
+ "notifications": {},
+ "call_type": "BATCH",
+ "priority": "Medium",
+ "delete_ttl": 30
+ },
+ "tasks": [
+ {
+ "id": 301,
+ "name": "Query Account Contact",
+ "parameters": {
+ "fields": {
+ "Account": { "Id": "true", "Name": "true", "AccountNumber": "true" },
+ "BillToContact": { "WorkEmail": "true", "FirstName": "true", "LastName": "true" }
+ },
+ "where_clause": "Account.Id = '{{ Data.Payment.AccountId }}'",
+ "placement": "",
+ "zero_query_proceed": "false",
+ "strict_variables": "true"
+ },
+ "action_type": "Query",
+ "object": "Account",
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": null,
+ "css": { "top": "40px", "left": "350px" },
+ "concurrent_limit": 5,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 302,
+ "name": "Send Confirmation Email",
+ "parameters": {
+ "email": {
+ "to": ["{{ Data.Account.BillToContact.WorkEmail }}"],
+ "cc": [], "bcc": [],
+ "from": "billing@zuora.com",
+ "reply_to": "", "name": "",
+ "subject": "Payment received - thank you",
+ "template": "<p>Hi {{ Data.Account.BillToContact.FirstName }},</p><p>Thank you. We've received your payment of {{ Data.Payment.Amount | money }} for account {{ Data.Account.AccountNumber }}.</p><p>Regards,<br>Zuora Billing</p>",
+ "attachments": { "invoices": "false" },
+ "preview_only": "false",
+ "disable_editor": "false"
+ },
+ "files": {},
+ "strict_variables": "true"
+ },
+ "action_type": "Email",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 301,
+ "css": { "top": "40px", "left": "700px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ }
+ ],
+ "linkages": [
+ { "source_workflow_id": 3, "source_task_id": null, "target_task_id": 301, "linkage_type": "PaymentProcessed" },
+ { "source_workflow_id": null, "source_task_id": 301, "target_task_id": 302, "linkage_type": "Success" }
+ ]
 }
 ```
 
@@ -445,118 +445,118 @@ This is the **declare-schema** protocol from Step 3e of `zuora-workflow-build/SK
 
 ```json
 {
-  "workflow_definition": {
-    "name": "Invoice Risk Assessment",
-    "description": "On invoice posting, score risk via external API and email the fraud team.",
-    "category": "Default",
-    "ui_page_roles": []
-  },
-  "workflow": {
-    "id": 5,
-    "name": "Invoice Risk Assessment",
-    "description": "Event-triggered on InvoicePosted. Calls external risk-scoring API and emails fraud team with the assessment.",
-    "parameters": {
-      "event_triggers": ["InvoicePosted"],
-      "event_parameters": [
-        {
-          "eventName": "InvoicePosted",
-          "params": [
-            { "object": "Invoice", "key": "Id",        "value": "<Invoice.Id>" },
-            { "object": "Invoice", "key": "AccountId", "value": "<Invoice.AccountId>" },
-            { "object": "Invoice", "key": "Amount",    "value": "<Invoice.Amount>" }
-          ]
-        }
-      ]
-    },
-    "data": {},
-    "type": "Workflow::Setup",
-    "ondemand_trigger": false,
-    "callout_trigger": false,
-    "scheduled_trigger": false,
-    "event_trigger": true,
-    "interval": null,
-    "timezone": null,
-    "status": "Inactive",
-    "css": { "top": "40px", "left": "35px" },
-    "notifications": {},
-    "call_type": "BATCH",
-    "priority": "Medium",
-    "delete_ttl": 30
-  },
-  "tasks": [
-    {
-      "id": 501,
-      "name": "Score Invoice Risk",
-      "parameters": {
-        "url": "{{ GlobalConstants.RISK_SCORE_BASE_URL }}/score",
-        "method": "POST",
-        "body_type": "raw",
-        "raw_body": "{\n  \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n  \"account_id\": \"{{ Data.Invoice.AccountId }}\",\n  \"amount\": \"{{ Data.Invoice.Amount }}\"\n}",
-        "headers": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "X-API-Key",    "value": "{{ GlobalConstants.RISK_SCORE_API_KEY }}" }
-        ],
-        "authorization": { "type": "none" },
-        "validation": {
-          "status_codes": ["200"],
-          "payload_location": "RiskScore"
-        },
-        "retry_rules": { "retry_count": "2", "retry_window": "30" },
-        "strict_variables": "true",
-        "_expected_response_schema": {
-          "RiskScore": {
-            "score": "integer 0-100",
-            "level": "low | medium | high",
-            "reason": "string explaining the score",
-            "model_version": "semver string of the scoring model"
-          }
-        }
-      },
-      "action_type": "Callout",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": null,
-      "css": { "top": "40px", "left": "350px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 502,
-      "name": "Notify Fraud Team",
-      "parameters": {
-        "email": {
-          "to": ["fraud-review@zuora.com"],
-          "cc": [], "bcc": [],
-          "from": "workflow@zuora.com",
-          "reply_to": "", "name": "",
-          "subject": "Risk score {{ Data.RiskScore.level }} for invoice {{ Data.Invoice.Id }}",
-          "template": "<p>Invoice <strong>{{ Data.Invoice.Id }}</strong> ({{ Data.Invoice.Amount | money }}) was scored <strong>{{ Data.RiskScore.score }}/100</strong> ({{ Data.RiskScore.level }}) by risk model {{ Data.RiskScore.model_version }}.</p><p>Reason: {{ Data.RiskScore.reason }}</p>",
-          "attachments": { "invoices": "false" },
-          "preview_only": "false",
-          "disable_editor": "false"
-        },
-        "files": {},
-        "strict_variables": "true"
-      },
-      "action_type": "Email",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 501,
-      "css": { "top": "40px", "left": "750px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    }
-  ],
-  "linkages": [
-    { "source_workflow_id": 5,    "source_task_id": null, "target_task_id": 501, "linkage_type": "InvoicePosted" },
-    { "source_workflow_id": null, "source_task_id": 501,  "target_task_id": 502, "linkage_type": "Success" }
-  ]
+ "workflow_definition": {
+ "name": "Invoice Risk Assessment",
+ "description": "On invoice posting, score risk via external API and email the fraud team.",
+ "category": "Default",
+ "ui_page_roles": []
+ },
+ "workflow": {
+ "id": 5,
+ "name": "Invoice Risk Assessment",
+ "description": "Event-triggered on InvoicePosted. Calls external risk-scoring API and emails fraud team with the assessment.",
+ "parameters": {
+ "event_triggers": ["InvoicePosted"],
+ "event_parameters": [
+ {
+ "eventName": "InvoicePosted",
+ "params": [
+ { "object": "Invoice", "key": "Id", "value": "<Invoice.Id>" },
+ { "object": "Invoice", "key": "AccountId", "value": "<Invoice.AccountId>" },
+ { "object": "Invoice", "key": "Amount", "value": "<Invoice.Amount>" }
+ ]
+ }
+ ]
+ },
+ "data": {},
+ "type": "Workflow::Setup",
+ "ondemand_trigger": false,
+ "callout_trigger": false,
+ "scheduled_trigger": false,
+ "event_trigger": true,
+ "interval": null,
+ "timezone": null,
+ "status": "Inactive",
+ "css": { "top": "40px", "left": "35px" },
+ "notifications": {},
+ "call_type": "BATCH",
+ "priority": "Medium",
+ "delete_ttl": 30
+ },
+ "tasks": [
+ {
+ "id": 501,
+ "name": "Score Invoice Risk",
+ "parameters": {
+ "url": "{{ GlobalConstants.RISK_SCORE_BASE_URL }}/score",
+ "method": "POST",
+ "body_type": "raw",
+ "raw_body": "{\n \"invoice_id\": \"{{ Data.Invoice.Id }}\",\n \"account_id\": \"{{ Data.Invoice.AccountId }}\",\n \"amount\": \"{{ Data.Invoice.Amount }}\"\n}",
+ "headers": [
+ { "key": "Content-Type", "value": "application/json" },
+ { "key": "X-API-Key", "value": "{{ GlobalConstants.RISK_SCORE_API_KEY }}" }
+ ],
+ "authorization": { "type": "none" },
+ "validation": {
+ "status_codes": ["200"],
+ "payload_location": "RiskScore"
+ },
+ "retry_rules": { "retry_count": "2", "retry_window": "30" },
+ "strict_variables": "true",
+ "_expected_response_schema": {
+ "RiskScore": {
+ "score": "integer 0-100",
+ "level": "low | medium | high",
+ "reason": "string explaining the score",
+ "model_version": "semver string of the scoring model"
+ }
+ }
+ },
+ "action_type": "Callout",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": null,
+ "css": { "top": "40px", "left": "350px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 502,
+ "name": "Notify Fraud Team",
+ "parameters": {
+ "email": {
+ "to": ["fraud-review@zuora.com"],
+ "cc": [], "bcc": [],
+ "from": "workflow@zuora.com",
+ "reply_to": "", "name": "",
+ "subject": "Risk score {{ Data.RiskScore.level }} for invoice {{ Data.Invoice.Id }}",
+ "template": "<p>Invoice <strong>{{ Data.Invoice.Id }}</strong> ({{ Data.Invoice.Amount | money }}) was scored <strong>{{ Data.RiskScore.score }}/100</strong> ({{ Data.RiskScore.level }}) by risk model {{ Data.RiskScore.model_version }}.</p><p>Reason: {{ Data.RiskScore.reason }}</p>",
+ "attachments": { "invoices": "false" },
+ "preview_only": "false",
+ "disable_editor": "false"
+ },
+ "files": {},
+ "strict_variables": "true"
+ },
+ "action_type": "Email",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 501,
+ "css": { "top": "40px", "left": "750px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ }
+ ],
+ "linkages": [
+ { "source_workflow_id": 5, "source_task_id": null, "target_task_id": 501, "linkage_type": "InvoicePosted" },
+ { "source_workflow_id": null, "source_task_id": 501, "target_task_id": 502, "linkage_type": "Success" }
+ ]
 }
 ```
 
@@ -564,17 +564,17 @@ Checklist highlights:
 
 - `parameters.validation.payload_location: "RiskScore"` redirects the parsed Callout response from the default `Data.Callout` to `Data.RiskScore`. The data-flow walker resolves the producing scope from `data_contract.writes[].to_template = "Data.{parameters.validation.payload_location | 'Callout'}"`.
 - `parameters._expected_response_schema = { RiskScore: { score, level, reason, model_version } }` declares the response shape. The linter:
-  - lifts `Data.RiskScore` from "opaque + unresolved" to "opaque + resolved", clearing rule `W172` for any downstream `Data.RiskScore.*` reference;
-  - records the four keys as the known field set so the schema survives in the available-data trace.
+ - lifts `Data.RiskScore` from "opaque + unresolved" to "opaque + resolved", clearing rule `W172` for any downstream `Data.RiskScore.*` reference;
+ - records the four keys as the known field set so the schema survives in the available-data trace.
 - The downstream Email references `Data.RiskScore.score`, `Data.RiskScore.level`, `Data.RiskScore.reason`, `Data.RiskScore.model_version`. None trip a warning because the schema declared every field referenced.
 - The same pattern works with `parameters._opaque_trusted: "true"` instead of `_expected_response_schema` if the user prefers to opt out of field-level analysis entirely (use only when the response shape genuinely cannot be enumerated).
-- Both sentinel keys (`_opaque_trusted`, `_expected_response_schema`) are free-form keys in `parameters`. Rails' Workflow runtime ignores them (the JSONB column accepts any keys); they exist solely to inform the linter / agent.
+- Both sentinel keys (`_opaque_trusted`, `_expected_response_schema`) are free-form keys in `parameters`. Workflow import ignores them (parameters accept unknown keys); they exist solely to inform the linter / agent.
 
 ## Use Case 5 — File-name `Iterate.object` after an Export
 
 **Requirement.** Once a month, dump every active account with a non-zero balance to a file, iterate over each row, and POST a per-account audit snapshot to an external compliance endpoint.
 
-**Design choice:** `scheduled_trigger` on the 1st of every month at 03:00 in `Eastern Time (US & Canada)` (Rails friendly name). `Export` writes the file holder `Account__601.csv.zip` into the workflow's `Files` map. The downstream `Iterate` references that holder via the **explicit file-name form** `parameters.object = "Account__601.csv.zip"` -- not the bare object name `"Account"`.
+**Design choice:** `scheduled_trigger` on the 1st of every month at 03:00 in `Eastern Time (US & Canada)` (Workflow timezone allowlist name). `Export` writes the file holder `Account__601.csv.zip` into the workflow's `Files` map. The downstream `Iterate` references that holder via the **explicit file-name form** `parameters.object = "Account__601.csv.zip"` -- not the bare object name `"Account"`.
 
 This is the canonical pattern when you want the For-Each branch to definitively bind to the file payload (rather than to a parent's in-memory `Array<Hash>` scope), which matters when:
 
@@ -582,124 +582,124 @@ This is the canonical pattern when you want the For-Each branch to definitively 
 - The file went through `File::FileOperations` (filter / merge) before iteration -- after such a step, only the file holder name is meaningful.
 - You want grep-friendly self-documenting JSON: `Account__601.csv.zip` makes the data lineage explicit.
 
-Inside the `For Each` branch, `Data.Account` rebinds to a single Hash per row (one CSV line). The downstream `Callout` reads `Data.Account.Id`, `Data.Account.AccountNumber`, etc. as scalar fields, exactly as if the source had been the object-name form. Both forms route through the same file-streaming code path (`tasks/iterate.rb`).
+Inside the `For Each` branch, `Data.Account` rebinds to a single Hash per row (one CSV line). The downstream `Callout` reads `Data.Account.Id`, `Data.Account.AccountNumber`, etc. as scalar fields, exactly as if the source had been the object-name form. Both forms route through the same file-streaming code path.
 
 ```json
 {
-  "workflow_definition": {
-    "name": "Monthly Account Compliance Snapshot",
-    "description": "Monthly dump of accounts with non-zero balances; POST per-account snapshot to compliance endpoint.",
-    "category": "Default",
-    "ui_page_roles": []
-  },
-  "workflow": {
-    "id": 6,
-    "name": "Monthly Account Compliance Snapshot",
-    "description": "Scheduled on the 1st of each month at 03:00 ET. Exports active accounts with non-zero balance, iterates over the export file holder, and POSTs each account snapshot to the compliance audit endpoint.",
-    "parameters": {},
-    "data": {},
-    "type": "Workflow::Setup",
-    "ondemand_trigger": false,
-    "callout_trigger": false,
-    "scheduled_trigger": true,
-    "event_trigger": false,
-    "interval": "0 0 3 1 * *",
-    "timezone": "Eastern Time (US & Canada)",
-    "status": "Inactive",
-    "css": { "top": "40px", "left": "35px" },
-    "notifications": {},
-    "call_type": "BATCH",
-    "priority": "Medium",
-    "delete_ttl": 30
-  },
-  "tasks": [
-    {
-      "id": 601,
-      "name": "Export Active Accounts",
-      "parameters": {
-        "fields": {
-          "Account": {
-            "Id": "true",
-            "AccountNumber": "true",
-            "Name": "true",
-            "Status": "true",
-            "Currency": "true",
-            "Balance": "true",
-            "CreatedDate": "true"
-          }
-        },
-        "where_clause": "Status = 'Active' AND Balance != 0",
-        "zip": "true",
-        "encrypt": "false",
-        "zero_result_stop": "false",
-        "strict_variables": "true"
-      },
-      "action_type": "Export",
-      "object": "Account",
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": null,
-      "css": { "top": "40px", "left": "350px" },
-      "concurrent_limit": 5,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 602,
-      "name": "Iterate Over Account Export File",
-      "parameters": {
-        "file_type": "CSV",
-        "skip_trailer": "false",
-        "generate_auto_headers": "false",
-        "fetched_data_is_array": "false",
-        "strict_variables": "true"
-      },
-      "action_type": "Iterate",
-      "object": "Account__601.csv.zip",
-      "object_id": null,
-      "call_type": "BATCH",
-      "task_id": 601,
-      "css": { "top": "40px", "left": "750px" },
-      "concurrent_limit": 150,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    },
-    {
-      "id": 603,
-      "name": "POST Account Snapshot to Compliance",
-      "parameters": {
-        "url": "{{ GlobalConstants.COMPLIANCE_BASE_URL }}/snapshots",
-        "method": "POST",
-        "body_type": "raw",
-        "raw_body": "{\n  \"account_id\":     \"{{ Data.Account.Id }}\",\n  \"account_number\": \"{{ Data.Account.AccountNumber }}\",\n  \"name\":           \"{{ Data.Account.Name }}\",\n  \"currency\":       \"{{ Data.Account.Currency }}\",\n  \"balance\":        \"{{ Data.Account.Balance }}\",\n  \"created_date\":   \"{{ Data.Account.CreatedDate }}\"\n}",
-        "headers": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "X-API-Key",    "value": "{{ GlobalConstants.COMPLIANCE_API_KEY }}" }
-        ],
-        "authorization": { "type": "none" },
-        "validation": { "status_codes": ["200", "201", "202"] },
-        "retry_rules": { "retry_count": "3", "retry_window": "30" },
-        "strict_variables": "true"
-      },
-      "action_type": "Callout",
-      "object": null,
-      "object_id": null,
-      "call_type": "SOAP",
-      "task_id": 602,
-      "css": { "top": "40px", "left": "1150px" },
-      "concurrent_limit": 9999999,
-      "tags": [],
-      "priority": "Medium",
-      "assignment": []
-    }
-  ],
-  "linkages": [
-    { "source_workflow_id": 6,    "source_task_id": null, "target_task_id": 601, "linkage_type": "Start" },
-    { "source_workflow_id": null, "source_task_id": 601,  "target_task_id": 602, "linkage_type": "Success" },
-    { "source_workflow_id": null, "source_task_id": 602,  "target_task_id": 603, "linkage_type": "For Each" }
-  ]
+ "workflow_definition": {
+ "name": "Monthly Account Compliance Snapshot",
+ "description": "Monthly dump of accounts with non-zero balances; POST per-account snapshot to compliance endpoint.",
+ "category": "Default",
+ "ui_page_roles": []
+ },
+ "workflow": {
+ "id": 6,
+ "name": "Monthly Account Compliance Snapshot",
+ "description": "Scheduled on the 1st of each month at 03:00 ET. Exports active accounts with non-zero balance, iterates over the export file holder, and POSTs each account snapshot to the compliance audit endpoint.",
+ "parameters": {},
+ "data": {},
+ "type": "Workflow::Setup",
+ "ondemand_trigger": false,
+ "callout_trigger": false,
+ "scheduled_trigger": true,
+ "event_trigger": false,
+ "interval": "0 0 3 1 * *",
+ "timezone": "Eastern Time (US & Canada)",
+ "status": "Inactive",
+ "css": { "top": "40px", "left": "35px" },
+ "notifications": {},
+ "call_type": "BATCH",
+ "priority": "Medium",
+ "delete_ttl": 30
+ },
+ "tasks": [
+ {
+ "id": 601,
+ "name": "Export Active Accounts",
+ "parameters": {
+ "fields": {
+ "Account": {
+ "Id": "true",
+ "AccountNumber": "true",
+ "Name": "true",
+ "Status": "true",
+ "Currency": "true",
+ "Balance": "true",
+ "CreatedDate": "true"
+ }
+ },
+ "where_clause": "Status = 'Active' AND Balance != 0",
+ "zip": "true",
+ "encrypt": "false",
+ "zero_result_stop": "false",
+ "strict_variables": "true"
+ },
+ "action_type": "Export",
+ "object": "Account",
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": null,
+ "css": { "top": "40px", "left": "350px" },
+ "concurrent_limit": 5,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 602,
+ "name": "Iterate Over Account Export File",
+ "parameters": {
+ "file_type": "CSV",
+ "skip_trailer": "false",
+ "generate_auto_headers": "false",
+ "fetched_data_is_array": "false",
+ "strict_variables": "true"
+ },
+ "action_type": "Iterate",
+ "object": "Account__601.csv.zip",
+ "object_id": null,
+ "call_type": "BATCH",
+ "task_id": 601,
+ "css": { "top": "40px", "left": "750px" },
+ "concurrent_limit": 150,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ },
+ {
+ "id": 603,
+ "name": "POST Account Snapshot to Compliance",
+ "parameters": {
+ "url": "{{ GlobalConstants.COMPLIANCE_BASE_URL }}/snapshots",
+ "method": "POST",
+ "body_type": "raw",
+ "raw_body": "{\n \"account_id\": \"{{ Data.Account.Id }}\",\n \"account_number\": \"{{ Data.Account.AccountNumber }}\",\n \"name\": \"{{ Data.Account.Name }}\",\n \"currency\": \"{{ Data.Account.Currency }}\",\n \"balance\": \"{{ Data.Account.Balance }}\",\n \"created_date\": \"{{ Data.Account.CreatedDate }}\"\n}",
+ "headers": [
+ { "key": "Content-Type", "value": "application/json" },
+ { "key": "X-API-Key", "value": "{{ GlobalConstants.COMPLIANCE_API_KEY }}" }
+ ],
+ "authorization": { "type": "none" },
+ "validation": { "status_codes": ["200", "201", "202"] },
+ "retry_rules": { "retry_count": "3", "retry_window": "30" },
+ "strict_variables": "true"
+ },
+ "action_type": "Callout",
+ "object": null,
+ "object_id": null,
+ "call_type": "SOAP",
+ "task_id": 602,
+ "css": { "top": "40px", "left": "1150px" },
+ "concurrent_limit": 9999999,
+ "tags": [],
+ "priority": "Medium",
+ "assignment": []
+ }
+ ],
+ "linkages": [
+ { "source_workflow_id": 6, "source_task_id": null, "target_task_id": 601, "linkage_type": "Start" },
+ { "source_workflow_id": null, "source_task_id": 601, "target_task_id": 602, "linkage_type": "Success" },
+ { "source_workflow_id": null, "source_task_id": 602, "target_task_id": 603, "linkage_type": "For Each" }
+ ]
 }
 ```
 
@@ -707,7 +707,7 @@ Checklist highlights:
 
 - `parameters.object` on `Iterate` is the **file holder name** `"Account__601.csv.zip"`, matching the format `<Object>__<TaskId>.csv.zip` produced by an upstream `Export` (`zip: "true"`). Linter rule `E176` walks upstream and accepts this because task 601 is an `Export` whose `object` is `"Account"` and whose file holder shape matches.
 - The same workflow with `parameters.object: "Account"` would also pass `E176` (object-name form). Use the file-name form when you want explicit lineage in the JSON.
-- `interval: "0 0 3 1 * *"` is 6-token Rufus cron: monthly on day 1 at 03:00:00. `timezone` is the Rails friendly name `"Eastern Time (US & Canada)"`; bare IANA names like `"America/New_York"` would trip `E175`.
+- `interval: "0 0 3 1 * *"` is 6-token Workflow cron: monthly on day 1 at 03:00:00. `timezone` is the Workflow timezone allowlist name `"Eastern Time (US & Canada)"`; bare IANA names like `"America/New_York"` would trip `E175`.
 - The `For Each` branch (task 603) reads `Data.Account.<scalar>` -- inside the loop, `Data.Account` is a single Hash, so single-field references like `Data.Account.Id` are correct (no array-index syntax). Mistakenly writing `Data.Account[0].Id` inside the loop would trip `W173`.
 - No `Logic::Merge` -- the iterator's implicit `Complete` hook converges the path naturally.
 
@@ -719,4 +719,4 @@ Checklist highlights:
 - Linkage and trigger reference: `workflow-triggers-and-linkages.md`
 - Task catalog: `workflow-task-catalog.md`
 - Liquid scopes: `workflow-liquid.md`
-- Linter script (validates all three examples): `scripts/lint-workflow-json.js`
+- Linter script (validates all three examples): `Workflow UI`

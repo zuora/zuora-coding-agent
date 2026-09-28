@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.3] - 2026-09-28
+
+### Improved
+- Workflow design, build, and verify skills give clearer guidance on task selection, Liquid usage, and event/trigger setup
+- Dynamic pricing design and build skills add clearer guidance for rate card and tiered/volume pricing input
+
 ## [1.6.0] - 2026-09-08
 
 ### Added

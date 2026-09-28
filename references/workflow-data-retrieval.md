@@ -76,12 +76,12 @@ Example `parameters.fields` shape:
 
 ```json
 {
-  "fields": {
-    "Invoice": { "Id": "true", "InvoiceNumber": "true", "Amount": "true", "Status": "true" },
-    "Account": { "Id": "true", "Name": "true", "AccountNumber": "true" },
-    "BillToContact": { "FirstName": "true", "LastName": "true", "WorkEmail": "true" }
-  },
-  "where_clause": "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"
+ "fields": {
+ "Invoice": { "Id": "true", "InvoiceNumber": "true", "Amount": "true", "Status": "true" },
+ "Account": { "Id": "true", "Name": "true", "AccountNumber": "true" },
+ "BillToContact": { "FirstName": "true", "LastName": "true", "WorkEmail": "true" }
+ },
+ "where_clause": "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"
 }
 ```
 

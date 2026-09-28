@@ -4,37 +4,37 @@
 
 ## 1. The mental model
 
-Every task receives a single Ruby Hash called `data` from the previous task. After it runs, it produces a new Hash called `new_data`, which becomes the next task's `data`. Liquid templates inside any task's `parameters` reference this hash under the top-level key `Data`:
+Every task receives a single data map from the previous task. After it runs, it produces a new map (`new_data`), which becomes the next task's `data`. Liquid templates inside any task's `parameters` reference this hash under the top-level key `Data`:
 
 ```text
-{{ Data.Invoice.Id }}            → data["Invoice"]["Id"]
-{{ Data.Invoice[0].Number }}     → data["Invoice"][0]["Number"]
+{{ Data.Invoice.Id }} → data["Invoice"]["Id"]
+{{ Data.Invoice[0].Number }} → data["Invoice"][0]["Number"]
 {{ Data.Files.invoice_export.name }} → data["Files"]["invoice_export"]["name"]
 ```
 
 ```mermaid
 flowchart LR
-  trigger["Trigger seeds Data.X<br/>(event_parameters / callout body /<br/>ondemand fields / Data.Workflow)"] --> wfdata[("workflows.data<br/>JSONB")]
-  wfdata --> t1exec["Task1.execute"]
-  t1exec -- "new_data = data.deep_dup" --> t1new["t1.new_data"]
-  t1new -- "task_process writes Data.Y" --> t1new
-  t1new -- "create_task_instance(new_data)" --> t2data[("t2.data = t1.new_data")]
-  t2data --> t2exec["Task2.execute"]
-  t2exec -- "Liquid renders against t2.data" --> liquid["Liquid render"]
+ trigger["Trigger seeds Data.X<br/>(event_parameters / callout body /<br/>ondemand fields / Data.Workflow)"] --> wfdata[("workflows.data")]
+ wfdata --> t1exec["Task1.execute"]
+ t1exec -- "copy predecessor data" --> t1new["t1.new_data"]
+ t1new -- "task runtime writes Data.Y" --> t1new
+ t1new -- "create_task_instance(new_data)" --> t2data[("t2.data = t1.new_data")]
+ t2data --> t2exec["Task2.execute"]
+ t2exec -- "Liquid renders against t2.data" --> liquid["Liquid render"]
 ```
 
-The Rails source of truth lives on each task class:
+The product source of truth for what each task writes is the per-task `data_contract` in `workflow-task-templates.json` (predictability + write scopes/fields). At runtime Workflow:
 
-| Method | Returns | What it controls |
-|---|---|---|
-| `Task#objects` | `{ <key> => 1 \| 2 \| 0 }` (Hash, Array, File) | Shape of `Data.<key>` written by this task. |
-| `Task#data_structure` | `{ <key> => [field1, field2, …] }` | Concrete field names downstream tasks may statically reference. |
-| `Task#fake_payload` | A synthetic `Data` hash | Used at save time to **validate Liquid references** in this task's parameters (`Workflow::Setup#import` runs `template_parse` against `fake_payload`). |
-| `Task#task_process` | (mutates `self.new_data`) | The actual runtime task that produces output. Predictability of its writes determines our category below. |
+| Concern | What it controls |
+|---|---|
+| Scope shape | Whether `Data.<key>` is a Hash, Array, or File-like value |
+| Field shape | Concrete field names downstream tasks may statically reference |
+| Liquid fake payload (save-time) | Synthetic `Data` used when saving from the UI to validate Liquid references (import does not run this check) |
+| Task runtime | Mutates the outgoing data map; predictability of its writes drives the categories below |
 
-`Task#execute` (`task.rb:1112`) sets `self.new_data = self.data.deep_dup`, calls `task_process(**execute_params)`, and at hand-off `iterate_tasks → create_task_instance(self.new_data, ...)` (`task.rb:1704-1712`) **assigns the predecessor's `new_data` as the next task's `data` JSONB column**. So the next task starts with everything its predecessor had, plus whatever the predecessor wrote.
+Each task starts from a copy of its predecessor's data map, runs, then hands its updated map to the next task. So the next task starts with everything its predecessor had, plus whatever the predecessor wrote.
 
-The linter (`scripts/lint-workflow-json.js`, rules `E170` / `W171` / `W172` / `W173` / `W174`) mirrors this walker using the per-task `data_contract` block in `workflow-task-templates.json`.
+The linter (`Workflow UI`, rules `E170` / `W171` / `W172` / `W173` / `W174`) mirrors this walker using the per-task `data_contract` block in `workflow-task-templates.json`.
 
 ## 2. Predictability categories
 
@@ -56,12 +56,12 @@ These are the workflow-level seeds — always available even at task #1:
 
 | Key | Source | Trigger types that populate it |
 |---|---|---|
-| `Data.Workflow.ExecutionDate` | `Workflow::Instance#set_data` (instance.rb:122) | **all** |
+| `Data.Workflow.ExecutionDate` | `workflow instance data seeding` | **all** |
 | `Data.Workflow.ExecutionDateTime` | same (line 123) | **all** |
 | `Data.Workflow.ExecutionDateTimeUTC` | same (line 124) | **all** |
 | `Data.Workflow.WorkflowRunUser` | same (lines 126-138) | **all** |
 | `Data.<Object>.<field>` for every entry in `workflow.parameters.fields[]` | `Workflow#objects` | **ondemand** & **scheduled** & **uiaction** |
-| `Data.<EventObject>.<key>` for every entry in `workflow.parameters.event_parameters[]` | `BusinessEvent.create_workflow_from_event_message` (business_event.rb:123-201), then `Workflow::Instance#set_data` (workflow/instance.rb:114-201) | **event** triggers (Notifications EventTrigger / ScheduledEvent) |
+| `Data.<EventObject>.<key>` for every entry in `workflow.parameters.event_parameters[]` | `event trigger seeding`, then `workflow instance data seeding` | **event** triggers (Notifications EventTrigger / ScheduledEvent) |
 | `Data.Callout.<...>` (or whatever placement was configured on the inbound trigger) | The HTTP body of the inbound POST | **callout** triggers (Api::V1::WorkflowsController#run, ll. 493-537) |
 
 Per-trigger summary:
@@ -106,9 +106,9 @@ File-producing tasks write metadata into `Data.Files` (a Hash keyed by an intern
 
 ```text
 Data.Files = {
-  "invoice_bulk_export": { name: "...", task_id: 12, object_class: "Task", file_type: "csv", … },
-  "email_html_body":     { name: "...", task_id: 12, object_class: "Task", file_type: "html", … },
-  …
+ "invoice_bulk_export": { name: "...", task_id: 12, object_class: "Task", file_type: "csv", … },
+ "email_html_body": { name: "...", task_id: 12, object_class: "Task", file_type: "html", … },
+ …
 }
 ```
 
@@ -135,7 +135,7 @@ The linter detects this with `W174`: when computing `available_scopes` at a task
 
 ## 8. `Logic::Liquid` scope capture (`Data.Liquid.*`)
 
-When a `Logic::Liquid` task renders `parameters.code`, every `{% assign foo = ... %}` and `{% capture foo %}…{% endcapture %}` produces a Liquid scope variable that the framework then writes to `Data.Liquid.foo` (via `template_parse → write_data(object_name:"Liquid", merge:true)`, task.rb:1473-1479).
+When a `Logic::Liquid` task renders `parameters.code`, every `{% assign foo =... %}` and `{% capture foo %}…{% endcapture %}` produces a Liquid scope variable that the framework then writes to `Data.Liquid.foo` (via `template_parse → write_data(object_name:"Liquid", merge:true)`, ).
 
 Example:
 
@@ -156,24 +156,17 @@ Ten task types are categorized OPAQUE (see §2). Their writes use `placement` to
 
 ### Protocol A: declare expected response shape (recommended)
 
-Add a sentinel key on the opaque-producing task's `parameters`. Rails ignores unknown keys in `parameters` JSONB, so this has zero runtime impact and is a pure linter/composer annotation:
-
-```jsonc
-{
-  "name": "POST invoices to external system",
-  "action_type": "Callout",
-  "parameters": {
-    "url": "https://myexternalsystem.com/invoices",
-    "method": "POST",
-    "validation": { "payload_location": "ExternalApi", "status_codes": ["200", "201"] },
-    "_expected_response_schema": {
-      "ExternalApi": {
-        "acknowledgmentId": "string",
-        "receivedAt": "string",
-        "errors": [ { "code": "string", "message": "string" } ]
-      }
-    }
-  }
+Add a sentinel key on the opaque-producing task's `parameters`. Unknown keys are ignored at import (composer/linter metadata only).com/invoices",
+ "method": "POST",
+ "validation": { "payload_location": "ExternalApi", "status_codes": ["200", "201"] },
+ "_expected_response_schema": {
+ "ExternalApi": {
+ "acknowledgmentId": "string",
+ "receivedAt": "string",
+ "errors": [ { "code": "string", "message": "string" } ]
+ }
+ }
+ }
 }
 ```
 
@@ -185,11 +178,11 @@ If the user can't predict the shape but trusts it, set the sentinel:
 
 ```jsonc
 {
-  "parameters": {
-    "url": "...",
-    "validation": { "payload_location": "ExternalApi" },
-    "_opaque_trusted": "true"
-  }
+ "parameters": {
+ "url": "...",
+ "validation": { "payload_location": "ExternalApi" },
+ "_opaque_trusted": "true"
+ }
 }
 ```
 
@@ -201,16 +194,16 @@ The composer auto-inserts a `Logic::JSONTransform` (or `Logic::ResponseFormatter
 
 ```jsonc
 [
-  { "action_type": "Callout", "parameters": { "validation": { "payload_location": "RawApi" }, "_opaque_trusted": "true" } },
-  {
-    "action_type": "Logic::JSONTransform",
-    "parameters": {
-      "processor": "jsonata",
-      "template": "{ \"id\": $.acknowledgmentId, \"received_at\": $.receivedAt }",
-      "placement": "NormalizedInvoice",
-      "_expected_response_schema": { "NormalizedInvoice": { "id": "string", "received_at": "string" } }
-    }
-  }
+ { "action_type": "Callout", "parameters": { "validation": { "payload_location": "RawApi" }, "_opaque_trusted": "true" } },
+ {
+ "action_type": "Logic::JSONTransform",
+ "parameters": {
+ "processor": "jsonata",
+ "template": "{ \"id\": $.acknowledgmentId, \"received_at\": $.receivedAt }",
+ "placement": "NormalizedInvoice",
+ "_expected_response_schema": { "NormalizedInvoice": { "id": "string", "received_at": "string" } }
+ }
+ }
 ]
 ```
 
@@ -224,69 +217,69 @@ Without any sentinel, downstream `Data.<opaque_scope>.<field>` references emit `
 
 ```
 function compute_available_data(workflow):
-  seed = {
-    "Workflow": ["ExecutionDate", "ExecutionDateTime", "ExecutionDateTimeUTC", "WorkflowRunUser"]
-  }
-  for f in workflow.parameters.fields[]:
-    seed[f.object_name] |= [f.field_name]   # union
-    # Ordinary run-prompt/callout inputs should use object_name "Workflow";
-    # use "Files" for File-Field uploads or a real supported dropdown object.
-  for ev in workflow.parameters.event_parameters[]:
-    for p in ev.params[]:
-      seed[p.object] |= [p.key]
+ seed = {
+ "Workflow": ["ExecutionDate", "ExecutionDateTime", "ExecutionDateTimeUTC", "WorkflowRunUser"]
+ }
+ for f in workflow.parameters.fields[]:
+ seed[f.object_name] |= [f.field_name] # union
+ # Ordinary run-prompt/callout inputs should use object_name "Workflow";
+ # use "Files" for File-Field uploads or a real supported dropdown object.
+ for ev in workflow.parameters.event_parameters[]:
+ for p in ev.params[]:
+ seed[p.object] |= [p.key]
 
-  topo = topological_sort(workflow.tasks, workflow.linkages)
-  per_task_available = { <task_id>: deep_copy(seed) for task_id in roots }
+ topo = topological_sort(workflow.tasks, workflow.linkages)
+ per_task_available = { <task_id>: deep_copy(seed) for task_id in roots }
 
-  for task in topo:
-    avail = merge_inbound(per_task_available, task.inbound_linkages)
-      # plain Success/Failure/Approve/Reject hooks: union
-      # post-Logic::Merge after Logic::Case: intersect (mark non-intersected scopes as branch-partial)
-      # post-Iterate (Complete branch): pop iterate context, restore array binding
+ for task in topo:
+ avail = merge_inbound(per_task_available, task.inbound_linkages)
+ # plain Success/Failure/Approve/Reject hooks: union
+ # post-Logic::Merge after Logic::Case: intersect (mark non-intersected scopes as branch-partial)
+ # post-Iterate (Complete branch): pop iterate context, restore array binding
 
-    contract = task_data_contract(task)
+ contract = task_data_contract(task)
 
-    # 1. Validate this task's READS against avail.
-    for ref in extract_data_references(task.parameters):
-      if ref.scope not in avail.scopes:
-        emit E170(task.id, ref)
-        continue
-      if avail.scopes[ref.scope].is_iterate_array_in_for_each_body:
-        emit W173(task.id, ref)   # array-shape inside For-Each body
-        continue
-      if avail.scopes[ref.scope].branch_partial:
-        emit W174(task.id, ref)   # only on some Logic::Case branches
-        continue
-      if avail.scopes[ref.scope].opaque and not avail.scopes[ref.scope].opaque_resolved:
-        emit W172(task.id, ref)   # opaque without _opaque_trusted/_expected_response_schema
-        continue
-      if avail.scopes[ref.scope].deterministic and ref.field not in avail.scopes[ref.scope].fields:
-        emit W171(task.id, ref)   # field gap on a deterministic scope
+ # 1. Validate this task's READS against avail.
+ for ref in extract_data_references(task.parameters):
+ if ref.scope not in avail.scopes:
+ emit E170(task.id, ref)
+ continue
+ if avail.scopes[ref.scope].is_iterate_array_in_for_each_body:
+ emit W173(task.id, ref) # array-shape inside For-Each body
+ continue
+ if avail.scopes[ref.scope].branch_partial:
+ emit W174(task.id, ref) # only on some Logic::Case branches
+ continue
+ if avail.scopes[ref.scope].opaque and not avail.scopes[ref.scope].opaque_resolved:
+ emit W172(task.id, ref) # opaque without _opaque_trusted/_expected_response_schema
+ continue
+ if avail.scopes[ref.scope].deterministic and ref.field not in avail.scopes[ref.scope].fields:
+ emit W171(task.id, ref) # field gap on a deterministic scope
 
-    # 2. Compute this task's WRITES from contract + parameters.
-    contrib = {}
-    for w in contract.writes:
-      key = resolve_scope_template(w.to_template, task.parameters, task.object)
-      fields = resolve_field_set(w.fields, task.parameters)
-      contrib[key] = {
-        fields: fields,
-        opaque: contract.opaque,
-        opaque_resolved: bool(task.parameters._opaque_trusted) or bool(task.parameters._expected_response_schema),
-        deterministic: contract.predictability == "deterministic"
-      }
+ # 2. Compute this task's WRITES from contract + parameters.
+ contrib = {}
+ for w in contract.writes:
+ key = resolve_scope_template(w.to_template, task.parameters, task.object)
+ fields = resolve_field_set(w.fields, task.parameters)
+ contrib[key] = {
+ fields: fields,
+ opaque: contract.opaque,
+ opaque_resolved: bool(task.parameters._opaque_trusted) or bool(task.parameters._expected_response_schema),
+ deterministic: contract.predictability == "deterministic"
+ }
 
-    # 3. Apply Iterate rebinding for For-Each branch.
-    for linkage in task.outbound_linkages:
-      if linkage.action == "ForEach" and contract.predictability == "scoping" and contract.iteration_unwrap == "single-row":
-        next_avail = avail.merge(contrib).rebind(task.parameters.object, single_hash=True)
-      elif linkage.action == "Complete" and contract.predictability == "scoping" and contract.iteration_unwrap == "single-row":
-        next_avail = avail.merge(contrib).pop_iterate_context()
-      else:
-        next_avail = avail.merge(contrib)
-      per_task_available[linkage.target_task_id] = merge_at_target(per_task_available[linkage.target_task_id], next_avail)
+ # 3. Apply Iterate rebinding for For-Each branch.
+ for linkage in task.outbound_linkages:
+ if linkage.action == "ForEach" and contract.predictability == "scoping" and contract.iteration_unwrap == "single-row":
+ next_avail = avail.merge(contrib).rebind(task.parameters.object, single_hash=True)
+ elif linkage.action == "Complete" and contract.predictability == "scoping" and contract.iteration_unwrap == "single-row":
+ next_avail = avail.merge(contrib).pop_iterate_context
+ else:
+ next_avail = avail.merge(contrib)
+ per_task_available[linkage.target_task_id] = merge_at_target(per_task_available[linkage.target_task_id], next_avail)
 ```
 
-`extract_data_references` walks JSON values recursively and parses Liquid `{{ ... }}` and `{% if ... %}` / `{% for ... %}` expressions for `Data.X.Y` patterns.
+`extract_data_references` walks JSON values recursively and parses Liquid `{{... }}` and `{% if... %}` / `{% for... %}` expressions for `Data.X.Y` patterns.
 
 ## 11. Worked example: bill-run invoice export
 
@@ -364,24 +357,24 @@ Every task entry in `workflow-task-templates.json` has a `data_contract.predicta
 
 ## 14. Where to put the sentinel keys
 
-Inside the OPAQUE task's `parameters`. The leading underscore is the convention so the Rails JSONB column accepts it but no Ruby code reads it. Composer and linter consume it:
+Inside the OPAQUE task's `parameters`. The leading underscore is the convention so import accepts it as composer/linter metadata. Composer and linter consume it:
 
 ```jsonc
 {
-  "tasks": [
-    {
-      "name": "POST invoices",
-      "action_type": "Callout",
-      "parameters": {
-        "url": "...",
-        "method": "POST",
-        "validation": { "payload_location": "ExternalApi" },
-        "_expected_response_schema": {
-          "ExternalApi": { "acknowledgmentId": "string", "receivedAt": "string" }
-        }
-      }
-    }
-  ]
+ "tasks": [
+ {
+ "name": "POST invoices",
+ "action_type": "Callout",
+ "parameters": {
+ "url": "...",
+ "method": "POST",
+ "validation": { "payload_location": "ExternalApi" },
+ "_expected_response_schema": {
+ "ExternalApi": { "acknowledgmentId": "string", "receivedAt": "string" }
+ }
+ }
+ }
+ ]
 }
 ```
 
@@ -395,4 +388,4 @@ If the user later changes the response shape, edit `_expected_response_schema` t
 - [`workflow-task-catalog.md`](workflow-task-catalog.md) — high-level task descriptions and selection guide
 - [`workflow-triggers-and-linkages.md`](workflow-triggers-and-linkages.md) — workflow-envelope (parameters/event_parameters) details
 - [`workflow-events.md`](workflow-events.md) — standard Zuora event names and event_parameters wiring
-- `scripts/lint-workflow-json.js` — implementing rules `E170` / `W171` / `W172` / `W173` / `W174`
+- `Workflow UI` — implementing rules `E170` / `W171` / `W172` / `W173` / `W174`

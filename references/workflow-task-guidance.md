@@ -1,6 +1,6 @@
 # Workflow task guidance
 
-Behavioral rules for each `action_type` — **when to use it**, **how to configure it**, and **common mistakes**. For JSON shape and `required_at_import`, use `workflow-task-templates.json` and `workflow-task-configuration.md`. For task selection across types, read `workflow-data-retrieval.md` first.
+Behavioral rules for each `action_type` — **when to use it**, **how to configure it**, and **common mistakes**. For JSON shape, `required_at_import`, and parameter contracts, use `workflow-task-templates.json` (`configuration_contract`). For task selection across types, read `workflow-data-retrieval.md` first.
 
 Before emitting fields or `where_clause` predicates, run describe (build skill Step 3a) or use `references/zuora-standard-fields.json`.
 
@@ -164,4 +164,4 @@ Treat create `Success` as job-submitted only. Poll status before posting or chai
 - `workflow-data-retrieval.md` — which task to pick
 - `workflow-planning-patterns.md` — named flows (run_event, callout, …)
 - `workflow-task-templates.json` — exact JSON templates
-- `workflow-task-configuration.md` — parameter contracts
+- `workflow-task-templates.json` — parameter contracts (`configuration_contract`)

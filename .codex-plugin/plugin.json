@@ -1,6 +1,6 @@
 {
   "name": "zuora-coding-agent",
-  "version": "1.6.0",
+  "version": "1.6.3",
   "description": "Zuora development assistant for API integrations, Workflow, Meter, migrations, CPQ customizations, Quote Studio hooks/events, HTML invoice template design, and best-practice validation. Powered by zuora-mcp.",
   "author": {
     "name": "Zuora Engineering",

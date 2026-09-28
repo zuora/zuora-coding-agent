@@ -1,9 +1,6 @@
 # Zuora Workflow Task Catalog
 
 Canonical list of supported Zuora Workflow `action_type` values. This is a narrative reference; the machine-readable source of truth for composing tasks is `workflow-task-templates.json`, which pairs every entry below with a ready-to-use JSON template, parameter rules, enums, and `required_at_import` columns.
-
-Distilled from `Task.action_type` in `~/Workspace/workflow/rails/app/models/task.rb:636-681`.
-
 When picking an `action_type`, follow this order:
 
 1. Read `workflow-data-retrieval.md` when choosing among data-read tasks (`Query`, `Export`, `Data::Link`, `GraphQuery`).
@@ -42,21 +39,21 @@ When picking an `action_type`, follow this order:
 
 These thirteen action types cover the vast majority of production workflows. Know them cold.
 
-| Action type   | Purpose                                                                        |
+| Action type | Purpose |
 | ------------- | ------------------------------------------------------------------------------ |
-| `Query`       | SOAP Query a Zuora object (up to 2000 rows) into `Data.<object>`.              |
-| `Export`      | SOAP bulk export (> 2000 rows) emitting a CSV file.                            |
-| `Iterate`     | Fan out over a collection with a `For Each` hook.                              |
-| `If`          | Binary branch on a Liquid boolean expression (`True` / `False` hooks).         |
+| `Query` | SOAP Query a Zuora object (up to 2000 rows) into `Data.<object>`. |
+| `Export` | SOAP bulk export (> 2000 rows) emitting a CSV file. |
+| `Iterate` | Fan out over a collection with a `For Each` hook. |
+| `If` | Binary branch on a Liquid boolean expression (`True` / `False` hooks). |
 | `Logic::Case` | Multi-way branch keyed by a Liquid clause (`Case_1`, `Case_2`, …, `Case_Else`).|
-| `Logic::Liquid` | Transform or compute values into `Data.Liquid` or `Data.<placement>`.        |
-| `Logic::Merge`| Collapse parallel branches back into a single path after fan-out.              |
-| `Callout`     | Sync HTTP callout to any URL. The workhorse for external integrations.         |
-| `Email`       | Liquid-templated email via the workflow notification service.                  |
-| `Update`      | SOAP update a Zuora object by `object_id`.                                     |
-| `Create`      | SOAP create a Zuora object.                                                    |
-| `Delete`      | SOAP delete a Zuora object by `object_id`.                                     |
-| `Delay`       | Sleep for N seconds, or until a specific absolute time.                        |
+| `Logic::Liquid` | Transform or compute values into `Data.Liquid` or `Data.<placement>`. |
+| `Logic::Merge`| Collapse parallel branches back into a single path after fan-out. |
+| `Callout` | Sync HTTP callout to any URL. The workhorse for external integrations. |
+| `Email` | Liquid-templated email via the workflow notification service. |
+| `Update` | SOAP update a Zuora object by `object_id`. |
+| `Create` | SOAP create a Zuora object. |
+| `Delete` | SOAP delete a Zuora object by `object_id`. |
+| `Delay` | Sleep for N seconds, or until a specific absolute time. |
 
 ## Tier 2 — specialist tasks by category
 
@@ -161,15 +158,15 @@ All mediation tasks use the hooks `next` and `error` (lowercase) instead of `Suc
 
 ## Format pitfalls
 
-The Rails backend silently accepts many near-valid JSONs but fails at runtime. The linter (see `scripts/lint-workflow-json.js`) catches these explicitly.
+The Workflow backend silently accepts many near-valid JSONs but fails at runtime. The linter (see `Workflow UI`) catches these explicitly.
 
 1. **Booleans as strings.** Every `strict_variables`, `disable_validation`, `preview_only`, `encrypt`, etc. parameter is parsed with `to_bool`. Always emit the string `"true"` or `"false"`, never JSON `true` / `false`.
 
-2. **`parameters: {}` is required on every task.** `Task.import` calls `parameters.merge!` — a missing or null `parameters` raises `NoMethodError` on import.
+2. **`parameters: {}` is required on every task.** `task import` calls `parameters.merge!` — a missing or null `parameters` raises `NoMethodError` on import.
 
-3. **`required_at_import` columns are validated on import.** These are top-level task attributes (not inside `parameters`) backed by ActiveRecord `validates :column, presence: true`. Examples: `Update` needs `object` and `object_id`; `Query` needs `object`. Consult `workflow-task-templates.json` → `required_at_import` for the exact list per `action_type`.
+3. **`required_at_import` columns are validated on import.** These are top-level task attributes (not inside `parameters`) required as top-level attributes at import. Examples: `Update` needs `object` and `object_id`; `Query` needs `object`. Consult `workflow-task-templates.json` → `required_at_import` for the exact list per `action_type`.
 
-4. **`Logic::Case` keys must be `Case_1`, `Case_2`, …, `Case_Else`.** Rails renumbers non-canonical keys in `before_save` and destroys any linkage whose `linkage_type` doesn't survive the rename. The composer pre-normalizes these keys so the rename is a no-op.
+4. **`Logic::Case` keys must be `Case_1`, `Case_2`, …, `Case_Else`.** Workflow renumbers non-canonical keys on save and destroys any linkage whose `linkage_type` doesn't survive the rename. The composer pre-normalizes these keys so the rename is a no-op.
 
 5. **`Iterate` hook name is `For Each` (with the space).** Not `Iterate`, not `ForEach`, not `for_each`. Same goes for `Complete` on the completion hook.
 
@@ -177,9 +174,9 @@ The Rails backend silently accepts many near-valid JSONs but fails at runtime. T
 
 7. **`linkage_type` is not server-validated against source-task hooks.** The backend does not check that a `Success` linkage actually emanates from a task that publishes `Success`. The linter is the only line of defense.
 
-8. **For-Each / Merge rule.** No `For Each` linkage may sit on any path from the workflow start to a `Logic::Merge` task. The server DFS (`Linkage#avoid_for_each_linkage_before_merge_task`) catches it at save time but is slow to reproduce; the linter does a cheap path-substring check.
+8. **For-Each / Merge rule.** No `For Each` linkage may sit on any path from the workflow start to a `Logic::Merge` task. Workflow catches it at save time; the linter does a cheap path-substring check.
 
-9. **`workflow.type` must be the literal string `"Workflow::Setup"`.** The server overrides this anyway, but writing it correctly keeps the file diff-stable and matches `Workflow::Setup#export` output.
+9. **`workflow.type` must be the literal string `"Workflow::Setup"`.** The server overrides this anyway, but writing it correctly keeps the file diff-stable and matches Workflow export output.
 
 10. **Status-code arrays on callouts are arrays of strings.** `"status_codes": ["200"]`, not `"status_codes": [200]`.
 
