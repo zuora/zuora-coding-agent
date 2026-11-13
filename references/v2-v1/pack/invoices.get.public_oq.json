@@ -1,0 +1,555 @@
+{
+  "errors": {
+    "cases": [
+      {
+        "migration_note": "v2 returns 404 for a missing invoice. The public Object Query route also returns 404 for a missing key (observed behavior, not in the YAML contract). Update your not-found handling to detect 404 with the observed body shape { error: { code, message } }.",
+        "public_oq": "404, body { error: { code: 10404001, message: 'Unknown business object \\\"<key>\\\"' } } (observed); the YAML contract documents only 400, 401, and 403 but 404 is observed in practice.",
+        "situation": "not_found",
+        "v2": "404, type not_found, code resource_not_found, parameter id; returned when the invoice key does not match any record."
+      },
+      {
+        "migration_note": "This is a get-by-key operation; filter parameters do not apply. Both public routes return 400 for invalid parameters. The error body shape changes from the v2 structure to the route-specific schema.",
+        "public_oq": "400, body { error: { code: integer, message: string } } (observed); the get-by-key operation does not accept filter[].",
+        "situation": "invalid_filter_or_enum",
+        "v2": "400, type bad_request, code invalid_parameter, parameter filter[]; this is a get-by-key operation and does not accept filter[] parameters."
+      },
+      {
+        "migration_note": "The get-by-key operation does not use cursor paging. If pageSize is passed for nested expand, validate the value is within the documented range of 1 to 99.",
+        "public_oq": "400, body { error: { code: integer, message: string } } (observed); the get-by-key operation does not use a cursor. The public pageSize parameter for nested expand accepts 1 to 99.",
+        "situation": "invalid_page_size_or_cursor",
+        "v2": "400, type bad_request, code invalid_parameter; this is a get-by-key operation and does not use cursor-based paging."
+      },
+      {
+        "migration_note": "Both v2 and the public Object Query route treat a 32-character hexadecimal string as a record ID and any other value as an invoice number. A non-matching or malformed key returns 404 on the public route (observed). Ensure the identifier format is correct before making the call.",
+        "public_oq": "404, body { error: { code: 10404001, message: 'Unknown business object \\\"<key>\\\"' } } (observed); a malformed key returns the same 404 shape.",
+        "situation": "malformed_identifier",
+        "v2": "404, type not_found, code resource_not_found, parameter id; a 32-character hexadecimal string is treated as a record ID and a non-matching record returns 404."
+      },
+      {
+        "migration_note": "The public Object Query route returns 400 for a missing token and 401 for an invalid token, not always 401 as v2 did. Ensure your OAuth bearer token is present and valid, and that the requesting user has permission to read invoices.",
+        "public_oq": "A missing bearer token returns 400 { message: 'No bearer token' }; an invalid token returns 401 { message: 'Authentication error' }; a 403 is returned for permission errors (observed).",
+        "situation": "authorization_failure",
+        "v2": "401, type unauthorized, empty errors array when the bearer token is missing or invalid."
+      },
+      {
+        "migration_note": "The retryable flag in the v2 response body must not be used as a retry signal; v2 always sets it to false for Object Query errors. Implement retry logic based on the HTTP status code; retry on 429 and 5xx and respect any Retry-After header.",
+        "public_oq": "not documented; a 429 response is not documented on this route. Keep retrying on 429 and 5xx as you do today.",
+        "situation": "server_error_retry",
+        "v2": "500, type internal_server_error, retryable false; upstream Object Query failures produce a v2 500 response with retryable set to false"
+      }
+    ],
+    "route": {
+      "body": "{ error: { code: integer, message: string } } for 400 and 404 errors (observed); a missing bearer token returns 400 { message: 'No bearer token' }; an invalid token returns 401 { message: 'Authentication error' }.",
+      "retry_signal": "not documented"
+    },
+    "v2": {
+      "body": "{ type, retryable, errors[]: { code, message, parameter } }",
+      "retry_signal": "retryable flag in the response body; always false for Object Query errors"
+    }
+  },
+  "id": "invoices.get",
+  "request": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "path",
+        "param": "key",
+        "step": "s1",
+        "transform": "Pass the invoice_id value as the key path parameter; if the value is a 32-character hexadecimal string it is treated as the record ID, otherwise it is treated as the invoice number"
+      },
+      "v2": "invoice_id (path)"
+    },
+    {
+      "disposition": "limitation",
+      "graphql_alternative": "Object Query GraphQL (public, undocumented; evidence is source-observed): Only the items expansion is supported; other v2 expansions (account, subscriptions, tax and related objects) have no supported GraphQL mapping yet",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The items expansion returns invoice items without per-invoice paging control via public OQ REST. The bill_to expansion (billtocontact) returns a single object and does not require paging. The sold_to expansion has no public REST expand; the invoice response carries only soldToContactId, and the sold-to contact must be fetched separately using GET /object-query/contacts/{key}. For per-invoice item paging, use the invoice items list operation with a filter on invoice_id to retrieve items for a specific invoice independently. Do not pass sold_to or soldTo in expand[]; it is silently ignored by the API and the contact must be fetched via a separate contact lookup. No vetted GraphQL example is available."
+      },
+      "target": {
+        "in": "query",
+        "param": "expand[]",
+        "step": "s1",
+        "transform": "Translate v2 expand values to the documented public Object Query expand names (case-insensitive): account→account, items→invoiceitems, bill_to→billtocontact. The sold_to expansion has no public REST expand; the invoice response returns only soldToContactId. Fetch the sold-to contact separately using GET /object-query/contacts/{key} with soldToContactId as the key. The invoiceitems array is returned without per-parent paging control via public REST. Other v2 expansions have no supported public REST mapping."
+      },
+      "v2": "expand[]"
+    },
+    {
+      "disposition": "limitation",
+      "graphql_alternative": "Object Query GraphQL (public, undocumented; evidence is source-observed): The route fetches the full core set and projects afterwards; v2 narrows the fetch itself; only core output names are accepted and the fetch selection is unchanged",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The public API behaves differently from v2 here. v2 narrows the upstream data fetch to only the requested fields before sending the query; the public OQ REST fields[] parameter narrows only the response output, not the upstream fetch. Supply invoice.fields[] with public OQ field names to project the response. For parity with v2 upstream data fetch narrowing, accept that the public REST fields[] parameter controls only the response output projection, not the upstream data retrieval. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-7."
+      },
+      "target": {
+        "in": "query",
+        "param": "fields[]",
+        "step": "s1",
+        "transform": "Translate v2 field names to public Object Query field names as described in the filter and sort translation reference, section invoices-get. Use invoice.fields[] or invoices.fields[] for the root object; use invoiceitems.fields[] for expanded invoice items (the public expand name; items.fields[] is silently ignored and the full record is returned). Output field order is not preserved."
+      },
+      "v2": "<object>.fields[] (invoice.fields[] etc.)"
+    }
+  ],
+  "response": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "id",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "createdById",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "created_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "updatedById",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "updated_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "createdDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "created_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "updatedDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "updated_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "invoiceNumber",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "invoice_number",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "postedBy",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "posted_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "postedDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "state_transitions.posted_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "status",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "Map Draft→draft, Posted→posted, Canceled→canceled, Error→failed; omit other values"
+      },
+      "v2": "state",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "comments",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "accountId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "account_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "account",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "Adapt the expanded related object into the mapped v2 shape; request expand[]=account to populate this field"
+      },
+      "v2": "account",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed_via_graphql",
+      "note": "public, undocumented; evidence is source-observed",
+      "pointer": "Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-1.",
+      "v2": "items",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "amount",
+        "public_type": "number",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "total",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "amountWithoutTax",
+        "public_type": "number",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "subtotal",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "taxAmount",
+        "public_type": "number",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "tax",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "balance",
+        "public_type": "number",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "remaining_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "balance",
+        "public_type": "number",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "invoiceDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "document_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "dueDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "due_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "paymentTerm",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "payment_terms",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billToContactId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "bill_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "paymentAmount",
+        "public_type": "number",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "amount_paid",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "soldToContactId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "sold_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "sequenceSetId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.sequence_set_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "templateId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "currency",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "currency",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. v1 REST contacts lack the audit fields created_by_id, updated_by_id, created_time, and updated_time. Object Query contacts include those audit fields. The remaining differences between the Object Query contact shape and the full v2 contact output are: v2's null custom-field handling, the other_phone_type enum mapping, and per-field projection semantics. Use the public contact fields available in the Object Query REST expansion for standard contact data. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "billToContact",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "bill_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The public invoice response carries only soldToContactId (a string ID) for the sold-to contact. v2 looks up the contact by ID using a separate contact query and adapts the full contact object. The public Object Query REST invoice operation does not expose an expandable sold-to object at the expand level; the sold-to data must be obtained with a separate contact lookup using soldToContactId as the lookup key. Fetch the sold-to contact by passing the soldToContactId value as the key to the public contact lookup operation (GET /object-query/contacts/{key}). The lookup returns the contact object itself (no data[] wrapper), with fields such as id, firstName, lastName, address1, address2, city, state, country, postalCode, workEmail and workPhone. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "id",
+        "public_type": "string",
+        "step": "s2",
+        "transform": "Fetch contact by linked soldToContactId and adapt the enclosing contact record as sold_to"
+      },
+      "v2": "sold_to",
+      "v2_type": "object"
+    },
+    {
+      "computed_from": [
+        "remaining_balance",
+        "state"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "If remaining_balance is non-nil and state is present, paid = remaining_balance === 0 && Status === \"Posted\" (the public Status value; v2 state posted and open both map to it); otherwise omit"
+      },
+      "v2": "paid"
+    },
+    {
+      "computed_from": [
+        "due_date",
+        "remaining_balance",
+        "state"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "When due_date is set and paid is defined, past_due = new Date(due_date) < current time of the system that evaluates it && !paid; otherwise omit. Recompute paid from the balance and the Status value using the paid transformation. Note: clock differences between systems can change the result near the due date."
+      },
+      "v2": "past_due"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "custom_objects"
+    },
+    {
+      "computed_from": [
+        "id",
+        "created_by_id",
+        "updated_by_id",
+        "created_time",
+        "updated_time",
+        "invoice_number",
+        "posted_by_id",
+        "state_transitions.posted_time",
+        "state",
+        "description",
+        "account_id",
+        "account",
+        "items",
+        "total",
+        "subtotal",
+        "tax",
+        "remaining_balance",
+        "balance",
+        "document_date",
+        "due_date",
+        "payment_terms",
+        "bill_to_id",
+        "amount_paid",
+        "sold_to_id",
+        "billing_document_settings.sequence_set_id",
+        "billing_document_settings.template_id",
+        "currency",
+        "bill_to",
+        "sold_to"
+      ],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "(whole body)"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "account_number"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "pay"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "transfer_to_accounting"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "source": {
+          "kind": "response_body"
+        },
+        "step": "s1",
+        "transform": "Take the record from the operation's successful JSON response and build the `custom_fields` object. Always build the object: it is `{}` when the row has no custom fields. Use the `customFields` array when the row has one, otherwise the `custom_fields` array; turn each `{key, value, type}` entry into `key: value` (when a key appears more than once, the last entry wins). Then convert `long` and `number` values to numbers, convert `boolean` values to true or false, and leave other types unchanged; null values stay null. If the row has neither array, collect every property whose name ends in `__c` into the object; an empty array gives `{}` and the `__c` properties are then not used. Include `custom_fields` only when it was requested."
+      },
+      "v2": "custom_fields",
+      "v2_type": "object"
+    }
+  ],
+  "route": "public_oq",
+  "steps": [
+    {
+      "method": "GET",
+      "operation": "queryInvoiceByKey",
+      "path": "/object-query/invoices/{key}",
+      "step": "s1"
+    },
+    {
+      "linked_by": {
+        "from_field": "soldToContactId",
+        "from_step": "s1",
+        "param": "key"
+      },
+      "method": "GET",
+      "operation": "queryContactByKey",
+      "path": "/object-query/contacts/{key}",
+      "step": "s2"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "fields_not_available",
+      "note": "The public APIs do not return this value. The public APIs do not return a cancellation timestamp for invoices. The public OQ invoice schema and the v1 GetInvoice operation do not include a cancellation timestamp field. There is no public equivalent for this field. The underlying CancelledOn field is not reachable through any documented public invoice read operation. No vetted GraphQL example is available.",
+      "v2": "state_transitions.canceled_time"
+    },
+    {
+      "kind": "not_supported_public",
+      "note": "This is not supported by the public APIs. The public get-by-key operation returns a single record identified by the key in the path and accepts no page size or filter parameter. Use the list operation with filter[] to filter invoices by criteria. No vetted GraphQL example is available.",
+      "v2": "(implicit) page size"
+    },
+    {
+      "kind": "not_supported_public",
+      "note": "This is not supported by the public APIs. The public get-by-key operation returns a single record identified by the key in the path and accepts no page size or filter parameter. Use the list operation with filter[] to filter invoices by criteria. No vetted GraphQL example is available.",
+      "v2": "filter[], page_size (not explicitly declared by source get schema)"
+    },
+    {
+      "kind": "header_not_supported",
+      "note": "The public APIs do not accept this header. The v2 API accepted the x-custom-auth and zuora-cache-enabled request headers; neither header has a public equivalent. The invoice get route did not wire a cache handler, so zuora-cache-enabled had no effect on this operation. The public APIs authenticate via a bearer token in the Authorization header and optionally accept zuora-entity-ids to scope the request to an entity and zuora-track-id for request tracing. Send the OAuth bearer token in the Authorization header. Pass zuora-entity-ids to scope the request to a specific entity, or zuora-track-id for request tracing. Do not send zuora-cache-enabled; the public APIs have no such header. No vetted GraphQL example is available.",
+      "v2": "headers"
+    }
+  ]
+}

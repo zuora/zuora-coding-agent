@@ -1,0 +1,200 @@
+{
+  "cards": [
+    {
+      "files": {
+        "public_oq": "accounts.get.public_oq.json",
+        "v1_rest": "accounts.get.v1_rest.json"
+      },
+      "id": "accounts.get",
+      "map_digest": "sha256:a16216aeccb3786286ea14319468a580053a993719c7e46833afc85d34b0a298",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "Object Query provides typed objects, filter[], sort[], expand[], fields[], and cursor paging that align closely with v2 semantics; use v1_rest only if you are already on the v1 platform."
+      },
+      "routes": [
+        "public_oq",
+        "v1_rest"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getAccount",
+        "path": "/accounts/{account_id}"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "accounts.list.public_oq.json"
+      },
+      "id": "accounts.list",
+      "map_digest": "sha256:e65791b1c68c8b4aa6a75fa572d83c1319cc855dc16c65dcf4c63070dce0d236",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "Object Query is the only declared route for accounts.list and provides typed objects, filter[], sort[], expand[], fields[], and cursor paging that align closely with v2 semantics."
+      },
+      "routes": [
+        "public_oq"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getAccounts",
+        "path": "/accounts"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "billing_documents.list.public_oq.json",
+        "v1_rest": "billing_documents.list.v1_rest.json"
+      },
+      "id": "billing_documents.list",
+      "map_digest": "sha256:fe7e8e7bfa4101cfaf96253b28444d314c7f5da7130eac50db9e5553ea573df1",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "Object Query supports v2 filter, sort, cursor paging, expand and fields; three calls (invoices, credit memos, debit memos) each with its own cursor; items expands as invoiceitems/creditmemoitems/debitmemoitems; merge results in code. v1 REST is one call but lacks filter, sort, expand and cursor."
+      },
+      "routes": [
+        "public_oq",
+        "v1_rest"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getBillingDocuments",
+        "path": "/billing_documents"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "invoice_items.list.public_oq.json"
+      },
+      "id": "invoice_items.list",
+      "map_digest": "sha256:7a3b7ca557ce1151c94cc8722dfc8a6f0e2a511bce6efb134909c7d3d24daa05",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "The Object Query REST route is the closest match to v2 semantics: it accepts filter[], sort[], expand[], fields[], and cursor-based paging with the same parameter shapes."
+      },
+      "routes": [
+        "public_oq"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getInvoiceItems",
+        "path": "/invoice_items"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "invoices.get.public_oq.json",
+        "v1_rest": "invoices.get.v1_rest.json"
+      },
+      "id": "invoices.get",
+      "map_digest": "sha256:50ca384ffdb7b4a2617aa9e8140ed4faae3b25c1f2b97c8783c1f36a2cd33843",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "The Object Query REST route is the closest match to v2 semantics: it accepts expand[], fields[], and returns a typed object response with the same field shapes."
+      },
+      "routes": [
+        "public_oq",
+        "v1_rest"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getInvoice",
+        "path": "/invoices/{invoice_id}"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "invoices.list.public_oq.json",
+        "v1_rest": "invoices.list.v1_rest.json"
+      },
+      "id": "invoices.list",
+      "map_digest": "sha256:b3f183f6ed859a3964ed1dff87fd2134d9d0dde12b328b2d35b2813e4b7d9aaf",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "The Object Query REST route is the closest match to v2 semantics: it accepts filter[], sort[], expand[], fields[], and cursor-based paging with the same parameter shapes."
+      },
+      "routes": [
+        "public_oq",
+        "v1_rest"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getInvoices",
+        "path": "/invoices"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "subscriptions.get.public_oq.json",
+        "v1_rest": "subscriptions.get.v1_rest.json"
+      },
+      "id": "subscriptions.get",
+      "map_digest": "sha256:b4aeb4e66a25fc7d3a7727794f013c4aea6f6de1f3938164321007c997c98180",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "The Object Query route is the closest match to v2 semantics: typed objects, filter[], sort[], expand[], fields[], and cursor paging."
+      },
+      "routes": [
+        "public_oq",
+        "v1_rest"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getSubscriptionByKey",
+        "path": "/subscriptions/{subscription_id}"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "subscriptions.list.public_oq.json"
+      },
+      "id": "subscriptions.list",
+      "map_digest": "sha256:24df7401dc296953337b1fc1229b03ee61501565f4ad71ac46785538affa9fc2",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "The Object Query route is the closest match to v2 semantics: typed objects, filter[], sort[], expand[], fields[], and cursor paging."
+      },
+      "routes": [
+        "public_oq"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getSubscriptions",
+        "path": "/subscriptions"
+      }
+    },
+    {
+      "files": {
+        "public_oq": "subscriptions.versions.public_oq.json"
+      },
+      "id": "subscriptions.versions",
+      "map_digest": "sha256:1a6a7fe560de14d630880c50aa26315fa79b99c6b3a4ebad1743aed2f03d7093",
+      "recommended_route": {
+        "api": "public_oq",
+        "rationale": "The Object Query route is the closest match to v2 semantics: typed objects, filter[], sort[], expand[], fields[], and cursor paging."
+      },
+      "routes": [
+        "public_oq"
+      ],
+      "v2": {
+        "method": "GET",
+        "operation_id": "getSubscriptionByVersion",
+        "path": "/subscriptions/{subscription_id}/versions"
+      }
+    }
+  ],
+  "changelog": [
+    {
+      "date": "2026-11-02",
+      "description": "Text fixes found by the migration eval: page-size literals outside 1-99 are clamped and reported; the paid rule is written in public Status terms for invoices and billing documents; the sold-to contact lookup response shape is stated.",
+      "version": "2026.11"
+    },
+    {
+      "date": "2026-10-28",
+      "description": "Initial generated pack from nine checked field maps.",
+      "version": "2026.10"
+    }
+  ],
+  "generator": "1.0",
+  "pack_version": "2026.11",
+  "spec_version": "2025-08-12"
+}

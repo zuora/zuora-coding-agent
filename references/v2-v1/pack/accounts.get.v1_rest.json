@@ -1,0 +1,654 @@
+{
+  "errors": {
+    "cases": [
+      {
+        "migration_note": "v2 returns a structured body with type and errors[]; the public OQ route answers HTTP 404 with an error object wrapping a code and message (observed). Validate that the account key exists before calling if you depend on a specific error shape.",
+        "situation": "not_found",
+        "v1_rest": "not documented",
+        "v2": "404, type not_found, errors[0].code resource_not_found, errors[0].parameter id; raised when the account key matches no record"
+      },
+      {
+        "migration_note": "v2 returns a structured errors array with a specific code and parameter; the public OQ route wraps the error in an error object with a code integer and message string; no parameter field is returned; v1_rest does not document this case for the account get operation.",
+        "situation": "invalid_filter_or_enum",
+        "v1_rest": "not documented",
+        "v2": "400, type bad_request, errors[0].code invalid_filter or invalid_parameter, errors[0].parameter filter[]; raised when a filter field, operator, or enum value is not supported"
+      },
+      {
+        "migration_note": "This is a get-by-key operation and does not use cursor-based paging. Both v2 page_size and the public pageSize accept 1 to 99; the default for the public route is 10. v1_rest does not document this case for the account get operation.",
+        "situation": "invalid_page_size_or_cursor",
+        "v1_rest": "not documented",
+        "v2": "400, type bad_request, errors[0].parameter page_size; this is a get-by-key operation and does not accept a cursor parameter; only page_size validation applies when a page_size value outside 1-99 is supplied."
+      },
+      {
+        "migration_note": "v2 treats an unrecognised or malformed key as a not-found condition. The public OQ route also returns HTTP 404 with an error object (observed). Validate the key format before calling the API.",
+        "situation": "malformed_identifier",
+        "v1_rest": "not documented",
+        "v2": "404, type not_found, errors[0].code resource_not_found, errors[0].parameter id; a key that is neither a valid 32-hex record ID nor a matching account number causes the record-not-found path to fire"
+      },
+      {
+        "migration_note": "v2 signals authorization failures with type unauthorized and retryable=false; the public OQ route returns a plain message string in the body on 400 or 401 with no explicit retry signal; do not use the v2 retryable flag as the retry signal on the public route.",
+        "situation": "authorization_failure",
+        "v1_rest": "401 returns ProxyUnauthorizedResponse { message: string }; 403 returns CommonErrorResponse { code: integer, message: string }; retry_signal not documented",
+        "v2": "401 type unauthorized (empty errors array); retryable false; v2 maps HTTP 401 to type unauthorized only on the Object Query path"
+      },
+      {
+        "migration_note": "v2 returns retryable false in the response body for Object Query 500s; do not use the body retryable flag as a retry signal on the public route; implement retry logic based on the HTTP status code alone; a 429 is not documented but may occur and should be retried.",
+        "situation": "server_error_retry",
+        "v1_rest": "not documented",
+        "v2": "500, type internal_server_error, retryable false; upstream Object Query failures are returned as internal_server_error with retryable false"
+      }
+    ],
+    "route": {
+      "body": "400 returns { processId, requestId, reasons[]: { code, message }, success } (CommonResponse); 401 returns { message: string } (ProxyUnauthorizedResponse); 403 returns { code: integer, message: string } (CommonErrorResponse)",
+      "retry_signal": "not documented"
+    },
+    "v2": {
+      "body": "{ type, retryable, errors[]: { code, message, parameter } }",
+      "retry_signal": "retryable flag in the response body; always false for Object Query errors"
+    }
+  },
+  "id": "accounts.get",
+  "request": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "path",
+        "param": "account-key",
+        "transform": "Pass the account_id value as the account-key path parameter; if the value is a 32-character hexadecimal string it is treated as the record ID, otherwise it is treated as the account number"
+      },
+      "v2": "account_id (path)"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "expand[]"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "<object>.fields[] (account.fields[], subscriptions.fields[], ...)"
+    }
+  ],
+  "response": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.id",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "created_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "updated_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "created_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "updated_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.accountNumber",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "account_number",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.autoPay",
+        "public_type": "boolean",
+        "transform": "none"
+      },
+      "v2": "auto_pay",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.batch",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "batch",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.billCycleDay",
+        "public_type": "integer",
+        "transform": "none"
+      },
+      "v2": "bill_cycle_day",
+      "v2_type": "integer"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billToContact.id",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "bill_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "soldToContact.id",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "sold_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.communicationProfileId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "communication_profile_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.crmId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "crm_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.defaultPaymentMethodId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "default_payment_method_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.name",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "name",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.notes",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.parentId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "parent_account_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.paymentGateway",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "payment_gateway",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.paymentTerm",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "payment_terms",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.sequenceSetId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "sequence_set_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.currency",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "currency",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.salesRep",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "sales_rep",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.status",
+        "public_type": "string",
+        "transform": "If status is present, status === \"Active\"; otherwise omit"
+      },
+      "v2": "enabled",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "metrics.totalDebitMemoBalance",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_debit_memo_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "metrics.totalInvoiceBalance",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_invoice_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "metrics.unappliedCreditMemoAmount",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_credit_memo_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "remaining_payment_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "organization_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "taxInfo.VATId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_identifier.id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.additionalEmailAddresses",
+        "public_type": "array",
+        "transform": "Passthrough array of strings; null produces []"
+      },
+      "v2": "billing_document_settings.additional_email",
+      "v2_type": "array"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.creditMemoTemplateId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.credit_memo_template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.debitMemoTemplateId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.debit_memo_template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "basicInfo.invoiceTemplateId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.invoice_template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.invoiceDeliveryPrefsEmail",
+        "public_type": "boolean",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.email_documents",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "billingAndPayment.invoiceDeliveryPrefsPrint",
+        "public_type": "boolean",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.print_documents",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax_certificate.company_code",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax_certificate.description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax_certificate.end_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax_certificate.id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax_certificate.issuing_jurisdiction",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax_certificate.start_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax_certificate.state",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "taxInfo.exemptEntityUseCode",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.entity_use_code",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "taxInfo.VATId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.tax_identifier",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. v1 REST contacts lack the audit fields created_by_id, updated_by_id, created_time, and updated_time. Object Query contacts include those audit fields. The remaining differences between the Object Query contact shape and the full v2 contact output are: v2's null custom-field handling, the other_phone_type enum mapping, and per-field projection semantics. Use the public contact fields available in the Object Query REST expansion for standard contact data. For complete field parity with v2 contact output, a supplemental data retrieval strategy is required. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-3."
+      },
+      "target": {
+        "field": "billToContact",
+        "public_type": "object",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "bill_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. v1 REST contacts lack the audit fields created_by_id, updated_by_id, created_time, and updated_time. Object Query contacts include those audit fields. The remaining differences between the Object Query contact shape and the full v2 contact output are: v2's null custom-field handling, the other_phone_type enum mapping, and per-field projection semantics. Use the public contact fields available in the Object Query REST expansion for standard contact data. For complete field parity with v2 contact output, a supplemental data retrieval strategy is required. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-3."
+      },
+      "target": {
+        "field": "soldToContact",
+        "public_type": "object",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "sold_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "default_payment_method",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "subscriptions",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "payment_methods",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "payments",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "usage_records",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "credit_memos",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "invoices",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "debit_memos",
+      "v2_type": "object"
+    },
+    {
+      "computed_from": [
+        "invoices",
+        "credit_memos",
+        "debit_memos"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "Adapt and concatenate invoices.data, credit_memos.data and debit_memos.data in that order; omit when the merged array is empty; combine their independently tracked continuation states in invoice:credit_memo:debit_memo order"
+      },
+      "v2": "billing_documents"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "custom_objects"
+    },
+    {
+      "computed_from": [
+        "id",
+        "created_time",
+        "updated_time",
+        "created_by_id",
+        "updated_by_id",
+        "account_number",
+        "auto_pay",
+        "batch",
+        "bill_cycle_day",
+        "bill_to_id",
+        "sold_to_id",
+        "communication_profile_id",
+        "crm_id",
+        "default_payment_method_id",
+        "name",
+        "description",
+        "parent_account_id",
+        "payment_gateway",
+        "payment_terms",
+        "sequence_set_id",
+        "currency",
+        "sales_rep",
+        "enabled",
+        "remaining_debit_memo_balance",
+        "remaining_invoice_balance",
+        "remaining_credit_memo_balance",
+        "remaining_payment_balance",
+        "organization_id",
+        "tax_identifier.id",
+        "billing_document_settings.additional_email",
+        "billing_document_settings.credit_memo_template_id",
+        "billing_document_settings.debit_memo_template_id",
+        "billing_document_settings.invoice_template_id",
+        "billing_document_settings.email_documents",
+        "billing_document_settings.print_documents",
+        "tax_certificate.company_code",
+        "tax_certificate.description",
+        "tax_certificate.end_date",
+        "tax_certificate.id",
+        "tax_certificate.issuing_jurisdiction",
+        "tax_certificate.start_date",
+        "tax_certificate.state",
+        "tax_certificate.entity_use_code",
+        "tax_certificate.tax_identifier",
+        "bill_to",
+        "sold_to",
+        "default_payment_method",
+        "subscriptions",
+        "payment_methods",
+        "payments",
+        "usage_records",
+        "credit_memos",
+        "invoices",
+        "debit_memos"
+      ],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "(whole body)"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "source": {
+          "kind": "response_body"
+        },
+        "transform": "Take the record from the operation's successful JSON response and build the `custom_fields` object. Always build the object: it is `{}` when the row has no custom fields. Use the `customFields` array when the row has one, otherwise the `custom_fields` array; turn each `{key, value, type}` entry into `key: value` (when a key appears more than once, the last entry wins). Then convert `long` and `number` values to numbers, convert `boolean` values to true or false, and leave other types unchanged; null values stay null. If the row has neither array, collect every property whose name ends in `__c` into the object; an empty array gives `{}` and the `__c` properties are then not used. Include `custom_fields` only when it was requested."
+      },
+      "v2": "custom_fields",
+      "v2_type": "object"
+    }
+  ],
+  "route": "v1_rest",
+  "steps": [
+    {
+      "method": "GET",
+      "operation": "Get_Account",
+      "path": "/v1/accounts/{account-key}",
+      "step": "s1"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "not_supported_public",
+      "note": "This is not supported by the public APIs. The public get-by-key operation returns a single record identified by the key in the path and accepts no page size or filter parameter. Use the list operation with filter[] to filter accounts by criteria. No vetted GraphQL example is available.",
+      "v2": "(implicit) page size"
+    },
+    {
+      "kind": "not_supported_public",
+      "note": "This is not supported by the public APIs. The public get-by-key operation returns a single record identified by the key in the path and accepts no page size or filter parameter. Use the list operation with filter[] to filter accounts by criteria. No vetted GraphQL example is available.",
+      "v2": "filter[], page_size (declared in v2 swagger for this route)"
+    },
+    {
+      "kind": "header_not_supported",
+      "note": "The public APIs do not accept this header. The v2 API accepted the x-custom-auth and zuora-cache-enabled request headers; neither header has a public equivalent. When zuora-cache-enabled was set, v2 could serve a cached result for this account get operation. The public APIs have no zuora-cache-enabled header; results are always read live. The public APIs authenticate via a bearer token in the Authorization header and optionally accept zuora-entity-ids to scope the request to an entity and zuora-track-id for request tracing. Send the OAuth bearer token in the Authorization header. Pass zuora-entity-ids to scope the request to a specific entity, or zuora-track-id for request tracing. Do not send zuora-cache-enabled; the public APIs have no such header and always return current results. No vetted GraphQL example is available.",
+      "v2": "headers"
+    }
+  ]
+}

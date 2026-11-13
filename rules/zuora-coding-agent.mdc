@@ -15,19 +15,26 @@ When working on Zuora-related tasks, use the zuora-mcp server for authoritative 
 - `/zuora-is-migration-build` — IS migration implementation artifacts
 - `/zuora-order-migration-design` — Order migration design, sequencing, and edge-case analysis
 - `/zuora-order-migration-build` — Order migration implementation artifacts
+- `/zuora-v2-migration-design` — Find v2 API usage in a codebase and produce a migration plan
 - `/zuora-meter-design` — Design a Zuora meter topology and operator configuration
 - `/zuora-meter-build` — Compose and lint importable Zuora meter JSON
 - `/zuora-dynamic-pricing-design` — Design a Commerce Catalog setup with dynamic pricing
 - `/zuora-dynamic-pricing-build` — Execute the dynamic pricing setup on the tenant
+- `/zuora-tenant-config-design` — Infer tenant settings and produce a reviewed configuration plan
+- `/zuora-tenant-config-build` — Apply tenant configuration via MCP tools
+- `/zuora-event-notification-design` — Design custom event / callout template / notification definition plans
+- `/zuora-event-notification-build` — Create/update event triggers, callout templates, and/or notification definitions via MCP
+- `/zuora-workflow-verify` — Import, test-run, and auto-fix a workflow in sandbox via MCP
 - `/zuora-validate` — Validate code/payloads against Zuora patterns
 - `/zuora-review` — Review work for Zuora best practices
-- `/zuora-cpq-apex-design` — Design legacy CPQ Apex, Visualforce, Component Library, zQuoteUtil, controller extension, or plugin-interface customizations
-- `/zuora-cpq-apex-build` — Generate CPQ Apex, Visualforce, Component Library, zQuoteUtil, controller extension, or plugin-interface artifacts into a Salesforce DX repo
+- `/zuora-cpq-apex-design` — Design CPQ Apex (legacy CPQ or CPQ X), Visualforce, Component Library, zQuoteUtil, controller extension, or plugin-interface customizations
+- `/zuora-cpq-apex-build` — Generate CPQ Apex (legacy CPQ or CPQ X), Visualforce, Component Library, zQuoteUtil, controller extension, or plugin-interface artifacts into a Salesforce DX repo
 - `/zuora-cpq-js-design` — Design Quote Studio or CPQ X JavaScript extensibility using supported hooks, events, quote state, and ZQFClient patterns
 - `/zuora-cpq-js-build` — Generate Quote Studio or CPQ X LWC headless/sidebar components and registration notes into a Salesforce DX repo
 - `/zuora-cpq-migration-design` — Map or modernize legacy CPQ customizations to Quote Studio hooks/events
 - `/zuora-cpq-validate` — Validate CPQ Apex, Visualforce, LWC hooks/events, quote-state usage, ZQFClient usage, and global Apex methods
 - `/zuora-cpq-review` — Review CPQ Apex, Visualforce, Quote Studio LWC, hook/event usage, registration, tests, and maintainability
+- `/zuora-cpqx-quotes` — Operate real Zuora Quotes (CPQ X only): create, amend, renew, cancel, price, edit and submit quotes in the user's Salesforce org
 - `/zuora-uat-design` — Extract TR matrix from SDDs (design/testmatrix/)
 - `/zuora-uat-build` — Build test plan, API scripts, and UI docs for scoped features
 - `/zuora-uat-run` — Execute API and UI tests with mark-driven verify gate
@@ -55,6 +62,7 @@ When generating code for the customer's repository, always output Zuora REST API
 
 **Operational** (test/validate generated artifacts against the tenant, or other available MCP tools):
 - `mcp__zuora-mcp__manage_workflows` / `mcp__zuora-mcp__manage_workflow_runs` — Discover, import/export workflows and execute, monitor, or stop workflow runs.
+- `mcp__zuora-mcp__manage_event_triggers` / `manage_callout_templates` / `manage_notification_definitions` — Custom events, callout templates, notification definitions (prefer over UI/curl).
 - `mcp__zuora-mcp__manage_mediation_meters` — Mediation meter operations: `get_meter`, `create_meter`, `validate_meter`, `list_connections`, `list_event_stores`, `list_schemas`.
 - `mcp__zuora-mcp__create_subscriptions` / `manage_subscriptions` — Create or manage subscriptions for validation.
 - `mcp__zuora-mcp__manage_billing_documents` — Verify billing document generation.

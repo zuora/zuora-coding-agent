@@ -9,6 +9,15 @@
             "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const x=JSON.parse(d);const p=x.tool_input?.file_path||x.tool_input?.path||'';if(/\\.workflow\\.json$/i.test(p)){console.error('Use bin/workflow-engine build — do not hand-write .workflow.json');process.exit(2)}}catch(e){process.exit(0)}})\""
           }
         ]
+      },
+      {
+        "matcher": "mcp__.*__manage_cpqx_quotes",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/cpqx-submit-confirm.cjs\""
+          }
+        ]
       }
     ]
   }

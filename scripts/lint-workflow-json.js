@@ -299,11 +299,11 @@ function checkEnvelope(doc, out, enums, opts) {
  );
  }
 
- // E118: workflow.status should be "Inactive" on import (use activate_version: true to flip on)
+ // E118: workflow.status should be "Inactive" on import (activate via MCP after import)
  if (w.status === "Active") {
  out.error(
  "E118",
- `workflow.status "Active" is invalid in import payload. Always emit "Inactive" and pass activate_version: true to the import_workflow tool to flip it on.`,
+ `workflow.status "Active" is invalid in import payload. Always emit "Inactive"; activate after import via MCP (import_workflow_version activate:true, or update_workflow active_workflow_version_id).`,
  `$.workflow.status`
  );
  }

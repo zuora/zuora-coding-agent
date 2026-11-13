@@ -1,0 +1,654 @@
+{
+  "errors": {
+    "cases": [
+      {
+        "migration_note": "No change needed for list operations; all routes return an empty result set rather than a not-found error when no records match.",
+        "public_oq": "A list request returns 200 with an empty data array when no documents match; not_found does not apply to list operations.",
+        "situation": "not_found",
+        "v2": "A list request always returns 200 with an empty data array when no documents match; not_found does not occur on list operations."
+      },
+      {
+        "migration_note": "The v2 body uses a typed errors array with a string code and optional parameter; the public routes return a legacy numeric code or a reasons array. Update error parsing to read the appropriate shape for each route.",
+        "public_oq": "400 with CommonErrorResponse { code: integer, message: string }; specific code value and retryability not documented.",
+        "situation": "invalid_filter_or_enum",
+        "v2": "400 bad_request with code invalid_filter or invalid_parameter and the rejected filter expression or enum value identified in the errors array."
+      },
+      {
+        "migration_note": "Both v2 page_size and the public pageSize accept 1 to 99 (default 10), so no range change is needed. Update pagination logic to use the page and pageSize integer parameters for v1 instead of the v2 cursor-based model. Each of the three OQ steps (invoices, credit memos, debit memos) has its own independent cursor; track them separately.",
+        "public_oq": "400 with { error: { code: integer, message: string } } (observed); pageSize range 1 to 99 (default 10); an invalid cursor answers HTTP 500 with { errors: [ { message: ... } ] } (observed); specific code values not documented.",
+        "situation": "invalid_page_size_or_cursor",
+        "v2": "400, type bad_request. Out-of-range page_size (outside 1-99): request-schema validation produces errors[0].code invalid_parameter, errors[0].parameter page_size. Malformed cursor: errors[0].code validation_error, errors[0].parameter cursor."
+      },
+      {
+        "migration_note": "The v2 list path does not reject malformed identifier filter values; it returns an empty result. Validate identifier format in your client if strict rejection is required.",
+        "public_oq": "400 with CommonErrorResponse { code: integer, message: string }; behavior for malformed identifiers in filter values not documented.",
+        "situation": "malformed_identifier",
+        "v2": "The list filter does not validate identifier format; a non-hexadecimal value passed in an id or account_id filter is forwarded to Object Query and returns an empty result set rather than a 400 error."
+      },
+      {
+        "migration_note": "The v2 401 body carries type, retryable false, and an empty errors array; the public routes return a plain message string. Check the HTTP status code rather than the body type field. A missing token returns 400 on the public OQ route, not 401.",
+        "public_oq": "Missing bearer token: 400 { message: \"No bearer token\" } (observed). Invalid token: 401 { message: \"Authentication error\" } (observed). 403 with { error: { code: integer, message: string } } (observed). Specific code values not documented.",
+        "situation": "authorization_failure",
+        "v2": "401 type unauthorized, retryable false, empty errors array; the v2 error handling layer maps HTTP 401 to unauthorized and does not produce a 403 response on this path."
+      },
+      {
+        "migration_note": "The v2 retryable flag is always false for Object Query errors; do not use the body flag as a retry signal. A 429 response is not documented; keep retrying on 429 and 5xx as you do today.",
+        "public_oq": "not documented; a 429 response is not documented for these routes",
+        "situation": "server_error_retry",
+        "v2": "500, type internal_server_error, retryable false; upstream Object Query failures produce this response"
+      }
+    ],
+    "route": {
+      "body": "400 and 404 errors are wrapped as { error: { code: integer, message: string } } (observed). A missing bearer token answers 400 { message: \"No bearer token\" }. An invalid token answers 401 { message: \"Authentication error\" }. An invalid cursor answers HTTP 500 with { errors: [ { message: ... } ] } (observed). Status codes 4XX and 500 are documented; specific code values and retryability are not documented.",
+      "retry_signal": "not documented"
+    },
+    "v2": {
+      "body": "{ type, retryable, errors: [ { code, message, parameter } ] } with HTTP status",
+      "retry_signal": "retryable flag in the response body; always false for Object Query errors"
+    }
+  },
+  "id": "billing_documents.list",
+  "request": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "filter[]",
+        "transform": "Translate the keys, enum values and operators as described in the filter and sort translation reference, section billing_documents-list. Apply the invoice filter and sort keys (see the billing_documents-list table in the reference) to the invoice step (s1) and the credit and debit memo filter and sort keys to the credit-memo and debit-memo steps (s2, s3). State enum translation for all three document types (invoices, credit memos, debit memos): draft→Draft, open→Posted, uncollectible→Canceled, failed→Error. The v2 billing_document state uses uncollectible (not canceled) for the Canceled OQ status; canceled is not a valid v2 billing-document state and will be rejected with HTTP 400. Any other unrecognised state value is also rejected with HTTP 400. The reversed filter and sort key is available for invoices (maps to Reversed) but is not available for credit or debit memos; remove it from those steps or apply the filter in your code. Identifier fields (id, account_id) accept 32-character hexadecimal record IDs. Date fields (document_date, due_date) use YYYY-MM-DD. Timestamp fields (updated_time) use ISO 8601 format."
+      },
+      "v2": "filter[]"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "sort[]",
+        "transform": "Translate the v2 sort key and direction as described in the filter and sort translation reference, section billing_documents-list. Apply the invoice sort keys to the invoice step (s1) and the memo sort keys to the credit-memo and debit-memo steps (s2, s3). Pass exactly one sort[] value; direction asc or desc. The same sort is applied independently to each of the three document-type queries; results from different document types are not globally sorted across the merged result."
+      },
+      "v2": "sort[]"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "pageSize",
+        "transform": "Rename to pageSize; valid values are 1 to 99 (default 10), the same range as v2 page_size; a literal outside 1 to 99 is clamped to the nearest bound in the migrated code and the change is reported. Apply the same pageSize to each of the three parallel steps (invoices, credit memos, debit memos)."
+      },
+      "v2": "page_size"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "cursor",
+        "transform": "Pass the nextPage value returned by the previous page of this operation unchanged; only use cursors issued by this operation; absent or null nextPage means there is no further page"
+      },
+      "v2": "cursor"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The items expand (invoiceitems, creditmemoitems, debitmemoitems) returns line items for each billing document as an array without per-parent paging control via public OQ REST. For per-parent item paging, use the invoice items list endpoint with a filter on the invoice identifier (GET /object-query/invoice-items), the credit memo items list endpoint, or the debit memo items list endpoint for the respective document type. No vetted GraphQL example is available. No vetted GraphQL example is available."
+      },
+      "target": {
+        "in": "query",
+        "param": "expand[]",
+        "transform": "The only supported v2 expand value is items. Map it to the correct expand name for each step: use expand[]=invoiceitems on the invoice step (s1), expand[]=creditmemoitems on the credit-memo step (s2), and expand[]=debitmemoitems on the debit-memo step (s3). Per-parent item paging is not controllable via public REST."
+      },
+      "v2": "expand[]"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The public API behaves differently from v2 here. v2 narrows the upstream data fetch to only the requested fields before sending; the public OQ REST fields[] parameter narrows only the response output. Supply the appropriate <object>.fields[] parameter on each OQ step to project the response. For parity with v2 upstream data fetch narrowing, accept that the public REST fields[] parameter controls only the response output projection, not the upstream data retrieval. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-7."
+      },
+      "target": {
+        "in": "query",
+        "param": "fields[]",
+        "transform": "Translate requested v2 field names to public Object Query field names as described in the filter and sort translation reference, section billing_documents-list. Use invoice.fields[] or invoices.fields[] on the invoice step (s1), creditmemo.fields[] or creditmemos.fields[] on the credit-memo step (s2), and debitmemo.fields[] or debitmemos.fields[] on the debit-memo step (s3) for root object fields. Use invoiceitems.fields[], creditmemoitems.fields[] or debitmemoitems.fields[] for the expanded line item fields of the matching step. A name the API does not know is silently ignored and the full record is returned. The v2 parameter names fields[], billing_document.fields[], and billing_document_item(s).fields[] are mapped to the appropriate per-step parameter. Output field order is not preserved."
+      },
+      "v2": "fields[] / billing_document.fields[] / billing_document_item(s).fields[]"
+    }
+  ],
+  "response": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].id",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "The invoice response uses invoiceNumber; memo responses use memoNumber.",
+      "target": {
+        "field": "data[].invoiceNumber",
+        "public_type": "string",
+        "step_fields": {
+          "s2": {
+            "field": "data[].memoNumber",
+            "public_type": "string"
+          },
+          "s3": {
+            "field": "data[].memoNumber",
+            "public_type": "string"
+          }
+        },
+        "transform": "rename"
+      },
+      "v2": "billing_document_number",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].accountId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "account_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].createdById",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "created_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].updatedById",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "updated_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].createdDate",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "created_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].updatedDate",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "updated_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "The invoice response uses postedBy; memo responses use postedById.",
+      "target": {
+        "field": "data[].postedBy",
+        "public_type": "string",
+        "step_fields": {
+          "s2": {
+            "field": "data[].postedById",
+            "public_type": "string"
+          },
+          "s3": {
+            "field": "data[].postedById",
+            "public_type": "string"
+          }
+        },
+        "transform": "rename"
+      },
+      "v2": "posted_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].comments",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "The invoice response uses amount; memo responses use totalAmount.",
+      "target": {
+        "field": "data[].amount",
+        "public_type": "number",
+        "step_fields": {
+          "s2": {
+            "field": "data[].totalAmount",
+            "public_type": "number"
+          },
+          "s3": {
+            "field": "data[].totalAmount",
+            "public_type": "number"
+          }
+        },
+        "transform": "rename"
+      },
+      "v2": "total",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "The invoice response uses amountWithoutTax; memo responses use totalAmountWithoutTax.",
+      "target": {
+        "field": "data[].amountWithoutTax",
+        "public_type": "number",
+        "step_fields": {
+          "s2": {
+            "field": "data[].totalAmountWithoutTax",
+            "public_type": "number"
+          },
+          "s3": {
+            "field": "data[].totalAmountWithoutTax",
+            "public_type": "number"
+          }
+        },
+        "transform": "rename"
+      },
+      "v2": "subtotal",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxAmount",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "tax",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].balance",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "The invoice response uses invoiceDate; memo responses use memoDate.",
+      "target": {
+        "field": "data[].invoiceDate",
+        "public_type": "string",
+        "step_fields": {
+          "s2": {
+            "field": "data[].memoDate",
+            "public_type": "string"
+          },
+          "s3": {
+            "field": "data[].memoDate",
+            "public_type": "string"
+          }
+        },
+        "transform": "rename"
+      },
+      "v2": "document_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "dueDate is present on invoice and debit memo rows; absent for credit memo rows because the credit memo OQ schema does not include a dueDate field. When merging all three document types your code must treat dueDate as optional.",
+      "target": {
+        "field": "data[].dueDate",
+        "public_type": "string",
+        "step_fields": {
+          "s2": {
+            "field": "data[]",
+            "public_type": "object"
+          },
+          "s3": {
+            "field": "data[].dueDate",
+            "public_type": "string"
+          }
+        },
+        "transform": "Present on invoice rows (OQ dueDate) and debit memo rows (OQ dueDate); absent for credit memo rows because the credit memo OQ schema does not include a dueDate field; a missing property is not a value."
+      },
+      "v2": "due_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "refundAmount is present on invoice rows (defaulted to 0 when absent) and credit memo rows; absent for debit memo rows because the debit memo OQ schema does not include a refundAmount field.",
+      "target": {
+        "field": "data[].refundAmount",
+        "public_type": "number",
+        "step_fields": {
+          "s2": {
+            "field": "data[].refundAmount",
+            "public_type": "number"
+          },
+          "s3": {
+            "field": "data[]",
+            "public_type": "object"
+          }
+        },
+        "transform": "Present on invoice rows (OQ refundAmount; defaulted to 0 when absent) and credit memo rows (OQ refundAmount); absent for debit memo rows because the debit memo OQ schema does not include a refundAmount field; a missing property is not a value."
+      },
+      "v2": "amount_refunded",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].balance",
+        "public_type": "number",
+        "transform": "none"
+      },
+      "v2": "balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "paymentAmount is present on invoice rows only; the public OQ schemas for both credit memos and debit memos do not include paymentAmount. When merging all three document types your code must treat amount_paid as optional.",
+      "target": {
+        "field": "data[].paymentAmount",
+        "public_type": "number",
+        "step_fields": {
+          "s2": {
+            "field": "data[]",
+            "public_type": "object"
+          },
+          "s3": {
+            "field": "data[]",
+            "public_type": "object"
+          }
+        },
+        "transform": "Present on invoice rows only (OQ paymentAmount); absent for credit memo and debit memo rows because the memo OQ schemas do not include paymentAmount; a missing property is not a value."
+      },
+      "v2": "amount_paid",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].status",
+        "public_type": "string",
+        "transform": "Map Draft→draft, Posted→open, Canceled→uncollectible, Error→failed; omit other values"
+      },
+      "v2": "state",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "transform": "Set type from the collection identity of this row: rows from the invoices step map to invoice; rows from the credit-memos step map to credit_memo; rows from the debit-memos step map to debit_memo."
+      },
+      "v2": "type",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "The invoice response uses postedDate; memo responses use postedOn.",
+      "target": {
+        "field": "data[].postedDate",
+        "public_type": "string",
+        "step_fields": {
+          "s2": {
+            "field": "data[].postedOn",
+            "public_type": "string"
+          },
+          "s3": {
+            "field": "data[].postedOn",
+            "public_type": "string"
+          }
+        },
+        "transform": "rename"
+      },
+      "v2": "state_transitions.posted_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "cancelledOn is present on credit memo and debit memo rows; absent for invoice rows because the invoice OQ schema does not include a cancellation timestamp.",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "step_fields": {
+          "s2": {
+            "field": "data[].cancelledOn",
+            "public_type": "string"
+          },
+          "s3": {
+            "field": "data[].cancelledOn",
+            "public_type": "string"
+          }
+        },
+        "transform": "Present on credit memo rows (OQ cancelledOn) and debit memo rows (OQ cancelledOn); absent for invoice rows because the invoice OQ schema does not include a cancellation timestamp; a missing property is not a value."
+      },
+      "v2": "state_transitions.canceled_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].account",
+        "public_type": "object",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "account",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "Request expand[]=invoiceitems on the invoice step (s1), expand[]=creditmemoitems on the credit-memo step (s2), and expand[]=debitmemoitems on the debit-memo step (s3). The response fields are invoiceItems (s1), creditMemoItems (s2), and debitMemoItems (s3).",
+      "target": {
+        "field": "data[].invoiceItems",
+        "public_type": "array",
+        "step_fields": {
+          "s2": {
+            "field": "data[].creditMemoItems",
+            "public_type": "array"
+          },
+          "s3": {
+            "field": "data[].debitMemoItems",
+            "public_type": "array"
+          }
+        },
+        "transform": "Present when expand[]=invoiceitems was requested on the invoice step (s1). Adapt related rows and wrap as {data}; obtain related continuation independently. For credit memos use expand[]=creditmemoitems (response field creditMemoItems); for debit memos use expand[]=debitmemoitems (response field debitMemoItems)."
+      },
+      "v2": "items",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "transform": "For each invoice, credit memo or debit memo row of `data[]` in the successful JSON response, build the `custom_fields` object. Always build the object: it is `{}` when the row has no custom fields. Use the `customFields` array when the row has one, otherwise the `custom_fields` array; turn each `{key, value, type}` entry into `key: value` (when a key appears more than once, the last entry wins). Then convert `long` and `number` values to numbers, convert `boolean` values to true or false, and leave other types unchanged; null values stay null. If the row has neither array, collect every property whose name ends in `__c` into the object; an empty array gives `{}` and the `__c` properties are then not used. Include `custom_fields` only when it was requested."
+      },
+      "v2": "custom_fields",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "Some document kinds expose reasonCode directly; other kinds are read from the enclosing row and omit it when it does not apply.",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "step_fields": {
+          "s2": {
+            "field": "data[].reasonCode",
+            "public_type": "string"
+          },
+          "s3": {
+            "field": "data[].reasonCode",
+            "public_type": "string"
+          }
+        },
+        "transform": "Present on credit memos (OQ reasonCode) and debit memos (OQ reasonCode); omitted for invoices because the invoice OQ schema does not include a reasonCode field; a missing property is not a value."
+      },
+      "v2": "reason_code",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "Some document kinds expose invoiceId directly; other kinds are read from the enclosing row and omit it when it does not apply.",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "step_fields": {
+          "s2": {
+            "field": "data[].invoiceId",
+            "public_type": "string"
+          },
+          "s3": {
+            "field": "data[].invoiceId",
+            "public_type": "string"
+          }
+        },
+        "transform": "Present on credit memos (OQ invoiceId) and debit memos (OQ invoiceId); omitted for invoices because the invoice OQ schema does not include an invoiceId field; a missing property is not a value."
+      },
+      "v2": "invoice_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "mapping_hint": "excludeFromAutoApplyRules is present on credit memo rows only; absent for invoice and debit memo rows because those OQ schemas do not include this field.",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "step_fields": {
+          "s2": {
+            "field": "data[].excludeFromAutoApplyRules",
+            "public_type": "boolean"
+          }
+        },
+        "transform": "Present on credit memo rows only (OQ excludeFromAutoApplyRules); absent for invoice and debit memo rows because those OQ schemas do not include this field; a missing property is not a value."
+      },
+      "v2": "exclude_from_auto_apply_rules",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. v2 returned one continuation token for the merged billing document list. The public OQ APIs have separate per-kind cursors; the v1 API uses a page-number URL that is not interchangeable with the v2 continuation token. For OQ, page each document kind independently using the nextPage cursor returned by that kind's operation. For v1, use the nextPage URL or the page integer parameter of Get_BillingDocuments. Neither approach produces a single merged cursor equivalent to the v2 next_page. No vetted GraphQL example is available."
+      },
+      "mapping_hint": "The public OQ route uses three independent cursors (one for invoices, one for credit memos, one for debit memos). Track each cursor separately; keep paginating a collection until its nextPage is absent or null.",
+      "target": {
+        "field": "nextPage",
+        "public_type": "string",
+        "transform": "Read the public nextPage value for each of the three collection steps; pass each unchanged as the cursor parameter of the same step on the next page; absent or null means that collection has no further page; track the three collections independently."
+      },
+      "v2": "next_page",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data",
+        "public_type": "array",
+        "transform": "Adapt each row into the mapped v2 shape; row fields are mapped by their own entries"
+      },
+      "v2": "data",
+      "v2_type": "array"
+    },
+    {
+      "computed_from": [
+        "remaining_balance",
+        "state",
+        "type"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "Invoice rows: if remaining_balance is non-nil and state is present, paid = remaining_balance === 0 && Status === \"Posted\" (the public Status value; v2 state posted and open both map to it); otherwise omit. Memo rows: if remaining_balance is non-nil, paid = remaining_balance === 0; otherwise omit"
+      },
+      "v2": "paid"
+    },
+    {
+      "computed_from": [
+        "due_date",
+        "remaining_balance",
+        "state",
+        "type"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "When due_date is set and paid is defined, past_due = new Date(due_date) < the current time of the system that evaluates it && !paid; otherwise omit. Recompute paid from the balance and the Status value using the paid transformation. Note: clock differences between systems can change the result when the due date is close to the current time."
+      },
+      "v2": "past_due"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "custom_objects"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "account_number"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "pay"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "transfer_to_accounting"
+    }
+  ],
+  "route": "public_oq",
+  "steps": [
+    {
+      "method": "GET",
+      "operation": "queryInvoices",
+      "path": "/object-query/invoices",
+      "step": "s1"
+    },
+    {
+      "method": "GET",
+      "operation": "queryCreditMemos",
+      "path": "/object-query/credit-memos",
+      "step": "s2"
+    },
+    {
+      "method": "GET",
+      "operation": "queryDebitMemos",
+      "path": "/object-query/debit-memos",
+      "step": "s3"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "differs_from_v2",
+      "note": "The public API behaves differently from v2 here. v2 filtered the merged billing document list by document type. The public OQ APIs provide separate operations per document type; the v1 API does not expose a document-type filter parameter. To retrieve only invoices, call the OQ queryInvoices operation. To retrieve only credit memos, call queryCreditMemos. To retrieve only debit memos, call queryDebitMemos. For v1, Get_BillingDocuments returns all document types together and has no document-type filter parameter. No vetted GraphQL example is available.",
+      "v2": "filter[] type.EQ:<invoice|credit_memo|debit_memo>"
+    },
+    {
+      "kind": "header_not_supported",
+      "note": "The public APIs do not accept this header. The v2 API accepted the x-custom-auth and zuora-cache-enabled request headers; neither header has a public equivalent. The billing documents list route did not wire a cache handler, so zuora-cache-enabled had no effect on this operation. The public APIs authenticate via a bearer token in the Authorization header and optionally accept zuora-entity-ids to scope the request to an entity and zuora-track-id for request tracing. Send the OAuth bearer token in the Authorization header. Pass zuora-entity-ids to scope the request to a specific entity, or zuora-track-id for request tracing. Do not send zuora-cache-enabled; the public APIs have no such header. No vetted GraphQL example is available.",
+      "v2": "headers"
+    }
+  ]
+}

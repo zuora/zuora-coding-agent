@@ -1,10 +1,11 @@
 ---
 name: zuora-cpq-js-design
-description: Design Zuora CPQ Quote Studio or CPQ X JavaScript extensibility using supported hooks, events, quoteState, pageState, metricState, parentQuoteState, ZQFClient for package >= 10.58, headless components, and sidebar components
+description: Design Zuora Quote Studio or CPQ X JavaScript extensibility using supported hooks, events, quoteState, pageState, metricState, parentQuoteState, ZQFClient for package >= 10.58, headless components, and sidebar components
 argument-hint: <Quote Studio customization requirement>
 allowed-tools: [Read, Glob, Grep, Bash]
 ---
 
+**Applies to: CPQ X (Quote Studio UI) only.** Work out the edition with the Edition check in the editions reference (ask the user if it is unclear). If the org is on legacy CPQ, say so and stop; do not design Quote Studio hooks for it. Editions and terms: `${CLAUDE_PLUGIN_ROOT}/references/cpq-editions.md`.
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed Zuora Coding Agent plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
 

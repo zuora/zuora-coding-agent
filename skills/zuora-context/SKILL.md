@@ -1,6 +1,6 @@
 ---
 name: zuora-context
-description: This skill should be used when the user mentions "Zuora API", "Zuora SDK", "Zuora Billing", "Zuora Revenue", "Zuora CPQ", "Zuora Payments", "subscription billing", "invoice settlement", "zuora-mcp", "rate plan", "product rate plan charge", "clone product", "clone plan", "copy product", "order API", "tenant settings", "billing configuration", "configure tenant", "billing rules", "payment terms", "Zuora settings", or discusses integration with or configuration of Zuora systems. Do not activate for generic billing or subscription discussions that are not Zuora-specific.
+description: This skill should be used when the user mentions "Zuora API", "Zuora SDK", "Zuora Billing", "Zuora Revenue", "Zuora CPQ", "Zuora Payments", "subscription billing", "invoice settlement", "zuora-mcp", "rate plan", "product rate plan charge", "clone product", "clone plan", "copy product", "order API", "tenant settings", "billing configuration", "configure tenant", "billing rules", "payment terms", "Zuora settings", "custom event", "event trigger", "callout template", "notification definition", "build event/callout integration", or discusses integration with or configuration of Zuora systems. Do not activate for generic billing or subscription discussions that are not Zuora-specific.
 version: 1.0.0
 ---
 
@@ -95,6 +95,7 @@ When generating code for the customer's repository, output Zuora REST API or SDK
 
 **Operational tools** (for testing/validating generated artifacts against the tenant, or other available MCP tools):
 - **`mcp__zuora-mcp__manage_workflows`** / **`mcp__zuora-mcp__manage_workflow_runs`** — Import, export, list workflows, and execute or monitor workflow runs in the tenant.
+- **`mcp__zuora-mcp__manage_event_triggers`** / **`manage_callout_templates`** / **`manage_notification_definitions`** — View/create/update custom events, callout templates, and notification definitions (prefer these over Settings UI / curl).
 - **`mcp__zuora-mcp__manage_meters`** / **`mcp__zuora-mcp__manage_meters_run`** — Create, validate, import/export meter definitions, and run meters, check run status, run history, audit trail, and prefetch management.
 - **`mcp__zuora-mcp__create_subscriptions`** / **`manage_subscriptions`** — Create or manage subscriptions for validation.
 - **`mcp__zuora-mcp__manage_billing_documents`** — Verify billing document generation.
@@ -117,9 +118,13 @@ If the user's intent clearly maps to a dedicated skill, **do not answer generica
 |---|---|
 | Designing an API integration | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-api-design/SKILL.md` |
 | Generating integration code | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-api-build/SKILL.md` |
-| Automating a business process | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-design/SKILL.md` |
+| Custom event, callout template, and/or notification definition (design) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-event-notification-design/SKILL.md` |
+| Applying event/callout/notification creates or updates from an approved plan | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-event-notification-build/SKILL.md` |
+| Automating a business process / event-triggered workflow composition (standard or already-registered event) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-design/SKILL.md` |
 | Building a workflow | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-build/SKILL.md` |
 | Verifying / test-running a workflow in sandbox | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-workflow-verify/SKILL.md` |
+| Migrating from Zuora v2 ("Donut") APIs to public APIs | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-v2-migration-design/SKILL.md` |
+| Checking a v2 migration plan against a sandbox (parity, read-only) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-v2-migration-verify/SKILL.md` |
 | Planning Invoice Settlement migration | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-is-migration-design/SKILL.md` |
 | Building Invoice Settlement migration artifacts | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-is-migration-build/SKILL.md` |
 | Planning Order API and migration | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-order-migration-design/SKILL.md` |
@@ -130,6 +135,7 @@ If the user's intent clearly maps to a dedicated skill, **do not answer generica
 | Setting up dynamic pricing on tenant | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-dynamic-pricing-build/SKILL.md` |
 | Configuring tenant billing settings / inferring settings from business documents or requirements | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-tenant-config-design/SKILL.md` |
 | Applying tenant configuration changes to a Zuora tenant | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-tenant-config-build/SKILL.md` |
+| Creating, amending, renewing, cancelling, pricing or submitting a real quote in a CPQ X (Quote Studio) Salesforce org | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-cpqx-quotes/SKILL.md` (CPQ X only; CPQ customization code routes to `zuora-cpq-context`) |
 | Validating code or payloads | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-validate/SKILL.md` |
 | Reviewing implementation | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-review/SKILL.md` |
 | UAT/E2E test lifecycle (SDD → TR matrix → generate → run) | Read `${CLAUDE_PLUGIN_ROOT}/skills/zuora-uat-context/SKILL.md` |
@@ -142,6 +148,7 @@ If the intent is ambiguous, briefly clarify with the user before invoking a skil
 For deeper domain knowledge, read files from `${CLAUDE_PLUGIN_ROOT}/references/`:
 - `best-practices.md` — general integration best practices
 - `api-integration-patterns.md` — common API patterns
+- `workflow-events.md` — standard/custom workflow events and MCP event/callout/notification registration
 - `workflow-patterns.md` — workflow automation patterns
 - `is-migration-patterns.md` — IS migration patterns
 - `order-migration-patterns.md` — Order API migration patterns

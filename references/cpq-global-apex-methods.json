@@ -7,7 +7,10 @@
     "Catalog aligned with cpq-patterns.md quote-creation flows.",
     "For programmatic quote creation: after DML or renewQuote(), call new zqu.Quote(quoteId).buildAndSave() in a Queueable — never in batch execute().",
     "For quote preview/metrics after creation, use zqu.MetricsUtil.getPreviewedInvoiceItems(Id) — not previewQuote(Id).",
-    "previewQuote() accepts zqu__Quote__c, not Id."
+    "previewQuote() accepts zqu__Quote__c, not Id.",
+    "QPlanReader, QPlanWriter, QPlan, QCharge, QTier and CommitmentApi signatures come from the global declarations in the zqu package source. They work in legacy CPQ and in CPQ X.",
+    "QPlan has no global add(): new plans come from the catalog, not from a QPlan method. Use remove() to drop a plan.",
+    "The linter checks calls on the static classes only (QPlanReader, QPlanWriter, CommitmentApi, MetricsUtil, QuoteRecalculateController, zQuoteUtil). QPlan, QCharge and QTier are instance classes: they are signature authority for design and build, not linted."
   ],
   "classes": [
     {
@@ -174,6 +177,608 @@
           ],
           "bulkPreferred": false,
           "queueableTriggering": true
+        }
+      ]
+    },
+    {
+      "name": "QPlanReader",
+      "namespace": "zqu",
+      "methods": [
+        {
+          "name": "load",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Load every plan (rate plan with its charges) of one quote.",
+          "parameters": [
+            {
+              "name": "quoteId",
+              "type": "Id"
+            }
+          ],
+          "returnType": "List<zqu.QPlan>",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "load",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Load the plans of several quotes.",
+          "parameters": [
+            {
+              "name": "quoteIds",
+              "type": "Set<Id>"
+            }
+          ],
+          "returnType": "List<zqu.QPlan>",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "load",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Load plans with paging and filters. Build a Settings or ExtendedSettings object, then read the plans with Result.getPlans().",
+          "parameters": [
+            {
+              "name": "readerSettings",
+              "type": "zqu.QPlanReader.Settings"
+            }
+          ],
+          "returnType": "zqu.QPlanReader.Result",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        }
+      ],
+      "innerClasses": [
+        {
+          "name": "Settings",
+          "methods": [
+            "setQuoteId(Id quoteId)",
+            "setQuoteRatePlanIds(Set<Id> quoteRatePlanIds)",
+            "setPlanLimit(Integer planLimit)",
+            "setPlanOffset(Integer planOffset)",
+            "setReadLastSegmentOnly(Boolean readLastSegmentOnly)"
+          ]
+        },
+        {
+          "name": "ExtendedSettings",
+          "extends": "Settings",
+          "constructors": [
+            "ExtendedSettings()"
+          ],
+          "methods": [
+            "setReadAllRatePlans(Boolean readAllRatePlans)"
+          ]
+        },
+        {
+          "name": "Result",
+          "methods": [
+            "List<zqu.QPlan> getPlans()"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "QPlanWriter",
+      "namespace": "zqu",
+      "methods": [
+        {
+          "name": "save",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Save one plan and its charges to the quote after changes made with QPlan.put, QCharge.put or QPlan.remove.",
+          "parameters": [
+            {
+              "name": "plan",
+              "type": "zqu.QPlan"
+            }
+          ],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "save",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Save several plans and their charges to the quote.",
+          "parameters": [
+            {
+              "name": "plans",
+              "type": "List<zqu.QPlan>"
+            }
+          ],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        }
+      ]
+    },
+    {
+      "name": "CommitmentApi",
+      "namespace": "zqu",
+      "methods": [
+        {
+          "name": "createCommitment",
+          "aliases": [],
+          "category": "commitments",
+          "description": "Create a commitment on a quote.",
+          "parameters": [
+            {
+              "name": "request",
+              "type": "zqu.CommitmentApi.CommitmentRequest"
+            }
+          ],
+          "returnType": "zqu.CommitmentApi.CommitmentResult",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "updateCommitment",
+          "aliases": [],
+          "category": "commitments",
+          "description": "Update an existing commitment.",
+          "parameters": [
+            {
+              "name": "request",
+              "type": "zqu.CommitmentApi.CommitmentRequest"
+            }
+          ],
+          "returnType": "zqu.CommitmentApi.CommitmentResult",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "deleteCommitment",
+          "aliases": [],
+          "category": "commitments",
+          "description": "Delete a commitment.",
+          "parameters": [
+            {
+              "name": "request",
+              "type": "zqu.CommitmentApi.DeleteCommitmentRequest"
+            }
+          ],
+          "returnType": "zqu.CommitmentApi.CommitmentResult",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getCommitmentsByQuote",
+          "aliases": [],
+          "category": "commitments",
+          "description": "Read the commitments of one quote.",
+          "parameters": [
+            {
+              "name": "quoteId",
+              "type": "String"
+            }
+          ],
+          "returnType": "List<zqu.CommitmentApi.CommitmentResult>",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getCommitment",
+          "aliases": [],
+          "category": "commitments",
+          "description": "Read one commitment.",
+          "parameters": [
+            {
+              "name": "commitmentId",
+              "type": "String"
+            }
+          ],
+          "returnType": "zqu.CommitmentApi.CommitmentResult",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        }
+      ],
+      "innerClasses": [
+        {
+          "name": "CommitmentRequest"
+        },
+        {
+          "name": "CommitmentCharges"
+        },
+        {
+          "name": "ChargeFilter"
+        },
+        {
+          "name": "ScheduleData"
+        },
+        {
+          "name": "DeleteCommitmentRequest"
+        },
+        {
+          "name": "CommitmentResult"
+        }
+      ]
+    },
+    {
+      "name": "QPlan",
+      "namespace": "zqu",
+      "instanceClass": true,
+      "methods": [
+        {
+          "name": "getId",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Id of the quote rate plan.",
+          "parameters": [],
+          "returnType": "String",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "isVoidAction",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Whether the plan is a remove (void) action.",
+          "parameters": [],
+          "returnType": "Boolean",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getRecord",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "The underlying quote rate plan record.",
+          "parameters": [],
+          "returnType": "zqu__QuoteRatePlan__c",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getCharges",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "The charges of the plan.",
+          "parameters": [],
+          "returnType": "List<zqu.QCharge>",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "setCharges",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Replace the charges of the plan.",
+          "parameters": [
+            {
+              "name": "charges",
+              "type": "List<zqu.QCharge>"
+            }
+          ],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getOriginalPlan",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "The original (pre-change) plan, for amendments.",
+          "parameters": [],
+          "returnType": "zqu.QPlan",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "setOriginalPlan",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Set the original plan.",
+          "parameters": [
+            {
+              "name": "originalPlan",
+              "type": "zqu.QPlan"
+            }
+          ],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getUniquePlanIdentifier",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Identifier that stays unique across unsaved plans.",
+          "parameters": [],
+          "returnType": "String",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "setUniquePlanIdentifier",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Generate the unique plan identifier.",
+          "parameters": [],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getAmendment",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "The amendment the plan belongs to.",
+          "parameters": [],
+          "returnType": "zqu.QAmendment",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getFeatures",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "The product features of the plan.",
+          "parameters": [],
+          "returnType": "List<zqu__QuoteProductFeature__c>",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "get",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Read a field of the plan record.",
+          "parameters": [
+            {
+              "name": "fieldName",
+              "type": "String"
+            }
+          ],
+          "returnType": "Object",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "put",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Set a field of the plan record. Call QPlanWriter.save to persist.",
+          "parameters": [
+            {
+              "name": "fieldName",
+              "type": "String"
+            },
+            {
+              "name": "value",
+              "type": "Object"
+            }
+          ],
+          "returnType": "Object",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "remove",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Mark the plan as removed from the quote. Call QPlanWriter.save to persist.",
+          "parameters": [],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "revert",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Undo changes made to the plan.",
+          "parameters": [],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "handleUpdateEvent",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Re-apply the update rules after a change.",
+          "parameters": [],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "deepClone",
+          "aliases": [],
+          "category": "quote plans",
+          "description": "Copy the plan and its charges.",
+          "parameters": [
+            {
+              "name": "preserveId",
+              "type": "Boolean"
+            }
+          ],
+          "returnType": "zqu.QPlan",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        }
+      ]
+    },
+    {
+      "name": "QCharge",
+      "namespace": "zqu",
+      "instanceClass": true,
+      "methods": [
+        {
+          "name": "getParentPlan",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "The plan the charge belongs to.",
+          "parameters": [],
+          "returnType": "zqu.QPlan",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "get",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "Read a field of the charge record.",
+          "parameters": [
+            {
+              "name": "fieldName",
+              "type": "String"
+            }
+          ],
+          "returnType": "Object",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "put",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "Set a field of the charge record. Call QPlanWriter.save to persist.",
+          "parameters": [
+            {
+              "name": "fieldName",
+              "type": "String"
+            },
+            {
+              "name": "value",
+              "type": "Object"
+            }
+          ],
+          "returnType": "Object",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "put",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "Set a field, optionally skipping the field-level access check.",
+          "parameters": [
+            {
+              "name": "fieldName",
+              "type": "String"
+            },
+            {
+              "name": "value",
+              "type": "Object"
+            },
+            {
+              "name": "ignoreFieldLevelAccess",
+              "type": "Boolean"
+            }
+          ],
+          "returnType": "Object",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "isTieredCharge",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "Whether the charge has tiers.",
+          "parameters": [],
+          "returnType": "Boolean",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "areTiersUpdated",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "Whether the tiers changed.",
+          "parameters": [],
+          "returnType": "Boolean",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getTiers",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "The tiers of the charge.",
+          "parameters": [],
+          "returnType": "List<zqu.QTier>",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "setTiers",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "Replace the tiers of the charge.",
+          "parameters": [
+            {
+              "name": "qTiers",
+              "type": "List<zqu.QTier>"
+            }
+          ],
+          "returnType": "void",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getRecord",
+          "aliases": [],
+          "category": "quote charges",
+          "description": "The underlying quote rate plan charge record.",
+          "parameters": [],
+          "returnType": "zqu__QuoteRatePlanCharge__c",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        }
+      ]
+    },
+    {
+      "name": "QTier",
+      "namespace": "zqu",
+      "instanceClass": true,
+      "methods": [
+        {
+          "name": "get",
+          "aliases": [],
+          "category": "quote tiers",
+          "description": "Read a field of the tier record.",
+          "parameters": [
+            {
+              "name": "fieldName",
+              "type": "String"
+            }
+          ],
+          "returnType": "Object",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "put",
+          "aliases": [],
+          "category": "quote tiers",
+          "description": "Set a field of the tier record.",
+          "parameters": [
+            {
+              "name": "fieldName",
+              "type": "String"
+            },
+            {
+              "name": "value",
+              "type": "Object"
+            }
+          ],
+          "returnType": "Object",
+          "bulkPreferred": false,
+          "queueableTriggering": false
+        },
+        {
+          "name": "getRecord",
+          "aliases": [],
+          "category": "quote tiers",
+          "description": "The underlying quote charge tier record.",
+          "parameters": [],
+          "returnType": "zqu__QuoteCharge_Tier__c",
+          "bulkPreferred": false,
+          "queueableTriggering": false
         }
       ]
     }

@@ -1,0 +1,757 @@
+{
+  "errors": {
+    "cases": [
+      {
+        "migration_note": "No change needed for the not-found case on a list operation; both v2 and the public route return an empty list rather than a 404.",
+        "public_oq": "An empty result set is not an error; the route returns an empty data array with HTTP 200",
+        "situation": "not_found",
+        "v2": "An empty result set is not an error; v2 returns an empty data array with HTTP 200 when no accounts match the filter"
+      },
+      {
+        "migration_note": "v2 returns a structured errors array with a specific code and parameter; the public OQ route wraps the error in an error object with a code integer and message string; no parameter field is returned.",
+        "public_oq": "HTTP 400 with body {\"error\":{\"code\": integer, \"message\": string}}; retry_signal not documented",
+        "situation": "invalid_filter_or_enum",
+        "v2": "400, type bad_request, errors[0].code invalid_filter or invalid_parameter, errors[0].parameter filter[]; raised when a filter field, operator, or enum value is not supported"
+      },
+      {
+        "migration_note": "Both v2 page_size and the public pageSize accept 1 to 99; the public default is 10; v2 page_size values in that range carry over unchanged. A malformed cursor returns an observed HTTP 500 on the public route.",
+        "public_oq": "HTTP 400 with body {\"error\":{\"code\": integer, \"message\": string}} for an invalid pageSize; an invalid cursor returns HTTP 500 with body {\"errors\":[{\"message\": string}]} (observed on a test tenant); retry_signal not documented",
+        "situation": "invalid_page_size_or_cursor",
+        "v2": "400, type bad_request, errors[0].parameter page_size; raised by request-schema validation when page_size is outside 1-99 or the cursor is malformed"
+      },
+      {
+        "migration_note": "v2 list does not validate id format in filter[]; a non-hex value returns no rows rather than a 400; do not rely on a filter validation error to detect malformed identifiers on the list route.",
+        "public_oq": "behavior not documented; a non-hex value in a filter likely returns an empty data array with HTTP 200; do not rely on a 400 for non-hex filter values",
+        "situation": "malformed_identifier",
+        "v2": "no error; list filter validation rejects only syntax errors and invalid enum values; non-hex id values in filter[] are not validated for id format and the query returns an empty data array with HTTP 200"
+      },
+      {
+        "migration_note": "v2 signals authorization failures with type unauthorized and retryable=false; the public OQ route returns a plain message string in the body on 400 or 401 with no explicit retry signal; do not use the v2 retryable flag as the retry signal on the public route.",
+        "public_oq": "HTTP 400 {\"message\":\"No bearer token\"} when the token is absent; HTTP 401 {\"message\":\"Authentication error\"} when the token is invalid (observed on a test tenant)",
+        "situation": "authorization_failure",
+        "v2": "401 type unauthorized (empty errors array); retryable false; v2 maps HTTP 401 to type unauthorized only on the Object Query path"
+      },
+      {
+        "migration_note": "v2 returns retryable false in the response body for Object Query 500s; do not use the body retryable flag as a retry signal on the public route; implement retry logic based on the HTTP status code alone; a 429 is not documented but may occur and should be retried.",
+        "public_oq": "HTTP 500 not documented; an invalid cursor returns HTTP 500 with body {\"errors\":[{\"message\": string}]} (observed); a 429 response is not documented; retry on 429 and 5xx as you do today",
+        "situation": "server_error_retry",
+        "v2": "500, type internal_server_error, retryable false; upstream Object Query failures are returned as internal_server_error with retryable false"
+      }
+    ],
+    "route": {
+      "body": "400 and 404 errors return {\"error\":{\"code\": integer, \"message\": string}}; a missing bearer token returns HTTP 400 {\"message\":\"No bearer token\"}; an invalid bearer token returns HTTP 401 {\"message\":\"Authentication error\"}; an invalid cursor returns HTTP 500 {\"errors\":[{\"message\": string}]} (status codes observed on a test tenant; not all codes are in the contract)",
+      "retry_signal": "not documented"
+    },
+    "v2": {
+      "body": "{ type, retryable, errors[]: { code, message, parameter } }",
+      "retry_signal": "retryable flag in the response body; always false for Object Query errors"
+    }
+  },
+  "id": "accounts.list",
+  "request": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "filter[]",
+        "transform": "Translate v2 filter keys and values to public OQ field names as documented in the filter and sort translation reference, section accounts-list. Field names are case-insensitive. No enum translation for status: pass the value through unchanged. Identifier fields (id, parent_account_id, communication_profile_id, default_payment_method_id, invoice_template_id, bill_to_id, sold_to_id) accept 32-character hexadecimal record IDs. Date fields (last_invoice_date) use YYYY-MM-DD format. Timestamp fields (updated_time) use ISO 8601 format."
+      },
+      "v2": "filter[]"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "sort[]",
+        "transform": "Translate the v2 sort key to the public OQ field name as documented in the filter and sort translation reference, section accounts-list. Field names are case-insensitive. Pass exactly one sort[] value; direction asc or desc."
+      },
+      "v2": "sort[]"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "pageSize",
+        "transform": "Rename to pageSize; both v2 page_size and the public pageSize accept 1 to 99; the public default is 10. A value from 1 to 99 is passed through unchanged; a literal outside 1 to 99 is clamped to the nearest bound in the migrated code (the public route rejects it with HTTP 400, as v2 does) and the change is reported."
+      },
+      "v2": "page_size"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "cursor",
+        "transform": "Pass the nextPage value returned by the previous page of this operation unchanged; only use cursors issued by this operation; absent or null nextPage means there is no further page"
+      },
+      "v2": "cursor"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. Array expansion results have no per-parent paging parameter via public OQ REST; each returns the first page only. For paging through large nested arrays, use the list operations for each related resource type with a filter on account_id to retrieve records independently. The bill_to and sold_to contacts are object expansions and do not require paging. No vetted GraphQL example is available."
+      },
+      "target": {
+        "in": "query",
+        "param": "expand[]",
+        "transform": "Translate v2 relation names to the documented public expand[] values listed in the filter and sort translation reference, section accounts-list. Public expand values: subscriptions, paymentmethods, payments, invoices, creditmemos, debitmemos (use these three to replace the v2 billing_documents relation), billto, soldto, defaultpaymentmethod, usages. The nested path subscriptions.rateplans and subscriptions.rateplans.rateplancharges are documented; other nested paths are not documented. Names are case-insensitive. Per-parent paging of array relations is not controllable via public REST."
+      },
+      "v2": "expand[]"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The public API behaves differently from v2 here. v2 narrows the upstream data fetch to only the requested fields before sending the query; the public OQ REST fields[] parameter narrows only the response output, not the upstream fetch. Nested object field narrowing may differ from v2 behavior. Supply account.fields[] with public OQ field names to project the response. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-7."
+      },
+      "target": {
+        "in": "query",
+        "param": "fields[]",
+        "transform": "Translate requested v2 field names to public Object Query field names and pass as account.fields[] (or the matching <relation>.fields[] for expanded objects) as described in the filter and sort translation reference, section accounts-list. Use account.fields[] or accounts.fields[] for the root object; use <relation>.fields[] for each expanded relation. Output field order is not preserved."
+      },
+      "v2": "<object>.fields[] (account.fields[], subscriptions.fields[], ...)"
+    }
+  ],
+  "response": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].id",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].createdDate",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "created_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].updatedDate",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "updated_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].createdById",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "created_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].updatedById",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "updated_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].accountNumber",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "account_number",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].autoPay",
+        "public_type": "boolean",
+        "transform": "none"
+      },
+      "v2": "auto_pay",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].batch",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "batch",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].billCycleDay",
+        "public_type": "integer",
+        "transform": "none"
+      },
+      "v2": "bill_cycle_day",
+      "v2_type": "integer"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].billToId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "bill_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].soldToId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "sold_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].communicationProfileId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "communication_profile_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].crmId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "crm_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].defaultPaymentMethodId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "default_payment_method_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].name",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "name",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].notes",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].parentId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "parent_account_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].paymentGateway",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "payment_gateway",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].paymentTerm",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "payment_terms",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].sequenceSetId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "sequence_set_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].currency",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "currency",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].salesRepName",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "sales_rep",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].status",
+        "public_type": "string",
+        "transform": "If status is present, status === \"Active\"; otherwise omit"
+      },
+      "v2": "enabled",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].totalDebitMemoBalance",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_debit_memo_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].totalInvoiceBalance",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_invoice_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].unappliedCreditMemoAmount",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_credit_memo_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].unappliedBalance",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_payment_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].organizationId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "organization_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].vATId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_identifier.id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].additionalEmailAddresses",
+        "public_type": "string",
+        "transform": "Split comma-separated string and trim each entry; null produces []"
+      },
+      "v2": "billing_document_settings.additional_email",
+      "v2_type": "array"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].creditMemoTemplateId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.credit_memo_template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].debitMemoTemplateId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.debit_memo_template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].invoiceTemplateId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.invoice_template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].invoiceDeliveryPrefsEmail",
+        "public_type": "boolean",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.email_documents",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].invoiceDeliveryPrefsPrint",
+        "public_type": "boolean",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.print_documents",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxCompanyCode",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.company_code",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxExemptDescription",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxExemptExpirationDate",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.end_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxExemptCertificateID",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxExemptIssuingJurisdiction",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.issuing_jurisdiction",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxExemptEffectiveDate",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.start_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxExemptStatus",
+        "public_type": "string",
+        "transform": "Map PendingVerification→pending, Yes→verified, No→not_valid; omit other values"
+      },
+      "v2": "tax_certificate.state",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].taxExemptEntityUseCode",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.entity_use_code",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].vATId",
+        "public_type": "string",
+        "transform": "rename"
+      },
+      "v2": "tax_certificate.tax_identifier",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. v1 REST contacts lack the audit fields created_by_id, updated_by_id, created_time, and updated_time. Object Query contacts include those audit fields. The remaining differences between the Object Query contact shape and the full v2 contact output are: v2's null custom-field handling, the other_phone_type enum mapping, and per-field projection semantics. Use the public contact fields available in the Object Query REST expansion for standard contact data. For complete field parity with v2 contact output, a supplemental data retrieval strategy is required. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-3."
+      },
+      "target": {
+        "field": "data[].billTo",
+        "public_type": "object",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "bill_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. v1 REST contacts lack the audit fields created_by_id, updated_by_id, created_time, and updated_time. Object Query contacts include those audit fields. The remaining differences between the Object Query contact shape and the full v2 contact output are: v2's null custom-field handling, the other_phone_type enum mapping, and per-field projection semantics. Use the public contact fields available in the Object Query REST expansion for standard contact data. For complete field parity with v2 contact output, a supplemental data retrieval strategy is required. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-3."
+      },
+      "target": {
+        "field": "data[].soldTo",
+        "public_type": "object",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "sold_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].defaultPaymentMethod",
+        "public_type": "object",
+        "transform": "Adapt the expanded related object into the mapped v2 shape; request expand[]=defaultpaymentmethod to populate this field"
+      },
+      "v2": "default_payment_method",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related subscriptions rows as a plain array with no per-parent page size or cursor control. v2 returns an object {data: [...], next_page} with an independent continuation. You cannot page through the related rows per parent via public REST yaml:93145. To list subscriptions for this account independently, use the subscriptions list operation with a filter on account_id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].subscriptions",
+        "public_type": "array",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "subscriptions",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related paymentMethods rows as a plain array with no per-parent page size or cursor control. v2 returns an object {data: [...], next_page} with an independent continuation. You cannot page through the related rows per parent via public REST yaml:93173. To list payment methods for this account independently, use the payment methods list operation with a filter on account_id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].paymentMethods",
+        "public_type": "array",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "payment_methods",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related payments rows as a plain array with no per-parent page size or cursor control. v2 returns an object {data: [...], next_page} with an independent continuation. You cannot page through the related rows per parent via public REST yaml:93149. To list payments for this account independently, use the payments list operation with a filter on account_id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].payments",
+        "public_type": "array",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "payments",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related usages rows as a plain array with no per-parent page size or cursor control. v2 returns an object {data: [...], next_page} with an independent continuation. You cannot page through the related rows per parent via public REST yaml:93169. To list usage records for this account independently, use the usage list operation with a filter on account_id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].usages",
+        "public_type": "array",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "usage_records",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related creditMemos rows as a plain array with no per-parent page size or cursor control. v2 returns an object {data: [...], next_page} with an independent continuation. You cannot page through the related rows per parent via public REST yaml:93157. To list credit memos for this account independently, use the credit memos list operation with a filter on account_id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].creditMemos",
+        "public_type": "array",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "credit_memos",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related invoices rows as a plain array with no per-parent page size or cursor control. v2 returns an object {data: [...], next_page} with an independent continuation. You cannot page through the related rows per parent via public REST yaml:93165. To list invoices for this account independently, use the invoices list operation with a filter on account_id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].invoices",
+        "public_type": "array",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "invoices",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related debitMemos rows as a plain array with no per-parent page size or cursor control. v2 returns an object {data: [...], next_page} with an independent continuation. You cannot page through the related rows per parent via public REST yaml:93161. To list debit memos for this account independently, use the debit memos list operation with a filter on account_id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].debitMemos",
+        "public_type": "array",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "debit_memos",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "nextPage",
+        "public_type": "string",
+        "transform": "Read the public nextPage value; pass it unchanged as the cursor parameter of the same operation; absent or null means there is no further page"
+      },
+      "v2": "next_page",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data",
+        "public_type": "array",
+        "transform": "Adapt each row into the mapped v2 shape; row fields are mapped by their own entries"
+      },
+      "v2": "data",
+      "v2_type": "array"
+    },
+    {
+      "computed_from": [
+        "invoices",
+        "credit_memos",
+        "debit_memos"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "Adapt and concatenate invoices.data, credit_memos.data and debit_memos.data in that order; omit when the merged array is empty; combine their independently tracked continuation states in invoice:credit_memo:debit_memo order"
+      },
+      "v2": "billing_documents"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "custom_objects"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "transform": "For each row of `data[]` in the successful JSON response, build the `custom_fields` object. Always build the object: it is `{}` when the row has no custom fields. Use the `customFields` array when the row has one, otherwise the `custom_fields` array; turn each `{key, value, type}` entry into `key: value` (when a key appears more than once, the last entry wins). Then convert `long` and `number` values to numbers, convert `boolean` values to true or false, and leave other types unchanged; null values stay null. If the row has neither array, collect every property whose name ends in `__c` into the object; an empty array gives `{}` and the `__c` properties are then not used. Include `custom_fields` only when it was requested."
+      },
+      "v2": "custom_fields",
+      "v2_type": "object"
+    }
+  ],
+  "route": "public_oq",
+  "steps": [
+    {
+      "method": "GET",
+      "operation": "queryAccounts",
+      "path": "/object-query/accounts",
+      "step": "s1"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "header_not_supported",
+      "note": "The public APIs do not accept this header. The v2 API accepted the x-custom-auth and zuora-cache-enabled request headers; neither header has a public equivalent. The account list route did not wire a cache handler, so zuora-cache-enabled had no effect on this operation. The public APIs authenticate via a bearer token in the Authorization header and optionally accept zuora-entity-ids to scope the request to an entity and zuora-track-id for request tracing. Send the OAuth bearer token in the Authorization header. Pass zuora-entity-ids to scope the request to a specific entity, or zuora-track-id for request tracing. Do not send zuora-cache-enabled; the public APIs have no such header. No vetted GraphQL example is available.",
+      "v2": "headers"
+    }
+  ]
+}

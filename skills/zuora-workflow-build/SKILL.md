@@ -2,7 +2,7 @@
 name: zuora-workflow-build
 description: Compose an importable Zuora Workflow JSON from a design or requirement
 argument-hint: <workflow design or requirement>
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_workflows, mcp__zuora-mcp__manage_workflow_runs, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__query_objects]
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, mcp__zuora-mcp__manage_workflows, mcp__zuora-mcp__manage_workflow_runs, mcp__zuora-mcp__manage_event_triggers, mcp__zuora-mcp__manage_callout_templates, mcp__zuora-mcp__manage_notification_definitions, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__zuora_codegen, mcp__zuora-mcp__query_objects]
 ---
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
@@ -33,7 +33,7 @@ Format and semantics are non-negotiable. Defense is layered:
  node ${CLAUDE_PLUGIN_ROOT}/scripts/lint-workflow-json.js output/<name>.workflow.json
  ```
  Fix errors in the **plan** and rebuild; do not patch assembled JSON by hand except for explicit user-requested post-build edits (then re-lint).
-3. **Optional dry-run** in a sandbox: `import_workflow activate=false`, then `delete_workflow`.
+3. **Optional dry-run** in a sandbox: `import_workflow` (leave inactive — do not activate), then `delete_workflow`. For a runnable import or a new version of an existing definition, follow **Activate imported version** in `references/workflow-patterns.md`.
 
 Legacy skeleton/template composition is fallback only when the engine is unavailable; document why and mark the artifact not ready for import.
 
@@ -313,7 +313,7 @@ After tasks and linkages are in place, fill out the rest of `workflow.*`. Use `w
 2. **`workflow.name`** and **`workflow.description`**: copy from the user's design / `workflow_definition.name`.
 3. **`workflow.type`**: must be the literal string `"Workflow::Setup"`.
 4. **`workflow.data`**: always `{}`.
-5. **`workflow.status`**: always `"Inactive"` on import. The `import_workflow` tool flips it to `Active` via `activate_version: true`.
+5. **`workflow.status`**: always `"Inactive"` on import. Do **not** emit `"Active"` in the JSON. Activation is an MCP step after import — see **Activate imported version** in `references/workflow-patterns.md` (`import_workflow_version` + `activate: true`, or `update_workflow` + `active_workflow_version_id`). Never use a parameter named `activate_version`.
 6. **`workflow.css`**: keep skeleton default `{"top":"40px","left":"35px"}`.
 7. **Trigger flags**: set at least one to `true`; multiple trigger flags are valid when they launch the same task graph (for example, on-demand plus scheduled). NEVER set `ui_trigger` (it is not a column on the `workflows` table and is silently dropped).
 8. **`workflow.interval`** + **`workflow.timezone`**: required IFF `scheduled_trigger == true`. Use `interval_schema.examples` and `interval_schema.timezone.examples` from `workflow-enums.json`.
@@ -337,13 +337,14 @@ After tasks and linkages are in place, fill out the rest of `workflow.*`. Use `w
 16. **`workflow.solution_id`**, **`workflow.extension_id`**: `null` unless packaging as a Connect extension.
 17. **`workflow.zuora_org_id`**: `null` (deprecated). **`workflow.zuora_org_ids`**: `[]` to allow all accessible orgs.
 
-### Step 3c: Optional event-trigger preflight
+### Step 3c: Custom event-trigger preflight
 
-When the workflow is event-triggered AND any value in `parameters.event_triggers[]` is **not** in `workflow-enums.json` -> `standard_events.events` (after applying `$canonical_name_corrections`), verify that the custom event is registered before considering the workflow lint-clean. A non-standard name is a registration prerequisite, not a reason to set `workflow.event_trigger` false or leave `parameters.event_triggers[]` empty.
+When the workflow is event-triggered AND any value in `parameters.event_triggers[]` is **not** in `workflow-enums.json` -> `standard_events.events` (after applying `$canonical_name_corrections`), verify that the custom event is registered before treating the workflow as ready. A non-standard name is a registration prerequisite, not a reason to set `workflow.event_trigger` false or leave `parameters.event_triggers[]` empty.
 
 Try this lookup once, in order:
 
-1. **Direct HTTP (preferred):**
+1. **MCP (preferred):** `mcp__zuora-mcp__manage_event_triggers` with `operation: list_event_triggers` (filter `eventTypeName` and/or paginate with `start`/`limit`). Use `get_event_trigger` when you already have an id. Optionally list scheduled events via credential-backed HTTP or `ask_zuora` if the name might be a scheduled event.
+2. **HTTP fallback** (only if MCP event tools are unavailable):
 
  ```bash
  curl -sS "$ZUORA_BASE_URL/events/event-triggers" \
@@ -354,15 +355,12 @@ Try this lookup once, in order:
 
  Both endpoints are paginated (`body.next`); follow cursors until you exhaust the list or confirm the event name.
 
-2. **MCP fallback:** call `mcp__zuora-mcp__ask_zuora` with prompt: `List event triggers from /events/event-triggers and tell me whether an event named "<name>" is registered. Also list event triggers from /events/scheduled-events.`
-3. If the event exists, proceed.
-4. If the event is NOT registered (or the list is empty), tell the user the event must be registered first, and offer:
- - Manual: Settings -> Notifications -> Custom Events.
- - API: `POST /events/event-triggers` with `{baseObject, condition, eventType: {name, displayName, description}}`.
- - Alternative design: switch to `callout_trigger` and configure a standard Zuora Notification to hit the workflow's callout URL — this avoids needing a custom event.
-5. If both channels fail (no credentials in env AND MCP unavailable), the linter will surface `W121` for the unconfirmed event name; carry on but flag the warning to the user.
+3. If the event exists, proceed with that exact registered name.
+4. If the event is **not** registered, **do not** rely only on soft linter `W121`. Hand off to `/zuora-event-notification-design` / `/zuora-event-notification-build` to register the custom event (include callout/notification in that plan only when needed), or propose `manage_event_triggers` `create_event_trigger` with **STOP_AND_CONFIRM** before any create/update. Prefer MCP create over Settings UI or raw `POST /events/event-triggers`.
+5. Switch to `callout_trigger` + Notification → workflow URL **only** when the user explicitly wants inbound HTTP to the workflow callout URL — not as the default for missing custom events.
+6. If MCP and HTTP both fail (tools/credentials unavailable), the linter will surface `W121`; emit with a clear warning and tell the user registration is still required.
 
-This step is OPTIONAL by design — never block emission if neither channel can reach the tenant.
+Never invent REST for event triggers / callout templates / notification definitions when the MCP tools above are available.
 
 ### Step 3d: Static data accessibility check
 
@@ -520,9 +518,11 @@ Hand off with:
 
 **Import-only dry-run** (no test run): use verify with immediate delete, or manually:
 
-1. `mcp__zuora-mcp__manage_workflows` → `import_workflow` with `name` prefixed `lint-dryrun-`.
+1. `mcp__zuora-mcp__manage_workflows` → `import_workflow` with `name` prefixed `lint-dryrun-` (leave inactive; do not call `update_workflow` to activate).
 2. On failure, fix the plan and rebuild (same as verify Step 6).
 3. `delete_workflow` to clean up.
+
+**Promote a new version onto an existing definition** (not a dry-run): prefer `import_workflow_version` with `activate: true`. If the version is still inactive, call `update_workflow` with `data.active_workflow_version_id` set to `newVersionId` — do not ask the user to flip Active in the UI. Full contract: `references/workflow-patterns.md` → **Activate imported version**.
 
 Note: import always **persists** the workflow — there is no validate-only endpoint.
 
@@ -536,8 +536,8 @@ In addition to the workflow JSON, generate as appropriate:
 
 ### Step 8: Suggest next steps
 
-- **Sandbox verify (recommended):** `/zuora-workflow-verify` with the linted `.workflow.json` and `.plan.json` — import, test-run, poll, auto-fix loop.
-- Production promotion: re-export the verified sandbox workflow and re-import into production.
+- **Sandbox verify (recommended):** `/zuora-workflow-verify` with the linted `.workflow.json` and `.plan.json` — import, activate, test-run, poll, auto-fix loop.
+- Production promotion: re-export the verified sandbox workflow and re-import into production (prefer `import_workflow_version` + `activate: true` onto the existing definition; otherwise `update_workflow` + `active_workflow_version_id`).
 - Run `/zuora-validate` on any generated callout handler code.
 
 When the user asked to test in sandbox or MCP is available, invoke `zuora-workflow-verify` in the same session instead of only listing manual next steps. Verify still requires explicit user confirmation before any import or test run.

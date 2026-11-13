@@ -138,7 +138,7 @@ This is the authoritative cheat-sheet for filling out the `workflow.*` envelope.
 | `description` | Free text describing this version | `""` | Should differ from `workflow_definition.description`. |
 | `data` | Always `{}` `[lint E116]` | `{}` | Set at runtime by `workflow instance data seeding`. |
 | `type` | Always `"Workflow::Setup"` `[lint E117]` | `"Workflow::Setup"` | `Workflow import` overrides anyway. |
-| `status` | Always `"Inactive"` on import `[lint E118]` | `"Inactive"` | Use `activate_version: true` on import to flip to Active. |
+| `status` | Always `"Inactive"` on import `[lint E118]` | `"Inactive"` | Do not put `"Active"` in the import JSON. Activate via MCP after import — see **Activate imported version** in `workflow-patterns.md` (`import_workflow_version` + `activate: true`, or `update_workflow` + `active_workflow_version_id`). |
 | `css` | Constant | `{"top":"40px","left":"35px"}` | DB default; placement on canvas. |
 | `priority` | Default `"Medium"`. Use `"High"` for time-critical event workflows. | `"Medium"` | Validated by Workflow. |
 | `delete_ttl` | Default `30` (Sandbox) / `45` (Production). | `30` | Days of retention for completed instances. Workflow validates 0 <= delete_ttl <= retention. |

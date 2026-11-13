@@ -1,5 +1,5 @@
 ---
-description: Generate Zuora CPQ Quote Studio or CPQ X LWC headless/sidebar components in a Salesforce DX repo.
+description: Generate Zuora Quote Studio or CPQ X LWC headless/sidebar components in a Salesforce DX repo.
 ---
 
 # /zuora-cpq-js-build

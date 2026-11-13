@@ -1,0 +1,386 @@
+{
+  "errors": {
+    "cases": [
+      {
+        "migration_note": "All three routes return an empty list for no results; no error handling change is needed for the not-found case on a list operation.",
+        "situation": "not_found",
+        "v1_rest": "A list operation returns an empty documents array when no records match; it does not return 404.",
+        "v2": "A list operation returns an empty data array when no records match; it does not return 404."
+      },
+      {
+        "migration_note": "Both public routes return 400 for invalid filter parameters. The error body shape changes from the v2 structure. Update filter expressions to use the target route's field names and allowed operators.",
+        "situation": "invalid_filter_or_enum",
+        "v1_rest": "400, body { processId, requestId, reasons[], success }; the v1 billing-documents operation accepts only a fixed set of filter parameters (accountId, accountNumber, documentDate, status).",
+        "v2": "400, type bad_request, code invalid_parameter, parameter filter[]; body includes the invalid field name or value."
+      },
+      {
+        "migration_note": "Both v2 and the public Object Query route use page size bounds 1-99. Rename page_size to pageSize; a value from 1 to 99 carries over unchanged, and a literal outside 1 to 99 is clamped to the nearest bound and reported. An invalid cursor returns 500 instead of 400 on the public route (observed). The v1 route uses offset paging; update the paging logic if using v1.",
+        "situation": "invalid_page_size_or_cursor",
+        "v1_rest": "400, body { processId, requestId, reasons[], success }; the v1 billing-documents operation uses page/pageSize offset paging, not cursor paging.",
+        "v2": "400, type bad_request, errors[0].parameter page_size; raised by request-schema validation when page_size is outside 1-99 or the cursor is malformed"
+      },
+      {
+        "migration_note": "v2 does not return 400 for non-hex ID values in list filter parameters; the list returns no matching rows. The public route behaves the same way for identifier filters. No error-handling change is needed.",
+        "situation": "malformed_identifier",
+        "v1_rest": "not documented",
+        "v2": "v2 list filters do not validate identifier format; the filter parser rejects only invalid filter syntax and invalid enum values, not non-hex ID values; a filter with a non-hex ID value is passed through and returns an empty data array."
+      },
+      {
+        "migration_note": "The public Object Query route returns 400 for a missing token and 401 for an invalid token, not always 401 as v2 did. Ensure your OAuth bearer token is present and valid, and that the requesting user has permission to read invoices.",
+        "situation": "authorization_failure",
+        "v1_rest": "401 for missing or invalid credentials; 403, body { code: integer, message: string } for permission errors.",
+        "v2": "401, type unauthorized, empty errors array when the bearer token is missing or invalid."
+      },
+      {
+        "migration_note": "The retryable flag in the v2 response body must not be used as a retry signal; v2 always sets it to false for Object Query errors. Implement retry logic based on the HTTP status code; retry on 429 and 5xx and respect any Retry-After header.",
+        "situation": "server_error_retry",
+        "v1_rest": "not documented",
+        "v2": "500, type internal_server_error, retryable false; upstream Object Query failures produce a v2 500 response with retryable set to false"
+      }
+    ],
+    "route": {
+      "body": "{ processId, requestId, reasons[]: { code, message }, success }",
+      "retry_signal": "not documented"
+    },
+    "v2": {
+      "body": "{ type, retryable, errors[]: { code, message, parameter } }",
+      "retry_signal": "retryable flag in the response body; always false for Object Query errors"
+    }
+  },
+  "id": "invoices.list",
+  "request": [
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "filter[]"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "sort[]"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "page_size"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "cursor"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "expand[]"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "<object>.fields[] (invoice.fields[] etc.)"
+    }
+  ],
+  "response": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].id",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "created_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "updated_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "created_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "updated_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "invoice_number",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "posted_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "state_transitions.posted_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].status",
+        "public_type": "string",
+        "transform": "Map Draft→draft, Posted→posted, Canceled→canceled, Error→failed; omit other values"
+      },
+      "v2": "state",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].accountId",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "account_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "account",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "items",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].amount",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "total",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "subtotal",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "tax",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].balance",
+        "public_type": "number",
+        "transform": "rename"
+      },
+      "v2": "remaining_balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].balance",
+        "public_type": "number",
+        "transform": "none"
+      },
+      "v2": "balance",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].documentDate",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "document_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "due_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "payment_terms",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "bill_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "amount_paid",
+      "v2_type": "number"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "sold_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "billing_document_settings.sequence_set_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "billing_document_settings.template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[].currency",
+        "public_type": "string",
+        "transform": "none"
+      },
+      "v2": "currency",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "bill_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "sold_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "next_page",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "not_on_route",
+      "pointer": "See public_oq route file for this mapping.",
+      "v2": "data",
+      "v2_type": "array"
+    },
+    {
+      "computed_from": [
+        "remaining_balance",
+        "state"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "If remaining_balance is non-nil and state is present, paid = remaining_balance === 0 && Status === \"Posted\" (the public Status value; v2 state posted and open both map to it); otherwise omit"
+      },
+      "v2": "paid"
+    },
+    {
+      "computed_from": [
+        "due_date",
+        "remaining_balance",
+        "state"
+      ],
+      "disposition": "confirmed",
+      "target": {
+        "transform": "When due_date is set and paid is defined, past_due = new Date(due_date) < current time of the system that evaluates it && !paid; otherwise omit. Recompute paid from the balance and the Status value using the paid transformation. Note: clock differences between systems can change the result near the due date."
+      },
+      "v2": "past_due"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "custom_objects"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "account_number"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "pay"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "transfer_to_accounting"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "documents[]",
+        "public_type": "object",
+        "transform": "For each row of `documents[]` in the successful JSON response (keep only the invoice rows), build the `custom_fields` object. Always build the object: it is `{}` when the row has no custom fields. Use the `customFields` array when the row has one, otherwise the `custom_fields` array; turn each `{key, value, type}` entry into `key: value` (when a key appears more than once, the last entry wins). Then convert `long` and `number` values to numbers, convert `boolean` values to true or false, and leave other types unchanged; null values stay null. If the row has neither array, collect every property whose name ends in `__c` into the object; an empty array gives `{}` and the `__c` properties are then not used. Include `custom_fields` only when it was requested."
+      },
+      "v2": "custom_fields",
+      "v2_type": "object"
+    }
+  ],
+  "route": "v1_rest",
+  "steps": [
+    {
+      "method": "GET",
+      "operation": "Get_BillingDocuments",
+      "path": "/v1/billing-documents",
+      "step": "s1"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "fields_not_available",
+      "note": "The public APIs do not return this value. The public APIs do not return a cancellation timestamp for invoices. The public OQ invoice schema and the v1 Get_BillingDocuments operation do not include an invoice cancellation timestamp field. There is no public equivalent for this field. The underlying CancelledOn field is not reachable through any documented public invoice list operation. No vetted GraphQL example is available.",
+      "v2": "state_transitions.canceled_time"
+    },
+    {
+      "kind": "not_supported_public",
+      "note": "This is not supported by the public APIs. This is an internal v2 option that is not part of the HTTP request interface; callers cannot set it. Nothing to migrate. Nothing to migrate; use the filter[] query parameter to filter invoices. No vetted GraphQL example is available.",
+      "v2": "(handler option) oqFilters"
+    },
+    {
+      "kind": "header_not_supported",
+      "note": "The public APIs do not accept this header. The v2 API accepted the x-custom-auth and zuora-cache-enabled request headers; neither header has a public equivalent. The invoice list route did not wire a cache handler, so zuora-cache-enabled had no effect on this operation. The public APIs authenticate via a bearer token in the Authorization header and optionally accept zuora-entity-ids to scope the request to an entity and zuora-track-id for request tracing. Send the OAuth bearer token in the Authorization header. Pass zuora-entity-ids to scope the request to a specific entity, or zuora-track-id for request tracing. Do not send zuora-cache-enabled; the public APIs have no such header. No vetted GraphQL example is available.",
+      "v2": "headers"
+    }
+  ]
+}

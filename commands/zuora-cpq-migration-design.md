@@ -1,5 +1,5 @@
 ---
-description: Map legacy Zuora CPQ Component Library or Apex customizations to Quote Studio JavaScript.
+description: Map legacy Zuora CPQ Visualforce, Component Library, and controller-extension customizations to Quote Studio JavaScript.
 ---
 
 # /zuora-cpq-migration-design

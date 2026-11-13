@@ -1,6 +1,6 @@
 # Zuora Workflow events reference
 
-How `event_trigger` workflows are wired, what event names are accepted, and which Zuora REST endpoints inform the composer's choices.
+How `event_trigger` workflows are wired, what event names are accepted, and how agents discover or register custom events via Zuora MCP.
 
 This document is the authoritative ground truth for every key under `workflow.parameters.event_triggers` and `workflow.parameters.event_parameters`. The structured catalog lives in `workflow-enums.json` (`standard_events`, `event_parameters_schema`); this Markdown explains the *why* and shows derivation patterns.
 
@@ -45,94 +45,99 @@ Natural-language requests rarely match canonical names exactly. Always check `wo
 
 If the user's event name does not appear in either the standard catalog or the corrections table, treat it as a **custom event** (see below).
 
-## Two REST endpoints fed into the picker
+## Discovering events and merge fields (MCP first)
 
-The settings React component (`WorkflowSettingsForm`) calls two endpoints to populate the event UI. Both are reachable from the agent via either a direct `curl` call (credentials live in `~/.claude/settings.json -> env` as `ZUORA_BASE_URL`, `ZUORA_CLIENT_ID`, `ZUORA_CLIENT_SECRET`, and Claude Code injects them into every `Bash` invocation) or `mcp__zuora-mcp__ask_zuora` as a fallback. One-time OAuth exchange per session:
+Prefer Zuora MCP over Settings UI or raw `curl` for Events / Notifications operations that MCP covers.
 
-```bash
-ACCESS_TOKEN=$(curl -sS -X POST "$ZUORA_BASE_URL/oauth/token" \
- --data-urlencode "grant_type=client_credentials" \
- --data-urlencode "client_id=$ZUORA_CLIENT_ID" \
- --data-urlencode "client_secret=$ZUORA_CLIENT_SECRET" \
- | jq -r '.access_token')
+### List / get custom event triggers
+
+```
+Tool: manage_event_triggers
+operation: list_event_triggers
+# optional filters: baseObject, eventTypeName, active, start, limit
+
+Tool: manage_event_triggers
+operation: get_event_trigger
+eventTriggerId: <uuid>
 ```
 
-### 1. List available events
+Reuse the returned `eventType.name` (or create payload's `eventTypeName`) as the exact string in `parameters.event_triggers[]`.
 
-```bash
-curl -sS "$ZUORA_BASE_URL/events/event-triggers" \
- -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.data[] |.eventType.name'
-curl -sS "$ZUORA_BASE_URL/events/scheduled-events" \
- -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.data[] |.name'
+Scheduled events remain discoverable via `GET /events/scheduled-events` (or `ask_zuora` as a fallback) when the user asks for a scheduled/custom schedule event that is not a custom event trigger.
+
+### Merge-field selections for `event_parameters`
+
+When composing `<Object.Field>` tokens for `event_parameters[*].params[*].value`, fetch:
+
+```
+GET /notifications/email-templates/info/selections?category=<category>
 ```
 
-Both are paginated (cursor in `body.next`). The settings UI concatenates them with the hard-coded `defaultEvents` and presents the combined list in alphabetical order.
+via credential-backed `curl` or `mcp__zuora-mcp__ask_zuora`. Category rules:
 
-Reference:.
+- Standard events (`event.id` length < 5): `category = event.id`
+- Custom events: `category = ${event.namespace}:${event.name}` (e.g. `user.notification:MyCustomEvent`)
 
-### 2. List available fields for one event
+Field filtering:
 
-```bash
-curl -sS "$ZUORA_BASE_URL/notifications/email-templates/info/selections?category=<category>" \
- -H "Authorization: Bearer $ACCESS_TOKEN" | jq
-```
-
-Where `<category>` derives from the event metadata:
-
-- If `event.id.length < 5` chars (i.e., a standard event id like `1410`): `category = event.id`.
-- Otherwise (custom events): `category = ${event.namespace}:${event.name}` (e.g., `user.notification:MyCustomEvent`).
-
-The response is a hash of object-name -> array-of-field-paths. The settings UI flattens these into `<...>` placeholder strings (e.g., `<BillingRun.Id>`, `<BillingRun.PostedDate>`) for the `value` field of `event_parameters[*].params[*]`.
-
-Reference: and the Workflow settings UI.
-
-#### Field filtering rules
-
-After fetching field options for an event:
-
-- For **Standard** events (those in the `defaultEvents` list): exclude any returned field containing `DataSource`.
-- For **Custom** events: include only fields containing `DataSource` OR matching `.${selBillEvent.baseObject}.`.
-
-These rules come from the Workflow settings UI.
+- **Standard**: exclude fields containing `DataSource`
+- **Custom**: keep fields containing `DataSource` OR matching `.${baseObject}.`
 
 ## Custom events
 
-If the user references an event name not in the standard catalog and not in the corrections table, treat the name as a tenant-custom event candidate. The workflow envelope is still event-triggered: set `workflow.event_trigger: true`, use the exact registered custom event `name` in `parameters.event_triggers[]`, and create a matching `parameters.event_parameters[*].eventName` entry. The workflow will not trigger until the event is registered. Three options:
+If the user references an event name not in the standard catalog and not in the corrections table, treat the name as a tenant-custom event candidate. Keep `workflow.event_trigger: true`, put the **exact registered** custom event name in `parameters.event_triggers[]`, and create a matching `parameters.event_parameters[*].eventName` entry.
 
-1. **Manual registration** (recommended for one-off setups): Settings -> Notifications -> Custom Events in the Zuora UI.
-2. **API registration** via `POST /events/event-triggers` with payload:
- ```json
- {
- "active": true,
- "baseObject": "Invoice",
- "condition": "Invoice.Status == 'Posted'",
- "eventType": {
- "name": "MyCustomInvoiceEvent",
- "displayName": "My Custom Invoice Event",
- "description": "Triggered when an invoice is posted with custom condition"
- }
- }
- ```
- Reference: and `Workflow#create_custom_event_trigger`.
-3. **Switch to a callout trigger** (often simpler): set `callout_trigger: true` instead of `event_trigger: true` and configure the corresponding standard Notification (Settings -> Notifications) to send a callout to the workflow's URL. This avoids needing to register a custom event.
+**Default trigger style for ambiguous "custom event/callout" asks:** `event_trigger` (workflow listens to the registered custom event). Prefer creating/registering the custom event via MCP over switching to `callout_trigger`, unless the user explicitly wants inbound HTTP to the workflow callout URL.
+
+### Preferred path — MCP (`manage_event_triggers`)
+
+1. **List/match** existing triggers (`list_event_triggers` with `eventTypeName` / `baseObject`).
+2. If missing, **propose create** and wait for explicit user confirmation before write:
+   - `create_event_trigger` requires `active`, `baseObject`, `condition` (JEXL), `eventTypeName`, `eventTypeDisplayName`
+   - Example condition: `changeType == 'UPDATE' && Invoice.Status == 'Posted' && Invoice.Status_old != 'Posted'`
+3. Capture `eventTypeName` for workflow `event_triggers[]` and for downstream callout/notification binding.
+4. Updates: `update_event_trigger` (id required; `baseObject` / `eventTypeName` immutable).
+
+To **register or update** custom events, callout templates, and notification definitions, use `/zuora-event-notification-design` then `/zuora-event-notification-build` (confirm before writes). Those skills own:
+
+| Step | MCP tool | Role |
+|---|---|---|
+| 1 | `manage_event_triggers` | Register/list/update custom event |
+| 2 | `manage_callout_templates` | HTTPS action (URL/method/headers/auth); bind `eventTypeName` — optional |
+| 3 | `manage_notification_definitions` | Bind event → `calloutTemplateIds`; set `calloutActive=true` — optional |
+
+Workflow composition (listening with `event_trigger: true` and exact `event_triggers[]` name) stays in `/zuora-workflow-design` / `/zuora-workflow-build`. Hand off to event-notification skills when a custom event must be created/updated or when callout/notification resources are needed.
+
+### When callout templates + notification definitions are needed
+
+Use them when Zuora must **fire an HTTPS callout** (or email) when the event occurs — for example notifying an external system, or posting into a workflow's **callout URL**.
+
+They are **not** required for a pure `event_trigger` workflow that only listens to Kafka business events. Do not invent a Notification → Callout bridge when a standard or registered custom event already drives the workflow.
+
+### Callout-trigger alternative (explicit only)
+
+Switch to `callout_trigger: true` (instead of / in addition to event listen) **only** when the user wants external or Notification POSTs into the workflow callout URL. Then configure a notification definition whose callout template targets that URL. Still prefer MCP (`manage_callout_templates` + `manage_notification_definitions`) over UI/curl.
+
+UI/curl remain last-resort fallbacks when MCP tools are unavailable — not the primary guidance.
 
 ## Composer recipe for an event-triggered workflow
 
 For each event the user wants to react to:
 
 1. **Resolve the canonical or registered custom name.** Look up the user's intent in `standard_events.$canonical_name_corrections`, then in `standard_events.events`. If no match, treat the user-provided string as a custom event name and follow "Custom events" above; do not disable the event trigger solely because the name is tenant-custom.
-2. **Add to `parameters.event_triggers[]`.** Append the canonical standard name or exact registered custom event name string. Multiple events can share one workflow.
-3. **Build the matching `parameters.event_parameters[*]` entry.** Shape:
+2. **Preflight custom names** via `manage_event_triggers` `list`/`get` before emitting. If missing, propose create (confirm) rather than only relying on linter `W121`.
+3. **Add to `parameters.event_triggers[]`.** Append the canonical standard name or exact registered custom event name string. Multiple events can share one workflow.
+4. **Build the matching `parameters.event_parameters[*]` entry.** Shape:
  ```json
  {
  "eventName": "<canonical name>",
  "params": [
- { "object": "<baseObject>", "key": "Id", "value": "<<baseObject>.Id>" }
+   { "object": "<baseObject>", "key": "Id", "value": "<<baseObject>.Id>" }
  ]
  }
  ```
  Add one `params[]` row per field that downstream tasks reference. For most workflows, binding `Id` is sufficient because subsequent `Query` / `Export` tasks use it in `where_clause`.
-4. **Verify task references match.** Every `{{ Data.<Object>.<Key> }}` in downstream tasks must correspond to an `event_parameters[*].params[]` row with matching `object` and `key`.
+5. **Verify task references match.** Every `{{ Data.<Object>.<Key> }}` in downstream tasks must correspond to an `event_parameters[*].params[]` row with matching `object` and `key`.
 
 ### Worked example: react to bill run completion
 
@@ -168,13 +173,13 @@ User's natural-language request: "Run after a bill run completes; export the inv
 
 A downstream `Export` task can then use `where_clause: "Invoice.SourceId = '{{ Data.BillingRun.ID }}'"`.
 
-**Provenance note.** `<BillRun.ID>` is not a hard-coded special token; it is a merge-field string that the UI picker obtains from `GET /notifications/email-templates/info/selections?category=<category>` (see `get_custom_event_fields` in `Workflow`). The `object` is `BillingRun` (Data scope) while the merge-field path prefix is `BillRun` (notifications payload). Before emitting this `value`, confirm the field via `curl` against the Notifications API (credentials are in `~/.claude/settings.json -> env`) or via `mcp__zuora-mcp__ask_zuora` — whichever channel the session has access to. Otherwise accept the linter's `W179` warning that the token is statically unverifiable. The linter also cross-checks that `BaseObject` (`BillingRun` here) matches the event's declared `baseObject` (`$event_base_objects.events["BillingRunCompletion"] = "BillingRun"`) or that the token prefix matches `$event_payload_path_prefix` (`BillRun`); a mismatch raises `E177`.
+**Provenance note.** `<BillRun.ID>` is not a hard-coded special token; it is a merge-field string from the selections endpoint above. The `object` is `BillingRun` (Data scope) while the merge-field path prefix is `BillRun` (notifications payload). Confirm the field before emitting, or accept linter `W179`. The linter also cross-checks `BaseObject` against `$event_base_objects` / `$event_payload_path_prefix` (`E177`).
 
-Similarly, the downstream `Export.parameters.where_clause` must use **`Invoice.SourceId`**, not `Invoice.BillRunId`. `BillRunId` exists on Invoice but is **not filterable** in Object Query/Export (`filterable=false` in describe). `SourceId` is the filterable run-scoping field. Confirm via `curl $ZUORA_BASE_URL/v1/describe/Invoice` (or MCP `ask_zuora`); both fields are listed in `references/zuora-standard-fields.json` under `Invoice.fields`. Linter `W197` warns on `BillRunId` in `where_clause`.
+Similarly, the downstream `Export.parameters.where_clause` must use **`Invoice.SourceId`**, not `Invoice.BillRunId`. Confirm via describe or MCP; linter `W197` warns on `BillRunId` in `where_clause`.
 
 ### Payment run completion → bulk payment export
 
-`PaymentRunCompletion` follows the same volume rule as bill runs: payment runs routinely create more than 2000 payments, so use **`Export`**, not **`Query`**, for the parent `Payment` collection. Bind the run id from `event_parameters` or from `Data.PaymentRun.Id` when the workflow created the run, then scope the export with a run filter confirmed via describe (for example a `PaymentRunId`-style field if present on the tenant's `Payment` object). Follow with `Iterate` over the export file holder. Per-payment child reads inside the For Each branch may still use `Query` when each child set is small.
+`PaymentRunCompletion` follows the same volume rule as bill runs: payment runs routinely create more than 2000 payments, so use **`Export`**, not **`Query`**, for the parent `Payment` collection. Bind the run id from `event_parameters` or from `Data.PaymentRun.Id` when the workflow created the run, then scope the export with a run filter confirmed via describe. Follow with `Iterate` over the export file holder. Per-payment child reads inside the For Each branch may still use `Query` when each child set is small.
 
 ## Pitfalls the linter catches
 
@@ -183,10 +188,10 @@ Similarly, the downstream `Export.parameters.where_clause` must use **`Invoice.S
 | `E007` | `event_trigger == true` but `parameters.event_triggers[]` is empty or missing |
 | `E122` | `event_trigger == true` but `parameters.event_parameters[]` is empty, missing, or has at least one entry whose `eventName` is not in `event_triggers[]` |
 | `E120` | `parameters.event_parameters[*]` shape is wrong (missing `eventName`, missing/non-array `params`, or `params[*]` missing `object`/`key`/`value`) |
-| `W121` | `event_triggers[]` contains a name that is not in the standard catalog and the MCP preflight (`GET /events/event-triggers`) did not confirm registration |
+| `W121` | `event_triggers[]` contains a name that is not in the standard catalog and MCP preflight (`manage_event_triggers` / event-triggers list) did not confirm registration |
 | `W123` | `event_triggers[]` or `event_parameters[]` is populated but `workflow.event_trigger` is not `true`, so the configured event will not launch the workflow |
 | `E177` | `event_parameters[*].params[*].value` uses the form `<BaseObject.Field>` where `BaseObject` does not match the event's declared `baseObject` (from `$event_base_objects.events`) and is not prefixed by `Event.` / `DataSource.` |
-| `W179` | `event_parameters[*].params[*].value` is a `<...>` token that is neither a known special token (`$event_special_tokens.tokens`) nor a statically-verified `<BaseObject.Field>`; prompts the composer to fetch `GET /notifications/email-templates/info/selections?category=<category>` via MCP before emission |
+| `W179` | `event_parameters[*].params[*].value` is a `<...>` token that is neither a known special token (`$event_special_tokens.tokens`) nor a statically-verified `<BaseObject.Field>`; prompts the composer to fetch merge-field selections before emission |
 
 ## Related files
 
@@ -194,4 +199,4 @@ Similarly, the downstream `Export.parameters.where_clause` must use **`Invoice.S
 - `zuora-standard-fields.json` -> `$event_base_objects.events`, `$event_special_tokens.tokens`
 - `workflow-triggers-and-linkages.md` -> "Workflow-level field derivation by trigger style"
 - `workflow-skeleton.json` -> default `parameters` shape with the always-present keys
-- `Workflow UI` -> rules `E007`, `E120`, `E122`, `W121`, `W123`, `E177`, `W179`
+- Skills: `zuora-event-notification-design`, `zuora-event-notification-build` (events/callouts/notifications); `zuora-workflow-*` (workflow composition)

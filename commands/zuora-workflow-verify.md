@@ -12,6 +12,6 @@ Requires a lint-clean `.workflow.json`, matching `.plan.json`, and MCP access to
 node ${CLAUDE_PLUGIN_ROOT}/scripts/lint-workflow-json.js output/<name>.workflow.json
 ```
 
-Then import → `run_workflow` → poll `get_run_status` → fix plan → rebuild → relint → retry (default max 3 attempts).
+Then import → activate (`import_workflow_version` + `activate: true`, or `update_workflow` + `active_workflow_version_id`) → `run_workflow` → poll `get_run_status` → fix plan → rebuild → relint → retry (default max 3 attempts).
 
 For **event-triggered BATCH** workflows, the skill auto-discovers event context via `query_objects`, adds mirror `input_fields` to the plan when needed, and passes discovered ids at run time. Event-only (`REALTIME`/`UIACTION`) workflows stop at import/lint unless redesigned for testing.

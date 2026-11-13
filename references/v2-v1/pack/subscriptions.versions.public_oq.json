@@ -1,0 +1,687 @@
+{
+  "errors": {
+    "cases": [
+      {
+        "migration_note": "v2 returns 404 when no versions exist; the public route returns an empty data array instead. Update error handling to check for an empty array rather than a 404 status code for this case.",
+        "public_oq": "an empty data array is returned when no versions match the filter; when a subscription with no versions is queried the result is an empty data array, not a 404",
+        "situation": "not_found",
+        "v2": "404 type=not_found, code=resource_not_found, parameter=id when the subscription_id matches no subscription record or the subscription has no versions"
+      },
+      {
+        "migration_note": "v2 returns a structured errors array; the Object Query route returns 400 with {\"error\":{\"code\":<number>,\"message\":\"<string>\"}}; update error parsing to use the new body shape.",
+        "public_oq": "400 with body {\"error\":{\"code\":<number>,\"message\":\"<string>\"}}",
+        "situation": "invalid_filter_or_enum",
+        "v2": "400 type=bad_request, code=invalid_parameter, parameter=filter[] when a filter value fails enum mapping or filter syntax is invalid"
+      },
+      {
+        "migration_note": "Both v2 and the public Object Query route accept pageSize 1-99 (default 10); the parameter is renamed from page_size to pageSize. The value carries over unchanged. Update cursor error handling: an invalid cursor returns 500 on the public route (observed).",
+        "public_oq": "400 with body {\"error\":{\"code\":<number>,\"message\":\"<string>\"}} when pageSize is outside 1-99; an invalid cursor answers 500 (observed) with {\"errors\":[{\"message\":\"<string>\"}]}",
+        "situation": "invalid_page_size_or_cursor",
+        "v2": "400, type bad_request, errors[0].parameter page_size; raised by request-schema validation when page_size is outside 1-99 or the cursor is malformed"
+      },
+      {
+        "migration_note": "Both v2 and the public route treat non-32-hex values as subscription numbers. Expect an empty data array if the value matches neither a record ID nor a subscription number.",
+        "public_oq": "not documented; a non-32-hex value in filter[]=name.EQ:<value> is passed through; if no record matches the result is an empty data array",
+        "situation": "malformed_identifier",
+        "v2": "A non-32-hex subscription_id is treated as a subscription number and routed to a name lookup for the versions query, not rejected; no 400 is returned for a malformed identifier"
+      },
+      {
+        "migration_note": "Update error detection to check HTTP status code. A missing token returns 400, an invalid token returns 401, and a token without the required scope returns 403.",
+        "public_oq": "400 {\"message\":\"No bearer token\"} when the Authorization header is absent; 401 {\"message\":\"Authentication error\"} when the token is invalid; 403 with {\"error\":{\"code\":<number>,\"message\":\"<string>\"}} when the token lacks the required scope",
+        "situation": "authorization_failure",
+        "v2": "401 type=unauthorized when the OQ upstream rejects the request; the v2 error handler maps only HTTP 401 to unauthorized and does not produce 403 forbidden on the Object Query path"
+      },
+      {
+        "migration_note": "v2 retryable is always false; do not use it as a retry signal. Retry on 429 and 5xx based on HTTP status code. A 429 response is not documented but may occur; keep retrying on 429 and 5xx as you do today. Consider idempotency when retrying GET requests.",
+        "public_oq": "not documented; a 429 response is not documented either",
+        "situation": "server_error_retry",
+        "v2": "500, type internal_server_error, retryable false; upstream Object Query failures are translated by the error handler"
+      }
+    ],
+    "route": {
+      "body": "4xx and 5xx errors are wrapped as {\"error\":{\"code\":<number>,\"message\":\"<string>\"}}. A missing bearer token answers 400 {\"message\":\"No bearer token\"}. An invalid token answers 401 {\"message\":\"Authentication error\"}. An invalid cursor answers 500 (observed) with {\"errors\":[{\"message\":\"<string>\"}]}. These status codes and shapes are observed; the API reference documents only selected 4xx and 500 responses.",
+      "retry_signal": "not documented"
+    },
+    "v2": {
+      "body": "{ type, retryable, errors: [ { code, message, parameter } ] } with HTTP status derived from the error type",
+      "retry_signal": "retryable flag in the response body; always false for Object Query errors"
+    }
+  },
+  "id": "subscriptions.versions",
+  "request": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "filter[]",
+        "step": "s1",
+        "transform": "If the value is a 32-character hexadecimal string, filter with id.EQ:<value>; otherwise filter with name.EQ:<value>; combine with any supplied filters"
+      },
+      "v2": "subscription_id (path)"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "filter[]",
+        "step": "s1",
+        "transform": "Translate v2 filter keys to the public OQ field names as documented in the filter and sort translation reference, section subscriptions-versions. Key mapping: id→Id, account_id→AccountId, contract_effective→ContractEffectiveDate, invoice_owner_account_id→InvoiceOwnerId, updated_time→UpdatedDate, subscription_number→Name, state→Status, start_date→TermStartDate, latest_version→IsLatestVersion, version→Version, end_date→TermEndDate. Field names are case-insensitive. Translate state enum values: draft→Draft, pending_activation→Pending Activation, pending_acceptance→Pending Acceptance, active→Active, expired→Expired, canceled→Cancelled, paused→Suspended. Identifier fields (id, account_id, invoice_owner_account_id) accept 32-character hexadecimal record IDs. Date fields (contract_effective, start_date, end_date) use YYYY-MM-DD. Timestamp fields (updated_time) use ISO 8601 format."
+      },
+      "v2": "filter[]"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "sort[]",
+        "step": "s1",
+        "transform": "Translate the v2 sort key to the public OQ field name using the same key mapping table as filter[] (see the filter and sort translation reference, section subscriptions-versions). Pass exactly one sort[] value; the value is the public field name followed by .asc or .desc. Default sort when no sort[] is supplied: version.desc. Field names are case-insensitive."
+      },
+      "v2": "sort[]"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "in": "query",
+        "param": "pageSize",
+        "step": "s1",
+        "transform": "Rename page_size to pageSize. The public pageSize parameter accepts 1 to 99 (default 10), the same range as v2 page_size. A value from 1 to 99 is passed through unchanged; a literal outside 1 to 99 is clamped to the nearest bound in the migrated code (the public route rejects it with HTTP 400, as v2 does) and the change is reported. Pass the nextPage value returned by the previous page unchanged as the cursor query parameter; only use cursors issued by this operation; an absent or null nextPage means there is no further page."
+      },
+      "v2": "page_size / cursor"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. When rateplans or other array expansions are requested, the public API returns only the first page of related records with no per-parent page size or cursor control. For per-parent paging of rate plans, use the rate plans list operation (GET /object-query/rate-plans) with a filter on the subscription identifier to retrieve those related records independently. No vetted GraphQL example is available."
+      },
+      "target": {
+        "in": "query",
+        "param": "expand[]",
+        "step": "s1",
+        "transform": "Translate expanded v2 relation names to the documented public REST expand[] values for /object-query/subscriptions (case-insensitive): subscription_plans → rateplans; bill_to → billtocontact. account, invoice_owner_account, and actions have no public REST expand for the versions endpoint (GraphQL-only; no vetted GraphQL example): do not pass these as expand[] values; see limitations. prepaid_balance and prepaid_balances are not expand values: prepaid balances are a separate resource (GET /object-query/prepaid-balances); see step s2. Per-parent paging of array results (rateplans) is not controllable via public REST."
+      },
+      "v2": "expand[]"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The public API behaves differently from v2 here. v2 narrows the upstream data fetch to only the requested fields before sending the query; the public OQ REST fields[] parameter narrows only the response output, not the upstream fetch. Supply subscription.fields[] with public OQ field names to project the response. For parity with v2 upstream data fetch narrowing, accept that the public REST fields[] parameter controls only the response output projection, not the upstream data retrieval. Object Query GraphQL (public, undocumented; evidence is source-observed) can provide parity; see the shared GraphQL parity reference entry GP-7."
+      },
+      "target": {
+        "in": "query",
+        "param": "fields[]",
+        "step": "s1",
+        "transform": "Translate requested v2 field names to public Object Query field names as described in the filter and sort translation reference, section subscriptions-versions. Use subscription.fields[] or subscriptions.fields[] for the root object; use rateplans.fields[] for expanded rate plans (subscription_plans.fields[] is silently ignored and the full record is returned); use account.fields[] for the expanded account. Output field order is not preserved."
+      },
+      "v2": "<object>.fields[] (subscription.fields[], subscription_plans.fields[], account.fields[], ...)"
+    }
+  ],
+  "response": [
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].id",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].name",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "subscription_number",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].status",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "Map Draft→draft, Pending Activation→pending_activation, Pending Acceptance→pending_acceptance, Active→active, Expired→expired, Cancelled→canceled, Suspended→paused; omit other values"
+      },
+      "v2": "state",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].version",
+        "public_type": "integer",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "version",
+      "v2_type": "integer"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].autoRenew",
+        "public_type": "boolean",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "auto_renew",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].initialTerm",
+        "public_type": "integer",
+        "step": "s1",
+        "transform": "Build term object from data[].initialTerm and data[].initialTermPeriodType; Day/Week/Month/Year→day/week/month/year; interval_count is count; type termed only when count and period are truthy, otherwise evergreen; omit when all inputs are falsy; start_date/end_date remain undefined"
+      },
+      "v2": "initial_term",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].currentTerm",
+        "public_type": "integer",
+        "step": "s1",
+        "transform": "Build term object from data[].currentTerm and data[].currentTermPeriodType; Day/Week/Month/Year→day/week/month/year; interval_count is count; type termed only when count and period are truthy, otherwise evergreen; omit when all inputs are falsy; include data[].termStartDate and data[].termEndDate and include those dates in the presence test"
+      },
+      "v2": "current_term",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].renewalTerm",
+        "public_type": "integer",
+        "step": "s1",
+        "transform": "Build term object from data[].renewalTerm and data[].renewalTermPeriodType; Day/Week/Month/Year→day/week/month/year; interval_count is count; type termed only when count and period are truthy, otherwise evergreen; omit when all inputs are falsy; when data[].renewalSetting is absent it defaults to renew-to-evergreen behavior, which forces the type to evergreen"
+      },
+      "v2": "renewal_term",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].subscriptionStartDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "start_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].subscriptionEndDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "end_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].notes",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "description",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].contractEffectiveDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "contract_effective",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].serviceActivationDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "service_activation",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].contractAcceptanceDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "customer_acceptance",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].isInvoiceSeparate",
+        "public_type": "boolean",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "invoice_separately",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].isLatestVersion",
+        "public_type": "boolean",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "latest_version",
+      "v2_type": "boolean"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].order.orderNumber",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "order_number",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].updatedById",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "updated_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].createdById",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "created_by_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].createdDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "created_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].updatedDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "updated_time",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].paymentTerm",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "payment_terms",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].billToContactId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "bill_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].soldToContactId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "sold_to_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].sequenceSetId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.sequence_set_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].invoiceTemplateId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "billing_document_settings.template_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. v1 REST contacts lack the audit fields created_by_id, updated_by_id, created_time, and updated_time. Object Query contacts include those audit fields. The remaining differences between the Object Query contact shape and the full v2 contact output are: v2's null custom-field handling, the other_phone_type enum mapping, and per-field projection semantics. Use the public contact fields available in the Object Query REST expansion for standard contact data. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].billToContact",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "bill_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The soldToContact expansion is not supported on the subscription versions endpoint. The subscription version record carries sold_to_id (the contact ID); the full contact object must be fetched separately. Additionally, the public contact object does not provide all 20 keys that v2 builds from the contact adapter, including audit fields (created_by_id, updated_by_id, created_time, updated_time) and other behavioral differences such as null custom-field handling and other_phone_type enum mapping. Fetch the sold-to contact by passing the sold_to_id value as the key to the public contact lookup operation (GET /object-query/contacts/{key}). The returned contact fields will differ from the full v2 contact shape. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].soldToContact",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "Adapt the expanded related object into the mapped v2 shape"
+      },
+      "v2": "sold_to",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related invoiceItems array with no per-parent page size or cursor control. v2 returns an object with a data array and an independent next_page cursor. To page through invoice items for this subscription independently, use the invoice items list operation (GET /object-query/invoice-items) with a filter on the subscription id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].invoiceItems",
+        "public_type": "array",
+        "step": "s1",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "invoice_items",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. Prepaid balances are not an expand[] value on the public subscription endpoint. They are a separate public resource available at GET /object-query/prepaid-balances (requires the prepaid feature). v2 read these through a secondary lookup using the subscription's originalId field. v1 REST does not expose a prepaid balance API. Call GET /object-query/prepaid-balances with filter origSubscriptionId.EQ:<originalId> where originalId is the subscription version's originalId field from step s1. When only the singular prepaid_balance shape is needed, adapt the returned rows into the flat validity-period-plus-transactions format. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data",
+        "public_type": "array",
+        "step": "s2",
+        "transform": "Call GET /object-query/prepaid-balances with filter origSubscriptionId.EQ:<originalId> where originalId comes from the subscription version's originalId field (step s1). Adapt each returned row into the flat singular prepaid_balance shape (validity-period fields with transactions). This step requires the prepaid feature to be enabled on the tenant. Paginate this collection independently using the nextPage cursor returned by the prepaid-balances operation."
+      },
+      "v2": "prepaid_balance",
+      "v2_type": "array"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. Prepaid balances are not an expand[] value on the public subscription endpoint. They are a separate public resource available at GET /object-query/prepaid-balances (requires the prepaid feature). v2 read these through a secondary lookup using the subscription's originalId field. v1 REST does not expose a prepaid balance API. Call GET /object-query/prepaid-balances with filter origSubscriptionId.EQ:<originalId> where originalId is the subscription version's originalId field from step s1. Adapt each returned row into the plural prepaid_balances shape (validity_periods array with transactions). No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data",
+        "public_type": "array",
+        "step": "s2",
+        "transform": "Call GET /object-query/prepaid-balances with filter origSubscriptionId.EQ:<originalId> where originalId comes from the subscription version's originalId field (step s1). Adapt each returned row into the plural prepaid_balances shape (validity_periods array with transactions). This step requires the prepaid feature to be enabled on the tenant. Paginate this collection independently using the nextPage cursor returned by the prepaid-balances operation."
+      },
+      "v2": "prepaid_balances",
+      "v2_type": "array"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].cMRR",
+        "public_type": "number",
+        "step": "s1",
+        "transform": "String(value) with default formatting (applied by the v2 response schema serialization); null/absent stays absent"
+      },
+      "v2": "contracted_mrr",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].currency",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "currency",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].cancelReason",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "cancel_reason",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].lastBookingDate",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "last_booking_date",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].accountId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "none"
+      },
+      "v2": "account_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The v2 versions endpoint supported an account expand. The public /object-query/subscriptions endpoint does not document an account expand for the versions endpoint (the account relation is GraphQL-only for version records). Fetch the account separately using GET /object-query/accounts/{key} with the accountId value from the subscription version record. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].account",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "There is no public REST expand for the creator account of a subscription version. The account field is not populated via expand[] on this endpoint. Fetch the account separately using its id from the accountId field."
+      },
+      "v2": "account",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].invoiceOwnerId",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "rename"
+      },
+      "v2": "invoice_owner_account_id",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The v2 versions endpoint supported an invoice_owner_account expand. The public /object-query/subscriptions endpoint does not document an invoiceowner expand for the versions endpoint (the invoiceOwner relation is GraphQL-only for version records). Fetch the invoice owner account separately using GET /object-query/accounts/{key} with the invoiceOwnerId value from the subscription version record. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].invoiceOwner",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "There is no public REST expand for the creator invoice owner account of a subscription version. The invoiceOwner field is not populated via expand[] on this endpoint. Fetch the invoice owner account separately using its id from the invoiceOwnerId field."
+      },
+      "v2": "invoice_owner_account",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "differs_from_v2",
+        "note": "The public API behaves differently from v2 here. The v2 versions endpoint supported an actions expand that returned order actions. The public /object-query/subscriptions endpoint does not document an actions expand for version records (GraphQL-only; no vetted GraphQL example). Retrieve order actions separately using the orders or order actions list operation filtered by the subscription ID. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].order.orderActions",
+        "public_type": "array",
+        "step": "s1",
+        "transform": "There is no public REST expand for order actions of a subscription version. The orderActions field is not populated via expand[] on this endpoint. To retrieve order actions for a subscription, use the orders or order actions list operation filtered by the relevant subscription ID."
+      },
+      "v2": "actions",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[].order",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "Adapt the expanded related object into the mapped v2 shape; request expand[]=order to populate this field"
+      },
+      "v2": "order",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "limitation",
+      "limitation": {
+        "kind": "paging_not_controllable",
+        "note": "The public API does not let you control paging for this part of the response. The public API returns the related ratePlans array with no per-parent page size or cursor control. v2 returns an object with a data array and an independent next_page cursor. To page through rate plans independently, use the rate plans list operation (GET /object-query/rate-plans) with a filter on the subscription id. No vetted GraphQL example is available."
+      },
+      "target": {
+        "field": "data[].ratePlans",
+        "public_type": "array",
+        "step": "s1",
+        "transform": "Adapt related rows and wrap as {data}; obtain related continuation independently"
+      },
+      "v2": "subscription_plans",
+      "v2_type": "object"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "nextPage",
+        "public_type": "string",
+        "step": "s1",
+        "transform": "Read the public nextPage value; pass it unchanged as the cursor parameter of the same operation; absent or null means there is no further page"
+      },
+      "v2": "next_page",
+      "v2_type": "string"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data",
+        "public_type": "array",
+        "step": "s1",
+        "transform": "Adapt each row into the mapped v2 shape; row fields are mapped by their own entries"
+      },
+      "v2": "data",
+      "v2_type": "array"
+    },
+    {
+      "computed_from": [],
+      "disposition": "not_on_route",
+      "pointer": null,
+      "v2": "custom_objects"
+    },
+    {
+      "disposition": "confirmed",
+      "target": {
+        "field": "data[]",
+        "public_type": "object",
+        "step": "s1",
+        "transform": "For each row of `data[]` in the successful JSON response, build the `custom_fields` object. Build the object only when the row contains `customFields`: a missing or null `customFields` leaves `custom_fields` out of the result (the `__c` properties are then not used). Subscription versions follow the subscription rule. Use the `customFields` array when the row has one, otherwise the `custom_fields` array; turn each `{key, value, type}` entry into `key: value` (when a key appears more than once, the last entry wins). Then convert `long` and `number` values to numbers, convert `boolean` values to true or false, and leave other types unchanged; null values stay null. If the row has neither array, collect every property whose name ends in `__c` into the object; an empty array gives `{}` and the `__c` properties are then not used. Include `custom_fields` only when it was requested."
+      },
+      "v2": "custom_fields",
+      "v2_type": "object"
+    }
+  ],
+  "route": "public_oq",
+  "steps": [
+    {
+      "method": "GET",
+      "operation": "querySubscriptions",
+      "path": "/object-query/subscriptions",
+      "step": "s1"
+    },
+    {
+      "linked_by": {
+        "from_field": "data[].originalId",
+        "from_step": "s1",
+        "param": "filter[]"
+      },
+      "method": "GET",
+      "operation": "queryPrepaidBalances",
+      "path": "/object-query/prepaid-balances",
+      "step": "s2"
+    }
+  ],
+  "unsupported": [
+    {
+      "kind": "header_not_supported",
+      "note": "The public APIs do not accept this header. The v2 API accepted the x-custom-auth and zuora-cache-enabled request headers; neither header has a public equivalent. The subscription versions route did not wire a cache handler, so zuora-cache-enabled had no effect on this operation. The public APIs authenticate via a bearer token in the Authorization header and optionally accept zuora-entity-ids to scope the request to an entity and zuora-track-id for request tracing. Send the OAuth bearer token in the Authorization header. Pass zuora-entity-ids to scope the request to a specific entity, or zuora-track-id for request tracing. Do not send zuora-cache-enabled; the public APIs have no such header. No vetted GraphQL example is available.",
+      "v2": "headers"
+    }
+  ]
+}

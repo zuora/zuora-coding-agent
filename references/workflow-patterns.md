@@ -44,7 +44,7 @@ Narrative references:
  - `Case_N` linkages match the renumbered keys.
  - No `For Each` linkage on any path leading to a `Logic::Merge` task.
 6. **Lint** via `Workflow UI`. Fix every error; address warnings when feasible.
-7. **Optional sandbox dry-run**: `import_workflow` with `activate: false` in a sandbox, then `delete_workflow` to clean up. Workflow has no validate-only import flag, so "dry-run" means import-then-delete.
+7. **Optional sandbox dry-run**: `import_workflow` (leave inactive — do not call `update_workflow` to activate), then `delete_workflow` to clean up. Workflow has no validate-only import flag, so "dry-run" means import-then-delete.
 
 ## Artifact delivery contract
 
@@ -251,12 +251,53 @@ When a task fails and its `Failure` hook fires, the `Data.*` scope contains only
 
 Use `mcp__zuora-mcp__manage_workflows`:
 
-- `workflow_guidance` — comprehensive capabilities and tenant-specific options.
+- `workflow_guidance` — comprehensive capabilities and tenant-specific options. Prefer live guidance for parameter names when available; use the activation contract below when guidance is silent or stale.
 - `match_workflows` — AI matching on business requirements.
 - `list_workflows` — full tenant list.
 - `get_workflow_details` — inspect tasks / triggers / parameters.
-- `import_workflow` / `export_workflow` — promotion and backup.
-- `delete_workflow` — cleanup after dry-run.
+- `import_workflow` / `export_workflow` — create a new definition / backup.
+- `import_workflow_version` — add a new version under an existing definition (prefer this when updating an existing WF).
+- `update_workflow` — update name/description/status, or set the active version via `active_workflow_version_id`.
+- `delete_workflow` / `delete_workflow_version` — cleanup after dry-run or version rollback.
+
+## Activate imported version
+
+Import JSON always carries `workflow.status: "Inactive"`. Only MCP activation makes a version runnable. **Never** invent a parameter named `activate_version`.
+
+| Scenario | MCP path | Activate how |
+| --- | --- | --- |
+| New version of an **existing** definition (typical customer promote/update) | `import_workflow_version` | Pass `activate: true`. Capture `newVersionId` from the response. |
+| Brand-new definition | `import_workflow` | MCP does **not** forward an activate flag today. Immediately follow with `update_workflow` + `active_workflow_version_id` when the workflow must be runnable. |
+| Import left inactive / `activate` omitted / still not Active | `update_workflow` | Set `data.active_workflow_version_id` to the version id (`newVersionId`, or import response version `id`). `workflowId` is the **definition** id. |
+| Dry-run / import-only cleanup | `import_workflow` or `import_workflow_version` with `activate: false` | Skip activation; then `delete_workflow`. |
+
+Prefer activate-at-import for version updates:
+
+```json
+{
+  "operation": "import_workflow_version",
+  "parameters": {
+    "workflowId": "<definitionId>",
+    "version": "0.0.2",
+    "versionData": { "workflow_definition": {}, "workflow": {}, "tasks": [], "linkages": [] },
+    "activate": true
+  }
+}
+```
+
+Fallback / required after `import_workflow` when the user needs a runnable workflow:
+
+```json
+{
+  "operation": "update_workflow",
+  "parameters": {
+    "workflowId": "<definitionId>",
+    "data": { "active_workflow_version_id": "<newVersionId>" }
+  }
+}
+```
+
+After every import intended to run: confirm Active via the import response or `get_workflow_details`. If not Active, call `update_workflow` with `active_workflow_version_id` **before** `run_workflow`. Do not ask the user to flip Active in the UI.
 
 ## Best practices
 
@@ -264,5 +305,5 @@ Use `mcp__zuora-mcp__manage_workflows`:
 - Name tasks descriptively (the UI and logs show `task.name`).
 - Parameterize with `workflow.parameters.fields` for runtime inputs rather than hard-coding.
 - Do not introduce `CustomObject::*` unless the user explicitly asks for custom objects or a durable custom-object audit/state store; the linter flags unmarked Custom Object tasks as `W194`.
-- Version with `workflow.version` (default `"0.0.1"`). Sandbox-first: import, activate, run, validate, then promote.
+- Version with `workflow.version` (default `"0.0.1"`). Sandbox-first: import → activate (MCP) → run → validate → promote.
 - Lint on every change; the linter is the front line of defense because `task import` skips form save validation.

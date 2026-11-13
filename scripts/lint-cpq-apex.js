@@ -76,6 +76,9 @@ function indexCatalog(catalog) {
   const quoteInstance = new Set();
   const metricsUtilMethods = new Map();
   const recalcControllerMethods = new Map();
+  const qPlanReaderMethods = new Map();
+  const qPlanWriterMethods = new Map();
+  const commitmentApiMethods = new Map();
   for (const cls of catalog.classes || []) {
     const classKey = cls.namespace ? `${cls.namespace}.${cls.name}` : cls.name;
     for (const method of cls.methods || []) {
@@ -89,10 +92,24 @@ function indexCatalog(catalog) {
         for (const n of names) metricsUtilMethods.set(n, entry);
       } else if (classKey === 'zqu.QuoteRecalculateController') {
         for (const n of names) recalcControllerMethods.set(n, entry);
+      } else if (classKey === 'zqu.QPlanReader') {
+        for (const n of names) qPlanReaderMethods.set(n, entry);
+      } else if (classKey === 'zqu.QPlanWriter') {
+        for (const n of names) qPlanWriterMethods.set(n, entry);
+      } else if (classKey === 'zqu.CommitmentApi') {
+        for (const n of names) commitmentApiMethods.set(n, entry);
       }
     }
   }
-  return { zQuoteUtil, quoteInstance, metricsUtilMethods, recalcControllerMethods };
+  return {
+    zQuoteUtil,
+    quoteInstance,
+    metricsUtilMethods,
+    recalcControllerMethods,
+    qPlanReaderMethods,
+    qPlanWriterMethods,
+    commitmentApiMethods
+  };
 }
 
 function extractCallArgs(text, openParenIndex) {
@@ -191,6 +208,8 @@ function lintStaticClassCalls(text, file, className, knownMethods, rulePrefix, i
   const callRe = new RegExp(`(?:\\bzqu\\s*\\.\\s*)?${escaped}\\s*\\.\\s*([A-Za-z_]\\w*)\\s*\\(`, 'g');
   let m;
   while ((m = callRe.exec(text))) {
+    // `new zqu.Cls.Nested(...)` constructs a nested type; it is not a static method call.
+    if (/\bnew\s+$/.test(text.slice(0, m.index))) continue;
     if (!knownMethods.has(m[1])) {
       issues.push({
         severity: 'error',
@@ -409,13 +428,24 @@ function lintRenewQuoteRequiredFields(text, file, indexed, issues) {
 
 function lintText(text, file, catalog = loadCatalog(), fieldCatalog = loadFieldCatalog()) {
   const issues = [];
-  const { zQuoteUtil, quoteInstance, metricsUtilMethods, recalcControllerMethods } = indexCatalog(catalog);
+  const {
+    zQuoteUtil,
+    quoteInstance,
+    metricsUtilMethods,
+    recalcControllerMethods,
+    qPlanReaderMethods,
+    qPlanWriterMethods,
+    commitmentApiMethods
+  } = indexCatalog(catalog);
   const indexed = indexFieldCatalog(fieldCatalog);
 
   lintZQuoteUtilCalls(text, file, zQuoteUtil, issues);
   lintQuoteInstanceCalls(text, file, quoteInstance, issues);
   lintStaticClassCalls(text, file, 'MetricsUtil', metricsUtilMethods, 'EMET', issues);
   lintStaticClassCalls(text, file, 'QuoteRecalculateController', recalcControllerMethods, 'EREC', issues);
+  lintStaticClassCalls(text, file, 'QPlanReader', qPlanReaderMethods, 'EPRD', issues);
+  lintStaticClassCalls(text, file, 'QPlanWriter', qPlanWriterMethods, 'EPWR', issues);
+  lintStaticClassCalls(text, file, 'CommitmentApi', commitmentApiMethods, 'ECMA', issues);
   lintQuoteCreationLifecycle(text, file, issues);
 
   const objectNames = ['Quote__c', 'QuoteRatePlan__c', 'QuoteRatePlanCharge__c', 'QuoteAmendment__c'];

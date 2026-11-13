@@ -1,5 +1,5 @@
 ---
-description: Design legacy Zuora CPQ Apex, Component Library, Visualforce, or plugin-interface customizations.
+description: Design Zuora CPQ Apex (legacy CPQ or CPQ X), Component Library, Visualforce, or plugin-interface customizations.
 ---
 
 # /zuora-cpq-apex-design

@@ -1,0 +1,208 @@
+{
+  "base_url_hints": {
+    "host": {
+      "status": "verified (as documented)",
+      "value": "rest.zuora.com and region/sandbox variants listed in swagger servers"
+    },
+    "object_query_public_url": {
+      "status": "owner-confirmed",
+      "value": "same base URL as v1 REST and v2 for the customer environment (production, sandbox, region); only the path changes (for example /v2/invoices becomes /object-query/invoices; GraphQL is under /object-query/ as well)"
+    },
+    "path_prefix": {
+      "status": "verified",
+      "value": "/v2"
+    }
+  },
+  "entries": [
+    {
+      "card_id": "accounts.list",
+      "method": "GET",
+      "operationId": "getAccounts",
+      "path": "/accounts",
+      "sdk_methods": {
+        "java": {
+          "accessor": "accounts",
+          "method": "zuoraClient.accounts().getAccounts(...)",
+          "methods": [
+            "getAccounts",
+            "getAccountsWithHttpInfo"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/accounts(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, or a quoted-concatenation `\"+id+\"`; trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "accounts.get",
+      "method": "GET",
+      "operationId": "getAccount",
+      "path": "/accounts/{account_id}",
+      "sdk_methods": {
+        "java": {
+          "accessor": "accounts",
+          "method": "zuoraClient.accounts().getAccount(...)",
+          "methods": [
+            "getAccount",
+            "getAccountWithHttpInfo",
+            "get"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/accounts/(?:\\$\\{[^}]*\\}|#\\{[^}]*\\}|\\{[^}]*\\}|%s|[^/\\s\\\"'`?#{}$]+|[\"'`]\\s*\\+\\s*[^+]+?\\s*\\+\\s*[\"'`]|[\"'`]\\s*\\.\\s*[^.;]+?\\s*\\.\\s*[\"'`]|[\"'`]\\s*[+.]\\s*[A-Za-z_$][^\\s\"'`,;()+]*(?:\\([^)\\n]*\\))?(?!\\s*[+.]\\s*[\"'`]\\s*/)(?![\\w$(.]))(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, a Ruby `#{...}`, or a concatenated expression in the common styles (`\"+id+\"`, `\"+id`, PHP `' . $id`); trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "billing_documents.list",
+      "method": "GET",
+      "operationId": "getBillingDocuments",
+      "path": "/billing_documents",
+      "sdk_methods": {
+        "java": {
+          "accessor": "billingDocuments",
+          "method": "zuoraClient.billingDocuments().getBillingDocuments(...)",
+          "methods": [
+            "getBillingDocuments",
+            "getBillingDocumentsWithHttpInfo"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/billing_documents(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, or a quoted-concatenation `\"+id+\"`; trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "invoices.list",
+      "method": "GET",
+      "operationId": "getInvoices",
+      "path": "/invoices",
+      "sdk_methods": {
+        "java": {
+          "accessor": "invoices",
+          "method": "zuoraClient.invoices().getInvoices(...)",
+          "methods": [
+            "getInvoices",
+            "getInvoicesWithHttpInfo"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/invoices(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, or a quoted-concatenation `\"+id+\"`; trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "invoices.get",
+      "method": "GET",
+      "operationId": "getInvoice",
+      "path": "/invoices/{invoice_id}",
+      "sdk_methods": {
+        "java": {
+          "accessor": "invoices",
+          "method": "zuoraClient.invoices().getInvoice(...)",
+          "methods": [
+            "getInvoice",
+            "getInvoiceWithHttpInfo",
+            "get"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/invoices/(?:\\$\\{[^}]*\\}|#\\{[^}]*\\}|\\{[^}]*\\}|%s|[^/\\s\\\"'`?#{}$]+|[\"'`]\\s*\\+\\s*[^+]+?\\s*\\+\\s*[\"'`]|[\"'`]\\s*\\.\\s*[^.;]+?\\s*\\.\\s*[\"'`]|[\"'`]\\s*[+.]\\s*[A-Za-z_$][^\\s\"'`,;()+]*(?:\\([^)\\n]*\\))?(?!\\s*[+.]\\s*[\"'`]\\s*/)(?![\\w$(.]))(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, a Ruby `#{...}`, or a concatenated expression in the common styles (`\"+id+\"`, `\"+id`, PHP `' . $id`); trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "invoice_items.list",
+      "method": "GET",
+      "operationId": "getInvoiceItems",
+      "path": "/invoice_items",
+      "sdk_methods": {
+        "java": {
+          "accessor": "invoiceItems",
+          "method": "zuoraClient.invoiceItems().getInvoiceItems(...)",
+          "methods": [
+            "getInvoiceItems",
+            "getInvoiceItemsWithHttpInfo"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/invoice_items(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, or a quoted-concatenation `\"+id+\"`; trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "subscriptions.list",
+      "method": "GET",
+      "operationId": "getSubscriptions",
+      "path": "/subscriptions",
+      "sdk_methods": {
+        "java": {
+          "accessor": "subscriptions",
+          "method": "zuoraClient.subscriptions().getSubscriptions(...)",
+          "methods": [
+            "getSubscriptions",
+            "getSubscriptionsWithHttpInfo"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/subscriptions(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, or a quoted-concatenation `\"+id+\"`; trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "subscriptions.get",
+      "method": "GET",
+      "operationId": "getSubscriptionByKey",
+      "path": "/subscriptions/{subscription_id}",
+      "sdk_methods": {
+        "java": {
+          "accessor": "subscriptions",
+          "method": "zuoraClient.subscriptions().getSubscriptionByKey(...)",
+          "methods": [
+            "getSubscriptionByKey",
+            "getSubscriptionByKeyWithHttpInfo",
+            "get"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/subscriptions/(?:\\$\\{[^}]*\\}|#\\{[^}]*\\}|\\{[^}]*\\}|%s|[^/\\s\\\"'`?#{}$]+|[\"'`]\\s*\\+\\s*[^+]+?\\s*\\+\\s*[\"'`]|[\"'`]\\s*\\.\\s*[^.;]+?\\s*\\.\\s*[\"'`]|[\"'`]\\s*[+.]\\s*[A-Za-z_$][^\\s\"'`,;()+]*(?:\\([^)\\n]*\\))?(?!\\s*[+.]\\s*[\"'`]\\s*/)(?![\\w$(.]))(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, a Ruby `#{...}`, or a concatenated expression in the common styles (`\"+id+\"`, `\"+id`, PHP `' . $id`); trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    },
+    {
+      "card_id": "subscriptions.versions",
+      "method": "GET",
+      "operationId": "getSubscriptionByVersion",
+      "path": "/subscriptions/{subscription_id}/versions",
+      "sdk_methods": {
+        "java": {
+          "accessor": "subscriptions",
+          "method": "zuoraClient.subscriptions().getSubscriptionByVersion(...)",
+          "methods": [
+            "getSubscriptionByVersion",
+            "getSubscriptionByVersionWithHttpInfo"
+          ]
+        }
+      },
+      "url_regex": "(?:/v2)?/subscriptions/(?:\\$\\{[^}]*\\}|#\\{[^}]*\\}|\\{[^}]*\\}|%s|[^/\\s\\\"'`?#{}$]+|[\"'`]\\s*\\+\\s*[^+]+?\\s*\\+\\s*[\"'`]|[\"'`]\\s*\\.\\s*[^.;]+?\\s*\\.\\s*[\"'`]|[\"'`]\\s*[+.]\\s*[A-Za-z_$][^\\s\"'`,;()+]*(?:\\([^)\\n]*\\))?(?!\\s*[+.]\\s*[\"'`]\\s*/)(?![\\w$(.]))/versions(?![A-Za-z0-9_\\-/])",
+      "url_regex_flags": "i",
+      "url_regex_notes": "Matches an optional /v2 prefix, then the path; templated segments match a literal id, ${...}, {...}, %s, a Ruby `#{...}`, or a concatenated expression in the common styles (`\"+id+\"`, `\"+id`, PHP `' . $id`); trailing path segments or a / after the match are not matched, so /subscriptions does not match /subscriptions/{id} and /subscriptions/{id} does not match .../versions. A trailing slash and the query string are not part of the match. Does not match URLs built from a base-URL variable alone."
+    }
+  ],
+  "sdk_detection": {
+    "derive_from_operation_id": false,
+    "languages": [
+      "java"
+    ]
+  },
+  "wrapper_idioms": [
+    {
+      "idiom": "new ZuoraClient(CLIENT_ID, CLIENT_SECRET, ENDPOINT)",
+      "language": "java"
+    },
+    {
+      "idiom": "new ZuoraClient({clientId, clientSecret, env: BASE_URL}) then await zuoraClient.initialize()",
+      "language": "javascript"
+    }
+  ]
+}

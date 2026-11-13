@@ -5,6 +5,7 @@ argument-hint: <file path or inline code>
 allowed-tools: [Read, Glob, Grep, Bash]
 ---
 
+**Applies to: both editions.** Apply the legacy rules to Visualforce and the Component Library, the CPQ X rules to Quote Studio LWC, and the Apex rules to Apex in either edition. Editions and terms: `${CLAUDE_PLUGIN_ROOT}/references/cpq-editions.md`.
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed Zuora Coding Agent plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
 

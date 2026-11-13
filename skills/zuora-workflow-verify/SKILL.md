@@ -2,7 +2,7 @@
 name: zuora-workflow-verify
 description: Import a lint-clean workflow to sandbox, test-run it via MCP, poll task status, and fix plan/build issues in a bounded loop
 argument-hint: <workflow.json path or name, optional plan path, optional test inputs>
-allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, mcp__zuora-mcp__manage_workflows, mcp__zuora-mcp__manage_workflow_runs, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects]
+allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, Agent, AskUserQuestion, mcp__zuora-mcp__manage_workflows, mcp__zuora-mcp__manage_workflow_runs, mcp__zuora-mcp__manage_event_triggers, mcp__zuora-mcp__manage_callout_templates, mcp__zuora-mcp__manage_notification_definitions, mcp__zuora-mcp__ask_zuora, mcp__zuora-mcp__query_objects]
 ---
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
@@ -21,7 +21,7 @@ Stop and explain what is missing if any gate fails:
 2. **Lint-clean artifact** — run `node ${CLAUDE_PLUGIN_ROOT}/scripts/lint-workflow-json.js <workflow.json>` and require exit code 0 before importing. If lint fails, hand off to `zuora-workflow-build` (fix plan → rebuild → relint) first.
 3. **Plan artifact** — a `.plan.json` sibling or explicit path is required for the fix loop. Fixes must never patch `.workflow.json` by hand.
 4. **Tenant target** — default assumption: sandbox/non-production. Do not verify against production unless the user explicitly names production and acknowledges impact.
-5. **User confirmation (hard gate)** — see **Step 2e** below. Never call `import_workflow` or `run_workflow` without explicit approval.
+5. **User confirmation (hard gate)** — see **Step 2e** below. Never call `import_workflow` / `import_workflow_version` or `run_workflow` without explicit approval.
 6. **Runnable trigger** — classify before run (see **Event-triggered workflows** below):
  - **On-demand** (`ondemand_trigger`) — run with `parameters.fields[]` / plan `input_fields`.
  - **Event + BATCH** (`event_trigger` + `ondemand_trigger` + `call_type: BATCH`) — runnable on-demand **only after event context is seeded** (mirror fields + `query_objects`, or user-supplied ids). Do not run until `Data.<EventObject>.<key>` values are resolved.
@@ -43,7 +43,8 @@ Use `AskUserQuestion` (or an equivalent explicit yes/no) — do not infer consen
 
 | MCP operation | When | Required? |
 | --- | --- | --- |
-| `import_workflow` | Before every import (including re-import after fix) | **Yes** |
+| `import_workflow` / `import_workflow_version` | Before every import (including re-import after fix) | **Yes** |
+| `update_workflow` (`active_workflow_version_id`) | Activating the version just imported so it can run | Covered by import confirmation — do not ask again |
 | `run_workflow` | Before every test run (including each retry attempt) | **Yes** |
 | `get_run_status` | Polling an already-started run | No |
 | `delete_workflow` | Cleanup of `agent-verify-*` imports | No — unless user opted to keep workflows |
@@ -77,7 +78,9 @@ mcp__zuora-mcp__manage_workflows { "operation": "workflow_guidance" }
 mcp__zuora-mcp__manage_workflow_runs { "operation": "run_guidance" }
 ```
 
-Use the live guidance responses as the authoritative map for `import_workflow`, `delete_workflow`, `run_workflow`, `get_run_status`, and related operations. Do not rely on stale parameter names.
+Use the live guidance responses as the authoritative map for `import_workflow`, `import_workflow_version`, `update_workflow`, `delete_workflow`, `run_workflow`, `get_run_status`, and related operations. Do not rely on stale parameter names (never invent `activate_version`).
+
+Activation contract (canonical detail in `${CLAUDE_PLUGIN_ROOT}/references/workflow-patterns.md` → **Activate imported version**): prefer `import_workflow_version` + `activate: true` for existing definitions; after `import_workflow` (or if still inactive), call `update_workflow` with `data.active_workflow_version_id` before any run.
 
 ## Defaults
 
@@ -85,7 +88,7 @@ Use the live guidance responses as the authoritative map for `import_workflow`, 
 | --- | --- |
 | `max_fix_retries` | `3` |
 | Import name prefix | `agent-verify-` |
-| `activate_version` on import | `true` (workflow must be active to run) |
+| Activate after import | **Yes** when a test run (or keep-as-runnable) is planned — via `activate: true` on version import and/or `update_workflow` + `active_workflow_version_id`. Skip only for import-only dry-run that will be deleted. |
 | Poll interval | `15` seconds |
 | Poll timeout | `20` minutes (extend for bill-run / export / async callout workflows after telling the user) |
 | Cleanup after pass | Ask user; default **keep** on success, **delete** on verify-only dry-run when user asked not to keep |
@@ -132,6 +135,14 @@ Read `workflow.event_trigger`, `workflow.ondemand_trigger`, `workflow.callout_tr
 | `callout_trigger` | `callout` | Yes — test POST body |
 
 BATCH event workflows get `ondemand_trigger: true` from the assembler by design — that does **not** mean event data is present on a manual run.
+
+### Step 2a0: Custom event name preflight
+
+When `parameters.event_triggers[]` contains a name **not** in `workflow-enums.json` → `standard_events.events` (after `$canonical_name_corrections`):
+
+1. Call `manage_event_triggers` `list_event_triggers` / `get_event_trigger` to confirm registration.
+2. If missing: propose create via MCP (or `/zuora-event-notification-build`) and **STOP_AND_CONFIRM** before any write — do not treat `W121` as sufficient.
+3. Prefer MCP over Settings UI / curl. Use `callout_trigger` only if the user explicitly wants inbound HTTP to the workflow URL.
 
 ### Step 2a: Extract required event context
 
@@ -261,15 +272,47 @@ On fix-loop retries (`attempt > 1`), present an updated verify plan (what change
 
 **Gate:** `user_confirmed_import` must be `true`. If not, return to Step 2e.
 
-Call `mcp__zuora-mcp__manage_workflows` → `import_workflow`:
+Call `mcp__zuora-mcp__manage_workflows`:
 
-- Pass the full linted JSON (all four envelope keys).
-- `name`: `agent-verify-<basename>-<YYYYMMDD-HHMMSS>` (or user override).
-- `activate_version`: `true` unless guidance says otherwise.
+**A. New definition (default verify path)** → `import_workflow`:
+
+- Pass the full linted JSON (all four envelope keys) as `workflowData`.
+- Prefer an import `name` of `agent-verify-<basename>-<YYYYMMDD-HHMMSS>` (or user override) when the tool/guidance accepts a name override.
+- MCP `import_workflow` does **not** forward an activate flag today — proceed to **Step 3b** to activate.
+
+**B. New version of an existing definition** (user named a target definition / promote onto existing WF) → `import_workflow_version`:
+
+- `workflowId`: existing definition id (numeric).
+- `version`: next version string greater than any existing version (e.g. `"0.0.2"`).
+- `versionData`: full linted JSON envelope.
+- `activate`: `true` unless this is import-only dry-run cleanup.
+- Capture `newVersionId` from the response.
 
 On import failure → **Step 6 (fix)** with `failure_phase: import`.
 
-On success, record `workflow_id` / definition id from the response in `.verify.json`.
+On success, record `workflow_id` / definition id (and `newVersionId` when present) in `.verify.json`.
+
+### Step 3b: Activate (required before run)
+
+Skip only when the user chose **Import only** *and* will delete the import, or explicitly asked to leave the version inactive.
+
+Otherwise ensure the imported version is Active **before** Step 4:
+
+1. Prefer activate-at-import: for path **B**, `activate: true` should already have flipped it.
+2. Confirm via import response fields and/or `get_workflow_details`.
+3. If not Active (always expect this after path **A** today): call `update_workflow`:
+
+```json
+{
+  "operation": "update_workflow",
+  "parameters": {
+    "workflowId": "<definitionId>",
+    "data": { "active_workflow_version_id": "<newVersionId or import version id>" }
+  }
+}
+```
+
+4. Re-check Active. Do **not** tell the user to activate in the UI. If activation fails → **Step 6** with `failure_phase: run_start` (inactive).
 
 ### Step 4: Run
 
@@ -306,7 +349,7 @@ Otherwise classify the failure and fix the **plan**:
 | `import` | Unknown field in Export/Query/Create/Update | Re-describe object; fix `parameters.fields` / `where_clause` in plan |
 | `import` | Invalid event parameter / linkage | Plan `trigger.event_parameters` or linkage `linkage_type` |
 | `run_start` | Missing required workflow input | Add default in plan `input_fields` or supply `test_inputs` |
-| `run_start` | Workflow inactive / not found | Re-import with `activate_version: true` |
+| `run_start` | Workflow inactive / not found | Call `update_workflow` with `data.active_workflow_version_id` for the imported version (do not ask the user to flip Active in the UI). If the version is missing, re-import via Step 3 then Step 3b. |
 | `runtime` | ZOQL/SOQL field error | Fix plan query/export fields after describe |
 | `runtime` | Liquid error / nil `Data.*` | Fix plan Liquid paths; check Export vs Query vs Iterate |
 | `runtime` | Callout 4xx/5xx | Fix plan URL, auth (`authorization.type = "zuora"`), `raw_body`, `ResponseBody` paths |
@@ -361,4 +404,4 @@ On failure after retries, set `status` to `failed` and report:
 
 ## When invoked from `zuora-workflow-build`
 
-If build just finished with lint exit 0 and the user asked to verify (or said "test in sandbox"), continue into this skill using the artifacts from that build session. Do not re-ask for paths already known — but **still run Step 2e** and obtain explicit confirmation before any `import_workflow` or `run_workflow` call.
+If build just finished with lint exit 0 and the user asked to verify (or said "test in sandbox"), continue into this skill using the artifacts from that build session. Do not re-ask for paths already known — but **still run Step 2e** and obtain explicit confirmation before any `import_workflow` / `import_workflow_version` or `run_workflow` call.

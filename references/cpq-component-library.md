@@ -1,6 +1,6 @@
 # CPQ Component Library Reference
 
-Use this reference for legacy CPQ customizations using Component Library, global Apex classes, Visualforce pages/components, and plugin-interface patterns.
+Use this reference for the Component Library and Visualforce pages/components (legacy CPQ), and for global Apex classes and plugin-interface patterns (legacy CPQ and CPQ X).
 
 ## Guidance
 

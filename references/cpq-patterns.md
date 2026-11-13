@@ -40,13 +40,15 @@
 - Do not probe both namespaced and non-namespaced forms of the same field. Managed package fields use the `zqu__` namespace, for example `zqu__TriggerEvent__c`; custom fields outside the package do not use `zqu__`, for example `TriggerEvent__c`.
 - Keep hook and event handler methods thin; extract business logic into a colocated `<componentName>Helper.js` module with plain exported functions, imported via relative path. Skip the helper file for trivial single-line hook bodies.
 
-## Legacy Apex and Component Library
+## Apex, Visualforce and Component Library
+
+The Apex rules apply in legacy CPQ and in CPQ X. The Visualforce and Component Library rules apply to legacy CPQ.
 
 - Prefer global CPQ APIs over internal managed package classes.
 - Keep namespace handling explicit: `zqu__Quote__c`, `zqu__QuoteRatePlan__c`, `zqu__QuoteRatePlanCharge__c`, and `zqu__QuoteAmendment__c`.
 - Managed package fields and objects use the `zqu__` namespace. Custom fields and objects that are not part of the managed package must not use the `zqu__` namespace.
 - Bulkify SOQL and DML.
-- Keep Visualforce controllers thin and push reusable logic into Apex services.
+- Visualforce (legacy CPQ): keep controllers thin and push reusable logic into Apex services.
 
 ## Migration
 
@@ -312,32 +314,24 @@ try {
 
 ## Zuora CPQ API Hierarchy
 
-Use APIs in this order of preference:
+Use APIs in this order of preference. The global Apex classes below work in both legacy CPQ and CPQ X (CPQ X is built on Salesforce).
 
-1. **CPQ-X APIs** (zqu.CPQX namespace) - for enterprise implementations
-2. **Standard CPQ APIs** (zqu.QuoteUtil, zqu.MetricsUtil) - for standard implementations
-3. **Direct database operations** - only when APIs are not available
-4. **NEVER directly manipulate zqu__QuoteCharge__c** (deprecated)
+1. **Global Apex classes** (`zqu.zQuoteUtil`, `zqu.MetricsUtil`, `zqu.QPlanReader`, `zqu.QPlanWriter`, ...) - the supported API
+2. **Direct database operations** - only when APIs are not available
+3. **NEVER directly manipulate zqu__QuoteCharge__c** (deprecated)
 
 ### Key Zuora CPQ Global Classes
 
-#### Standard CPQ Classes
 - `zqu.Quote` - Main quote management class
-- `zqu.QuoteUtil` - Quote utility functions
+- `zqu.zQuoteUtil` - Quote utility functions (preview, renew, Zuora configuration)
 - `zqu.MetricsUtil` - Financial metrics and calculations
 - `zqu.ProductTimeline` - Product timeline management
+- `zqu.QPlanReader` - Load a quote's plans (`QPlanReader.load(quoteId)` or `load(Set<Id>)`)
+- `zqu.QPlanWriter` - Save plans back (`QPlanWriter.save(plan)` or `save(List<QPlan>)`)
 - `zqu.QPlan` - Quote plan management
 - `zqu.QCharge` - Quote charge management
 - `zqu.QTier` - Quote tier management
-
-#### CPQ-X Classes
-- `zqu.CPQX` - Main CPQ-X API entry point
-- `zqu.CPQX.Quote` - CPQ-X Quote Management
-- `zqu.CPQX.Product` - Product Management
-- `zqu.CPQX.Subscription` - Subscription Operations
-- `zqu.CPQX.Amendment` - Amendment Processing
-- `zqu.CPQX.Billing` - Billing Integration
-- `zqu.CPQX.Metrics` - Advanced Metrics
+- `zqu.CommitmentApi` - Create, update, delete and read commitments on a quote
 
 ## Subscription and Account ID Usage
 
@@ -542,7 +536,7 @@ Map<String, Object> summaryResult =
 
 ## Ramp Deal Processing Rules
 
-For Zuora CPQ-X ramp deal quotes with multiple pricing intervals:
+For Zuora CPQ X ramp deal quotes with multiple pricing intervals:
 
 ### Ramp Deal Detection
 - Check `quote.zqu__Ramp__c = true` to identify ramp deals

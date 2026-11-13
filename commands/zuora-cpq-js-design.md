@@ -1,5 +1,5 @@
 ---
-description: Design Zuora CPQ Quote Studio JavaScript extensibility using supported hooks and events.
+description: Design Zuora Quote Studio (CPQ X) JavaScript extensibility using supported hooks and events.
 ---
 
 # /zuora-cpq-js-design

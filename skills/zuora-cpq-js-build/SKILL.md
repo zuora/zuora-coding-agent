@@ -1,10 +1,11 @@
 ---
 name: zuora-cpq-js-build
-description: Generate Zuora CPQ Quote Studio or CPQ X LWC headless or sidebar components, hooks, supported events, quoteState access, ZQFClient usage for package >= 10.58, and registration notes directly into a Salesforce DX repo
+description: Generate Zuora Quote Studio or CPQ X LWC headless or sidebar components, hooks, supported events, quoteState access, ZQFClient usage for package >= 10.58, and registration notes directly into a Salesforce DX repo
 argument-hint: <component design or requirement>
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash]
 ---
 
+**Applies to: CPQ X (Quote Studio UI) only.** Work out the edition with the Edition check in the editions reference (ask the user if it is unclear). If the org is on legacy CPQ, say so and stop; do not generate Quote Studio hooks for it. Editions and terms: `${CLAUDE_PLUGIN_ROOT}/references/cpq-editions.md`.
 
 Codex-only path resolution: When an instruction refers to `${CLAUDE_PLUGIN_ROOT}`, treat it as the root of this installed Zuora Coding Agent plugin. In Codex, resolve that root as the ancestor directory containing `skills/`, `references/`, and `.codex-plugin/`.
 

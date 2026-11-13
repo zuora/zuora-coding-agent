@@ -1,5 +1,5 @@
 ---
-description: Generate Zuora CPQ Apex and Visualforce artifacts in a Salesforce DX repo.
+description: Generate Zuora CPQ Apex (legacy CPQ or CPQ X) and Visualforce artifacts in a Salesforce DX repo.
 ---
 
 # /zuora-cpq-apex-build
