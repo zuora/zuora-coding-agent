@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.7.0] - 2026-11-13
+
+### Added
+- Zuora v2 to public API migration: new `zuora-v2-migration-design` and `zuora-v2-migration-verify` skills, with a mapping pack and parity check
+- Zuora Quotes (CPQX) skill and commands for quoting via `manage_cpqx_quotes`
+- Event-notification design and build skills: create event triggers, callout templates, and notification definitions via MCP (confirm before writes)
+- Workflow activation: imported workflow versions can be activated via MCP
+
+### Improved
+- CPQ Quotes guidance documents `PREVIEW_STALE` and `OWNERSHIP_CHECK_UNAVAILABLE` responses
+
 ## [1.6.3] - 2026-09-28
 
 ### Improved
